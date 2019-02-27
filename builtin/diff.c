@@ -276,7 +276,7 @@ int cmd_diff(int argc, const char **argv, const char *prefix)
 	 *	compare a blob with a working tree file.
 	 *
 	 * N=1, M=0:
-	 *      tree vs cache (diff-index --cached)
+	 *      tree vs files (diff-index)
 	 *
 	 * N=2, M=0:
 	 *      tree vs tree (diff-tree)
