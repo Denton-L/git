@@ -63,7 +63,11 @@ two blob objects, or changes between two files on disk.
 
 'git diff' [<options>] <commit>..<commit> [--] [<path>...]::
 
-	This is synonymous to the previous form.  If <commit> on
+	This is synonymous to the previous form.  However,
+	users should prefer the previous form over this form
+	as this form may be more confusing due to the same
+	notation having a logically conflicting meaning in
+	linkgit:git-rev-list[1]-ish commands.  If <commit> on
 	one side is omitted, it will have the same effect as
 	using HEAD instead.
 
