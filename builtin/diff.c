@@ -254,6 +254,12 @@ static int builtin_diff_files(struct rev_info *revs, int argc, const char **argv
 	return run_diff_files(revs, options);
 }
 
+static const char double_dot_warning[] =
+	N_("warning: You ran 'git diff A..B', which means the same thing as 'git diff A B'.\n"
+	   "\tMany users confuse 'git diff A..B' and 'git diff A...B'. Please see\n"
+	   "\t'git diff --help' for more details.\n\n");
+
+
 int cmd_diff(int argc, const char **argv, const char *prefix)
 {
 	int i;
@@ -397,6 +403,11 @@ int cmd_diff(int argc, const char **argv, const char *prefix)
 			}
 		}
 	}
+
+	if (rev.cmdline.nr == 2 &&
+		rev.cmdline.rev[0].whence == REV_CMD_LEFT &&
+		rev.cmdline.rev[1].whence == REV_CMD_RIGHT)
+		fprintf(rev.diffopt.file, _(double_dot_warning));
 
 	for (i = 0; i < rev.pending.nr; i++) {
 		struct object_array_entry *entry = &rev.pending.objects[i];
