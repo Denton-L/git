@@ -145,6 +145,7 @@ struct diff_options {
 	int use_color;
 	int context;
 	int interhunkcontext;
+	int warn_double_dot;
 	int break_opt;
 	int detect_rename;
 	int irreversible_delete;

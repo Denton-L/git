@@ -404,7 +404,7 @@ int cmd_diff(int argc, const char **argv, const char *prefix)
 		}
 	}
 
-	if (rev.cmdline.nr == 2 &&
+	if (rev.diffopt.warn_double_dot && rev.cmdline.nr == 2 &&
 		rev.cmdline.rev[0].whence == REV_CMD_LEFT &&
 		rev.cmdline.rev[1].whence == REV_CMD_RIGHT)
 		fprintf(rev.diffopt.file, _(double_dot_warning));

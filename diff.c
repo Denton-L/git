@@ -41,6 +41,7 @@ static int diff_color_moved_default;
 static int diff_color_moved_ws_default;
 static int diff_context_default = 3;
 static int diff_interhunk_context_default;
+static int diff_warn_double_dot = 1;
 static const char *diff_word_regex_cfg;
 static const char *external_diff_cmd_cfg;
 static const char *diff_order_file_cfg;
@@ -367,6 +368,10 @@ int git_diff_ui_config(const char *var, const char *value, void *cb)
 		diff_interhunk_context_default = git_config_int(var, value);
 		if (diff_interhunk_context_default < 0)
 			return -1;
+		return 0;
+	}
+	if (!strcmp(var, "diff.warndoubledot")) {
+		diff_warn_double_dot = git_config_bool(var, value);
 		return 0;
 	}
 	if (!strcmp(var, "diff.renames")) {
@@ -4507,6 +4512,7 @@ void repo_diff_setup(struct repository *r, struct diff_options *options)
 	options->dirstat_permille = diff_dirstat_permille_default;
 	options->context = diff_context_default;
 	options->interhunkcontext = diff_interhunk_context_default;
+	options->warn_double_dot = diff_warn_double_dot;
 	options->ws_error_highlight = ws_error_highlight_default;
 	options->flags.rename_empty = 1;
 	options->objfind = NULL;
