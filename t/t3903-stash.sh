@@ -8,6 +8,7 @@ test_description='Test git stash'
 . ./test-lib.sh
 
 test_expect_success 'stash some dirty working directory' '
+	git config diff.warnDoubleDot false &&
 	echo 1 >file &&
 	git add file &&
 	echo unrelated >other-file &&
