@@ -1,0 +1,19 @@
+[remote "origin"]
+	url = git@github.com:Denton-L/git.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[remote "upstream"]
+	url = https://github.com/gitster/git.git
+	fetch = +refs/heads/*:refs/remotes/upstream/*
+[branch "master"]
+	pushRemote = origin
+	remote = upstream
+	merge = refs/heads/master
+[branch "jch"]
+	remote = upstream
+	merge = refs/heads/jch
+	rebase = true
+[format]
+	thread = true
+	coverLetter = auto
+	to = Git Mailing List <git@vger.kernel.org>
+	signOff = true
