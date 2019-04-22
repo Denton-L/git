@@ -1,0 +1,220 @@
+From b2787f98146c20764ca528b181202f843d22f08b Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1555352526.git.liu.denton@gmail.com>
+In-Reply-To: <3e3b9d6c8e54b326809b95adabd3be39d2d0770f.1555111963.git.liu.denton@gmail.com>
+References: <3e3b9d6c8e54b326809b95adabd3be39d2d0770f.1555111963.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 15 Apr 2019 11:22:06 -0700
+Subject: [PATCH v2 0/3] remove extern from function declarations
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>,
+    Jeff King <peff@peff.net>,
+    Emily Shaffer <emilyshaffer@google.com>
+
+Hi all, thanks for the feedback.
+
+I didn't realise that Coccinelle could be used to remove modifiers but
+turns out I was wrong. However, Coccinelle seems to choke whenever
+there's an __attribute__ or when there are varargs and I couldn't figure
+out how to work around that. As a result, this patchset is written in
+two parts: one using spatch and another using sed to get the rest.
+
+Hopefully the sed patch is more easily digestable now.
+
+Change since v1:
+
+* Use spatch with sed instead of sed alone
+* Fix sed expression to ignore function variables
+
+Denton Liu (3):
+  *.[ch]: remove extern from function declarations using spatch
+  *.[ch]: remove extern from function declarations using sed
+  cocci: prevent extern function declarations
+
+ advice.h                          |   2 +-
+ archive.h                         |  14 +-
+ bisect.h                          |  12 +-
+ blame.h                           |   2 +-
+ branch.h                          |  12 +-
+ builtin.h                         | 252 +++++++++++-----------
+ bulk-checkin.h                    |   6 +-
+ cache.h                           | 344 +++++++++++++++---------------
+ checkout.h                        |   2 +-
+ column.h                          |  12 +-
+ commit.h                          |  72 +++----
+ compat/mingw.c                    |   2 +-
+ compat/mingw.h                    |   6 +-
+ compat/nedmalloc/malloc.c.h       |   6 +-
+ compat/obstack.h                  |   8 +-
+ compat/poll/poll.h                |   2 +-
+ compat/regex/regex.h              |  28 +--
+ compat/win32/pthread.h            |   6 +-
+ config.h                          | 184 ++++++++--------
+ connect.h                         |  20 +-
+ contrib/coccinelle/noextern.cocci |   6 +
+ csum-file.h                       |  20 +-
+ decorate.h                        |   4 +-
+ delta.h                           |  10 +-
+ dir.h                             |  70 +++---
+ exec-cmd.h                        |  16 +-
+ fmt-merge-msg.h                   |   2 +-
+ fsmonitor.h                       |  14 +-
+ gettext.h                         |   8 +-
+ git-compat-util.h                 | 128 +++++------
+ grep.h                            |  22 +-
+ hashmap.h                         |  30 +--
+ help.h                            |  30 +--
+ http.h                            |  52 ++---
+ khash.h                           |  14 +-
+ kwset.h                           |  10 +-
+ line-log.h                        |  16 +-
+ lockfile.h                        |  10 +-
+ ls-refs.h                         |   2 +-
+ mailinfo.h                        |   6 +-
+ merge-blobs.h                     |   2 +-
+ object-store.h                    |  16 +-
+ object.h                          |  12 +-
+ oidmap.h                          |  10 +-
+ pack.h                            |  24 +--
+ packfile.h                        |  74 +++----
+ path.h                            |  32 +--
+ pkt-line.h                        |   6 +-
+ ppc/sha1.c                        |   2 +-
+ prio-queue.h                      |  10 +-
+ protocol.h                        |   6 +-
+ quote.h                           |  32 +--
+ reachable.h                       |   4 +-
+ reflog-walk.h                     |  16 +-
+ refs.h                            |   2 +-
+ remote.h                          |  12 +-
+ replace-object.h                  |   2 +-
+ resolve-undo.h                    |  14 +-
+ run-command.h                     |   8 +-
+ serve.h                           |   4 +-
+ sha1-lookup.h                     |   2 +-
+ streaming.h                       |   8 +-
+ string-list.h                     |   2 +-
+ sub-process.h                     |   2 +-
+ submodule-config.h                |  20 +-
+ tag.h                             |  14 +-
+ tempfile.h                        |  26 +--
+ trace.h                           |  34 +--
+ transport.h                       |   4 +-
+ tree-walk.h                       |   4 +-
+ upload-pack.h                     |   4 +-
+ url.h                             |  16 +-
+ urlmatch.h                        |   4 +-
+ utf8.h                            |   2 +-
+ varint.h                          |   4 +-
+ vcs-svn/sliding_window.h          |   2 +-
+ vcs-svn/svndiff.h                 |   2 +-
+ worktree.h                        |  22 +-
+ xdiff-interface.h                 |  10 +-
+ 79 files changed, 969 insertions(+), 963 deletions(-)
+ create mode 100644 contrib/coccinelle/noextern.cocci
+
+Interdiff against v1:
+diff --git a/compat/mingw.c b/compat/mingw.c
+index 6b04514cdc..8e1ab3129e 100644
+--- a/compat/mingw.c
++++ b/compat/mingw.c
+@@ -2483,7 +2483,7 @@ typedef struct {
+ 	int newmode;
+ } _startupinfo;
+ 
+-extern int __wgetmainargs(int *argc, wchar_t ***argv, wchar_t ***env, int glob,
++int __wgetmainargs(int *argc, wchar_t ***argv, wchar_t ***env, int glob,
+ 		_startupinfo *si);
+ 
+ static NORETURN void die_startup(void)
+diff --git a/compat/obstack.h b/compat/obstack.h
+index 1ff8f3fc1e..168d1d8b38 100644
+--- a/compat/obstack.h
++++ b/compat/obstack.h
+@@ -197,7 +197,7 @@ void obstack_free (struct obstack *, void *);
+    more memory.  This can be set to a user defined function which
+    should either abort gracefully or use longjump - but shouldn't
+    return.  The default action is to print a message and abort.  */
+-void (*obstack_alloc_failed_handler) (void);
++extern void (*obstack_alloc_failed_handler) (void);
+ 
+ /* Pointer to beginning of object being allocated or to be allocated next.
+    Note that this might not be the final address of the object
+diff --git a/contrib/coccinelle/noextern.cocci b/contrib/coccinelle/noextern.cocci
+new file mode 100644
+index 0000000000..8cb39ac947
+--- /dev/null
++++ b/contrib/coccinelle/noextern.cocci
+@@ -0,0 +1,6 @@
++@@
++type T;
++identifier f;
++@@
++- extern
++  T f(...);
+diff --git a/delta.h b/delta.h
+index 592bd9c27e..0fc3659633 100644
+--- a/delta.h
++++ b/delta.h
+@@ -13,7 +13,7 @@ struct delta_index;
+  * before free_delta_index() is called.  The returned pointer must be freed
+  * using free_delta_index().
+  */
+-extern struct delta_index *
++struct delta_index *
+ create_delta_index(const void *buf, unsigned long bufsize);
+ 
+ /*
+@@ -40,7 +40,7 @@ unsigned long sizeof_delta_index(struct delta_index *index);
+  * returned and *delta_size is updated with its size.  The returned buffer
+  * must be freed by the caller.
+  */
+-extern void *
++void *
+ create_delta(const struct delta_index *index,
+ 	     const void *buf, unsigned long bufsize,
+ 	     unsigned long *delta_size, unsigned long max_delta_size);
+diff --git a/git-compat-util.h b/git-compat-util.h
+index fbfc53df4b..cc2cd27f30 100644
+--- a/git-compat-util.h
++++ b/git-compat-util.h
+@@ -484,9 +484,9 @@ static inline int const_error(void)
+ 
+ void set_die_routine(NORETURN_PTR void (*routine)(const char *err, va_list params));
+ void set_error_routine(void (*routine)(const char *err, va_list params));
+-void (*get_error_routine(void))(const char *err, va_list params);
++extern void (*get_error_routine(void))(const char *err, va_list params);
+ void set_warn_routine(void (*routine)(const char *warn, va_list params));
+-void (*get_warn_routine(void))(const char *warn, va_list params);
++extern void (*get_warn_routine(void))(const char *warn, va_list params);
+ void set_die_is_recursing_routine(int (*routine)(void));
+ 
+ int starts_with(const char *str, const char *prefix);
+diff --git a/packfile.h b/packfile.h
+index dab50405e0..4eb4d5f521 100644
+--- a/packfile.h
++++ b/packfile.h
+@@ -43,7 +43,7 @@ void for_each_file_in_pack_dir(const char *objdir,
+ #define PACKDIR_FILE_PACK 1
+ #define PACKDIR_FILE_IDX 2
+ #define PACKDIR_FILE_GARBAGE 4
+-void (*report_garbage)(unsigned seen_bits, const char *path);
++extern void (*report_garbage)(unsigned seen_bits, const char *path);
+ 
+ void reprepare_packed_git(struct repository *r);
+ void install_packed_git(struct repository *r, struct packed_git *pack);
+diff --git a/ppc/sha1.c b/ppc/sha1.c
+index ec6a1926d4..b5d8af4551 100644
+--- a/ppc/sha1.c
++++ b/ppc/sha1.c
+@@ -10,7 +10,7 @@
+ #include <string.h>
+ #include "sha1.h"
+ 
+-extern void ppc_sha1_core(uint32_t *hash, const unsigned char *p,
++void ppc_sha1_core(uint32_t *hash, const unsigned char *p,
+ 			  unsigned int nblocks);
+ 
+ int ppc_SHA1_Init(ppc_SHA_CTX *c)
+-- 
+2.21.0.921.gb27c68c4e9
+

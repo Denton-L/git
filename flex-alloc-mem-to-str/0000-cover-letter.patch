@@ -1,0 +1,27 @@
+From 78b6d3f58dc409477e801aa3d83e83ccee3841cb Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1554328261.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 3 Apr 2019 14:51:01 -0700
+Subject: [PATCH 0/2] create FLEX_ALLOC_MEM to FLEX_ALLOC_STR cocci rule
+To: Git Mailing List <git@vger.kernel.org>
+
+I was playing around with coccinelle and I noticed that we have a use of
+FLEX_ALLOC_MEM that could be converted into FLEX_ALLOC_STR. Convert it
+and write a cocci rule to prevent this from happening.
+
+Note that this was more of an exercise to teach myself how to use
+coccinelle. I'm just submitting a useful patch that came as a result of
+this. Please let me know if this is unwelcome.
+
+Denton Liu (2):
+  midx.c: convert FLEX_ALLOC_MEM to FLEX_ALLOC_STR
+  cocci: FLEX_ALLOC_MEM to FLEX_ALLOC_STR
+
+ contrib/coccinelle/flex_alloc.cocci | 13 +++++++++++++
+ midx.c                              |  2 +-
+ 2 files changed, 14 insertions(+), 1 deletion(-)
+ create mode 100644 contrib/coccinelle/flex_alloc.cocci
+
+-- 
+2.21.0.834.geaa57a21fa
+

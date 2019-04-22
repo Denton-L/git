@@ -1,0 +1,72 @@
+From d6e7e1ca4b8d9c644181adef6ab1e4be77722b99 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1555366891.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1554500051.git.liu.denton@gmail.com>
+References: <cover.1554500051.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 15 Apr 2019 15:21:31 -0700
+Subject: [PATCH v5 0/5] rebase: teach rebase --keep-base
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>, Junio C Hamano <gitster@pobox.com>, Ævar Arnfjörð Bjarmason <avarab@gmail.com>, Johannes Schindelin <Johannes.Schindelin@gmx.de>, Johannes Sixt <j6t@kdbg.org>, SZEDER Gábor <szeder.dev@gmail.com>
+
+Thanks for the example, Ævar, it clarified a lot. I think that _now_
+we're on the same page. ;)
+
+I made can_fast_forward detect this case and now, it should behave as
+expected. The change can be seen in 4/5. Hopefully this saves you some
+work later.
+
+---
+
+This patchset now depends "[PATCH 1/8] tests (rebase): spell out the
+`--keep-empty` option" which is the first patch of Johannes's "Do not
+use abbreviated options in tests" patchset[1]. (Thanks for catching
+that, Johannes!)
+
+Changes since v1:
+
+* Squashed old set into one patch
+* Fixed indentation style and dangling else
+* Added more documentation after discussion with Ævar
+
+Changes since v2:
+
+* Add testing for rebase --fork-point behaviour
+* Add testing for rebase fast-forward behaviour
+* Make rebase --onto fast-forward in more cases
+* Update documentation to include use-case
+
+Changes since v3:
+
+* Fix tests failing on bash 4.2
+* Fix typo in t3431 comment
+
+Changes since v4:
+
+* Make rebase --fork-point fast-forward in more cases
+
+[1]: https://public-inbox.org/git/a1b4b74b9167e279dae4cd8c58fb28d8a714a66a.1553537656.git.gitgitgadget@gmail.com/
+
+Denton Liu (5):
+  t3431: add rebase --fork-point tests
+  t3432: test rebase fast-forward behavior
+  rebase: fast-forward --onto in more cases
+  rebase: fast-forward --fork-point in more cases
+  rebase: teach rebase --keep-base
+
+ Documentation/git-rebase.txt     | 30 ++++++++++--
+ builtin/rebase.c                 | 77 +++++++++++++++++++++--------
+ t/t3400-rebase.sh                |  2 +-
+ t/t3404-rebase-interactive.sh    |  2 +-
+ t/t3416-rebase-onto-threedots.sh | 57 ++++++++++++++++++++++
+ t/t3431-rebase-fork-point.sh     | 57 ++++++++++++++++++++++
+ t/t3432-rebase-fast-forward.sh   | 83 ++++++++++++++++++++++++++++++++
+ 7 files changed, 284 insertions(+), 24 deletions(-)
+ create mode 100755 t/t3431-rebase-fork-point.sh
+ create mode 100755 t/t3432-rebase-fast-forward.sh
+
+-- 
+2.21.0.921.gb27c68c4e9
+

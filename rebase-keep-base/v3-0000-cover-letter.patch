@@ -1,0 +1,60 @@
+From d0cde21c3049c76bf8f6057d6f92796479bedcff Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1554151449.git.liu.denton@gmail.com>
+In-Reply-To: <20190328221745.GA3941@dev-l>
+References: <20190328221745.GA3941@dev-l>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 1 Apr 2019 13:44:09 -0700
+Subject: [PATCH v3 0/4] rebase: teach rebase --keep-base
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>,
+    Ævar Arnfjörð Bjarmason <avarab@gmail.com>,
+    Johannes Schindelin <Johannes.Schindelin@gmx.de>
+
+Thanks again for your feedback, Ævar! I think we're both on the same page now.
+Hopefully I've addressed all of your high-level concerns with this patchset and
+we can move into a discussion on implementation detail.
+
+This patchset now depends "[PATCH 1/8] tests (rebase): spell out the
+`--keep-empty` option" which is the first patch of Johannes's "Do not
+use abbreviated options in tests" patchset[1]. (Thanks for catching
+that, Johannes!)
+
+Changes since v1:
+
+* Squashed old set into one patch
+* Fixed indentation style and dangling else
+* Added more documentation after discussion with Ævar
+
+Changes since v2:
+
+* Add testing for rebase --fork-point behaviour
+* Add testing for rebase fast-forward behaviour
+* Make rebase --onto fast-forward in more cases
+* Update documentation to include use-case
+
+[1]: https://public-inbox.org/git/a1b4b74b9167e279dae4cd8c58fb28d8a714a66a.1553537656.git.gitgitgadget@gmail.com/
+
+Denton Liu (4):
+  t3431: add rebase --fork-point tests
+  t3432: test rebase fast-forward behavior
+  rebase: fast-forward --onto in more cases
+  rebase: teach rebase --keep-base
+
+ Documentation/git-rebase.txt     | 30 +++++++++++--
+ builtin/rebase.c                 | 72 +++++++++++++++++++++++---------
+ t/t3400-rebase.sh                |  2 +-
+ t/t3404-rebase-interactive.sh    |  2 +-
+ t/t3416-rebase-onto-threedots.sh | 57 +++++++++++++++++++++++++
+ t/t3431-rebase-fork-point.sh     | 57 +++++++++++++++++++++++++
+ t/t3432-rebase-fast-forward.sh   | 62 +++++++++++++++++++++++++++
+ 7 files changed, 258 insertions(+), 24 deletions(-)
+ create mode 100755 t/t3431-rebase-fork-point.sh
+ create mode 100755 t/t3432-rebase-fast-forward.sh
+
+-- 
+2.21.0.695.gaf8658f249
+

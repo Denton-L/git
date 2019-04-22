@@ -1,0 +1,200 @@
+From 6635a99edebee43273ee47bbebe13dfe539fc69c Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1554500051.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1554151449.git.liu.denton@gmail.com>
+References: <cover.1554151449.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Fri, 5 Apr 2019 14:34:11 -0700
+Subject: [PATCH v4 0/4] rebase: teach rebase --keep-base
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>, Junio C Hamano <gitster@pobox.com>, Ævar Arnfjörð Bjarmason <avarab@gmail.com>, Johannes Schindelin <Johannes.Schindelin@gmx.de>, Johannes Sixt <j6t@kdbg.org>, SZEDER Gábor <szeder.dev@gmail.com>
+
+Hi all,
+
+I dug into it a little more and according to the bash 4.2->4.3
+changelog,
+
+	bbb. Fixed a bug that caused spurious DEL characters (\177) to appear in
+	double-quoted expansion where the RHS is evaluated to the empty string.
+
+so, in particular, I've removed all of the '' from the tests.
+
+I also downloaded bash 4.2 and tested everything with that. Seems to be
+working well!
+
+Thanks for catching this!
+
+---
+
+This patchset now depends "[PATCH 1/8] tests (rebase): spell out the
+`--keep-empty` option" which is the first patch of Johannes's "Do not
+use abbreviated options in tests" patchset[1]. (Thanks for catching
+that, Johannes!)
+
+Changes since v1:
+
+* Squashed old set into one patch
+* Fixed indentation style and dangling else
+* Added more documentation after discussion with Ævar
+
+Changes since v2:
+
+* Add testing for rebase --fork-point behaviour
+* Add testing for rebase fast-forward behaviour
+* Make rebase --onto fast-forward in more cases
+* Update documentation to include use-case
+
+Changes since v3:
+
+* Fix tests failing on bash 4.2
+* Fix typo in t3431 comment
+
+[1]: https://public-inbox.org/git/a1b4b74b9167e279dae4cd8c58fb28d8a714a66a.1553537656.git.gitgitgadget@gmail.com/
+
+Denton Liu (4):
+  t3431: add rebase --fork-point tests
+  t3432: test rebase fast-forward behavior
+  rebase: fast-forward --onto in more cases
+  rebase: teach rebase --keep-base
+
+ Documentation/git-rebase.txt     | 30 +++++++++++--
+ builtin/rebase.c                 | 72 +++++++++++++++++++++++---------
+ t/t3400-rebase.sh                |  2 +-
+ t/t3404-rebase-interactive.sh    |  2 +-
+ t/t3416-rebase-onto-threedots.sh | 57 +++++++++++++++++++++++++
+ t/t3431-rebase-fork-point.sh     | 57 +++++++++++++++++++++++++
+ t/t3432-rebase-fast-forward.sh   | 62 +++++++++++++++++++++++++++
+ 7 files changed, 258 insertions(+), 24 deletions(-)
+ create mode 100755 t/t3431-rebase-fork-point.sh
+ create mode 100755 t/t3432-rebase-fast-forward.sh
+
+Interdiff against v3:
+diff --git a/t/t3431-rebase-fork-point.sh b/t/t3431-rebase-fork-point.sh
+index 0311bcbc68..e63040932f 100755
+--- a/t/t3431-rebase-fork-point.sh
++++ b/t/t3431-rebase-fork-point.sh
+@@ -11,7 +11,7 @@ test_description='git rebase --fork-point test'
+ #     \
+ #      C*---F---G (side)
+ #
+-# C was formerly part of master but is side out
++# C was formerly part of master but master was rewound to remove C
+ #
+ test_expect_success setup '
+ 	test_commit A &&
+@@ -29,29 +29,29 @@ test_expect_success setup '
+ test_rebase() {
+ 	expected="$1" &&
+ 	shift &&
+-	test_expect_success "git rebase $@" "
++	test_expect_success "git rebase $*" "
+ 		git checkout master &&
+ 		git reset --hard E &&
+ 		git checkout side &&
+ 		git reset --hard G &&
+-		git rebase $@ &&
++		git rebase $* &&
+ 		test_write_lines $expected >expect &&
+ 		git log --pretty=%s >actual &&
+ 		test_cmp expect actual
+ 	"
+ }
+ 
+-test_rebase 'G F E D B A' ''
+-test_rebase 'G F D B A' '--onto D'
+-test_rebase 'G F B A' '--keep-base'
+-test_rebase 'G F C E D B A' '--no-fork-point'
+-test_rebase 'G F C D B A' '--no-fork-point --onto D'
+-test_rebase 'G F C B A' '--no-fork-point --keep-base'
+-test_rebase 'G F E D B A' '--fork-point refs/heads/master'
+-test_rebase 'G F D B A' '--fork-point --onto D refs/heads/master'
+-test_rebase 'G F B A' '--fork-point --keep-base refs/heads/master'
+-test_rebase 'G F C E D B A' 'refs/heads/master'
+-test_rebase 'G F C D B A' '--onto D refs/heads/master'
+-test_rebase 'G F C B A' '--keep-base refs/heads/master'
++test_rebase 'G F E D B A'
++test_rebase 'G F D B A' --onto D
++test_rebase 'G F B A' --keep-base
++test_rebase 'G F C E D B A' --no-fork-point
++test_rebase 'G F C D B A' --no-fork-point --onto D
++test_rebase 'G F C B A' --no-fork-point --keep-base
++test_rebase 'G F E D B A' --fork-point refs/heads/master
++test_rebase 'G F D B A' --fork-point --onto D refs/heads/master
++test_rebase 'G F B A' --fork-point --keep-base refs/heads/master
++test_rebase 'G F C E D B A' refs/heads/master
++test_rebase 'G F C D B A' --onto D refs/heads/master
++test_rebase 'G F C B A' --keep-base refs/heads/master
+ 
+ test_done
+diff --git a/t/t3432-rebase-fast-forward.sh b/t/t3432-rebase-fast-forward.sh
+index 8585c21c5c..f493ce64c4 100755
+--- a/t/t3432-rebase-fast-forward.sh
++++ b/t/t3432-rebase-fast-forward.sh
+@@ -18,34 +18,34 @@ test_expect_success setup '
+ test_rebase_same_head() {
+ 	status="$1" &&
+ 	shift &&
+-	test_expect_$status "git rebase $@ with $changes is no-op" "
++	test_expect_$status "git rebase $* with $changes is no-op" "
+ 		oldhead=\$(git rev-parse HEAD) &&
+ 		test_when_finished 'git reset --hard \$oldhead' &&
+-		git rebase $@ &&
++		git rebase $* &&
+ 		newhead=\$(git rev-parse HEAD) &&
+ 		test_cmp_rev \$oldhead \$newhead
+ 	"
+ }
+ 
+ changes='no changes'
+-test_rebase_same_head success ''
+-test_rebase_same_head success 'master'
+-test_rebase_same_head success '--onto B B'
+-test_rebase_same_head success '--onto B... B'
+-test_rebase_same_head success '--onto master... master'
+-test_rebase_same_head success '--keep-base master'
++test_rebase_same_head success
++test_rebase_same_head success master
++test_rebase_same_head success --onto B B
++test_rebase_same_head success --onto B... B
++test_rebase_same_head success --onto master... master
++test_rebase_same_head success --keep-base master
+ 
+ test_expect_success 'add work to side' '
+ 	test_commit E
+ '
+ 
+ changes='our changes'
+-test_rebase_same_head success ''
+-test_rebase_same_head success 'master'
+-test_rebase_same_head success '--onto B B'
+-test_rebase_same_head success '--onto B... B'
+-test_rebase_same_head success '--onto master... master'
+-test_rebase_same_head success '--keep-base master'
++test_rebase_same_head success
++test_rebase_same_head success master
++test_rebase_same_head success --onto B B
++test_rebase_same_head success --onto B... B
++test_rebase_same_head success --onto master... master
++test_rebase_same_head success --keep-base master
+ 
+ test_expect_success 'add work to upstream' '
+ 	git checkout master &&
+@@ -54,9 +54,9 @@ test_expect_success 'add work to upstream' '
+ '
+ 
+ changes='our and their changes'
+-test_rebase_same_head success '--onto B B'
+-test_rebase_same_head success '--onto B... B'
+-test_rebase_same_head success '--onto master... master'
+-test_rebase_same_head success '--keep-base master'
++test_rebase_same_head success --onto B B
++test_rebase_same_head success --onto B... B
++test_rebase_same_head success --onto master... master
++test_rebase_same_head success --keep-base master
+ 
+ test_done
+-- 
+2.21.0.843.gd0ae0373aa
+
