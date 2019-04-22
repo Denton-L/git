@@ -1,0 +1,53 @@
+From c0d39a2829a82e5735b34535cc37ff824ba3a445 Mon Sep 17 00:00:00 2001
+Message-Id: <c0d39a2829a82e5735b34535cc37ff824ba3a445.1554183429.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1554183429.git.liu.denton@gmail.com>
+References: <cover.1553586707.git.liu.denton@gmail.com>
+	<cover.1554183429.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 1 Apr 2019 17:45:36 -0700
+Subject: [PATCH v2 1/2] tag: fix formatting
+To: Git Mailing List <git@vger.kernel.org>
+Cc:  Robert Dailey <rcdailey.lists@gmail.com>, Jeff King <peff@peff.net>, Ævar Arnfjörð Bjarmason <avarab@gmail.com>, Elijah Newren <newren@gmail.com>
+
+Wrap usage line at '<tagname>'. Also, wrap strings with '\n' at the end
+of string fragments instead of at the beginning of the next string
+fragment.
+
+Convert a space-indent into a tab-indent for style.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ builtin/tag.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/builtin/tag.c b/builtin/tag.c
+index 02f6bd1279..faae364e0f 100644
+--- a/builtin/tag.c
++++ b/builtin/tag.c
+@@ -22,10 +22,11 @@
+ #include "ref-filter.h"
+ 
+ static const char * const git_tag_usage[] = {
+-	N_("git tag [-a | -s | -u <key-id>] [-f] [-m <msg> | -F <file>] <tagname> [<head>]"),
++	N_("git tag [-a | -s | -u <key-id>] [-f] [-m <msg> | -F <file>]\n"
++		"\t\t<tagname> [<head>]"),
+ 	N_("git tag -d <tagname>..."),
+-	N_("git tag -l [-n[<num>]] [--contains <commit>] [--no-contains <commit>] [--points-at <object>]"
+-		"\n\t\t[--format=<format>] [--[no-]merged [<commit>]] [<pattern>...]"),
++	N_("git tag -l [-n[<num>]] [--contains <commit>] [--no-contains <commit>] [--points-at <object>]\n"
++		"\t\t[--format=<format>] [--[no-]merged [<commit>]] [<pattern>...]"),
+ 	N_("git tag -v [--format=<format>] <tagname>..."),
+ 	NULL
+ };
+@@ -215,7 +216,7 @@ static void create_tag(const struct object_id *object, const char *tag,
+ 
+ 	type = oid_object_info(the_repository, object, NULL);
+ 	if (type <= OBJ_NONE)
+-	    die(_("bad object type."));
++		die(_("bad object type."));
+ 
+ 	strbuf_addf(&header,
+ 		    "object %s\n"
+-- 
+2.21.0.741.g2c528c8f87
+

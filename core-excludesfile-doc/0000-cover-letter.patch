@@ -1,0 +1,22 @@
+From f8bc322cc5727d9cf45037f4231f88956f07b7f3 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1551868745.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 6 Mar 2019 02:39:05 -0800
+Subject: [PATCH 0/1] update git-clean.txt
+To: git@vger.kernel.org
+Cc: rpjday@crashcourse.ca
+
+Robert reported that core.excludesFile was not mentioned in the
+git-clean docs[1]. This cleans that up by mentioning that in the docs.
+
+[1]: https://public-inbox.org/git/alpine.LFD.2.21.1902231328560.2222@localhost.localdomain/
+
+Denton Liu (1):
+  git-clean.txt: specify core.excludesFile variable is used
+
+ Documentation/git-clean.txt | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+-- 
+2.21.0.317.g7f43cb445c
+

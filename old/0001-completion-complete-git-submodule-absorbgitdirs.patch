@@ -1,0 +1,29 @@
+From fdb618c323d3cde058e19dea1cd15044e34484e1 Mon Sep 17 00:00:00 2001
+Message-Id: <fdb618c323d3cde058e19dea1cd15044e34484e1.1549446118.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Sat, 12 Jan 2019 13:03:58 -0500
+Subject: [PATCH] completion: complete git submodule absorbgitdirs
+To: git@vger.kernel.org
+Cc: gitster@pobox.com
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ contrib/completion/git-completion.bash | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/contrib/completion/git-completion.bash b/contrib/completion/git-completion.bash
+index 499e56f83d..de56879960 100644
+--- a/contrib/completion/git-completion.bash
++++ b/contrib/completion/git-completion.bash
+@@ -2573,7 +2573,7 @@ _git_submodule ()
+ {
+ 	__git_has_doubledash && return
+ 
+-	local subcommands="add status init deinit update summary foreach sync"
++	local subcommands="add status init deinit update summary foreach sync absorbgitdirs"
+ 	local subcommand="$(__git_find_on_cmdline "$subcommands")"
+ 	if [ -z "$subcommand" ]; then
+ 		case "$cur" in
+-- 
+2.20.1.315.gc8c1ecef27
+

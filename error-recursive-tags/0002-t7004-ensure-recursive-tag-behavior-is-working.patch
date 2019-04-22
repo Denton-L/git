@@ -1,0 +1,43 @@
+From d545bed9d3686b41ba67cfb25e00bb5a8b61c77b Mon Sep 17 00:00:00 2001
+Message-Id: <d545bed9d3686b41ba67cfb25e00bb5a8b61c77b.1553586707.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1553586707.git.liu.denton@gmail.com>
+References: <20190325233723.GD23728@sigill.intra.peff.net>
+	<cover.1553586707.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 26 Mar 2019 00:23:44 -0700
+Subject: [PATCH 2/3] t7004: ensure recursive tag behavior is working
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Jeff King <peff@peff.net>,
+    Ævar Arnfjörð Bjarmason <avarab@gmail.com>,
+    Robert Dailey <rcdailey.lists@gmail.com>
+
+Add tests to ensure that recursive tags are disallowed unless the
+"--allow-recursive-tag" option is provided.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t7004-tag.sh | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/t/t7004-tag.sh b/t/t7004-tag.sh
+index 7a7c0ccee9..5297da952d 100755
+--- a/t/t7004-tag.sh
++++ b/t/t7004-tag.sh
+@@ -1700,6 +1700,14 @@ test_expect_success '--points-at finds annotated tags of tags' '
+ 	test_cmp expect actual
+ '
+ 
++test_expect_success 'recursive tagging should fail without --allow-recursive-tag' '
++	test_must_fail git tag -m recursive recursive annotated-v4.0
++'
++
++test_expect_success 'recursive tagging should pass with --allow-recursive-tag' '
++	git tag --allow-recursive-tag -m recursive recursive annotated-v4.0
++'
++
+ test_expect_success 'multiple --points-at are OR-ed together' '
+ 	cat >expect <<-\EOF &&
+ 	v2.0
+-- 
+2.21.0.512.g57bf1b23e1
+

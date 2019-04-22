@@ -1,0 +1,67 @@
+From 39640b9e9e1171f1978082dc15b70b9277fa30d0 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1548219737.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1545745331.git.liu.denton@gmail.com>
+References: <cover.1545745331.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 22 Jan 2019 21:02:17 -0800
+Subject: [PATCH v6 0/4] Add git-merge --cleanup support
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+To: git@vger.kernel.org
+Cc: gitster@pobox.com
+
+There were some merge conflicts since v5 so I've rebased the last few
+patches on the latest master and fixed the conflicts.
+
+Not related to this but while I was making my changes, I noticed that -F
+and -m don't die properly in git-merge when they accept invalid
+arguments. Instead, they just print an error message to stderr and the
+program keeps running. Is this the expected behaviour?
+
+
+Changes since V1:
+	* Only check MERGE_MSG for a scissors line instead of all prepended
+	  files
+	* Make a variable static in merge where appropriate
+	* Add passthrough options in pull
+	* Add documentation for the new option
+	* Add tests to ensure desired behaviour
+
+Changes since V2:
+	* Merge both patches into one patch
+	* Fix bug in help message printing logic
+
+Changes since V3:
+	* Add patch to cleanup 'merge --squash c3 with c7' test in t7600
+	* Use test_i18ncmp instead of test_cmp to pass GETTEXT_POISON tests
+
+Changes since V4:
+	* Add patches so that git-merge messages will be cleaned up like in
+	  git-commit
+
+Changes since V5:
+	* Rebase on latest master and resolve merge conflicts
+
+
+Denton Liu (4):
+  commit: extract cleanup_mode functions to sequencer
+  t7600: clean up 'merge --squash c3 with c7' test
+  merge: cleanup messages like commit
+  merge: add scissors line on merge conflict
+
+ Documentation/merge-options.txt |  7 ++++
+ builtin/commit.c                | 41 +++++++++-------------
+ builtin/merge.c                 | 45 ++++++++++++++++++++----
+ builtin/pull.c                  |  6 ++++
+ sequencer.c                     | 29 ++++++++++++++++
+ sequencer.h                     |  4 +++
+ t/t7600-merge.sh                | 53 +++++++++++++++++++++++++---
+ t/t7604-merge-custom-message.sh | 61 +++++++++++++++++++++++++++++++++
+ wt-status.c                     | 12 +++++--
+ wt-status.h                     |  1 +
+ 10 files changed, 221 insertions(+), 38 deletions(-)
+
+-- 
+2.20.1.3.ge68552ea27.dirty
+

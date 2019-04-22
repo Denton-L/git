@@ -1,0 +1,68 @@
+From bc7c3f9d769b2d5a108ff4cdc3c7277e112fdb56 Mon Sep 17 00:00:00 2001
+Message-Id: <bc7c3f9d769b2d5a108ff4cdc3c7277e112fdb56.1552820745.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Sun, 17 Mar 2019 03:45:55 -0700
+Subject: [PATCH] git-diff.txt: prefer not using <commit>..<commit>
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Ævar Arnfjörð Bjarmason <avarab@gmail.com>,
+    Andreas Schwab <schwab@linux-m68k.org>,
+    Denton Liu <liu.denton@gmail.com>,
+    Duy Nguyen <pclouds@gmail.com>,
+    Elijah Newren <newren@gmail.com>,
+    Johannes Schindelin <Johannes.Schindelin@gmx.de>,
+    Johannes Sixt <j6t@kdbg.org>,
+    Junio C Hamano <gitster@pobox.com>,
+    Philip Oakley <philipoakley@iee.org>,
+    vincent.guittot@linaro.org,
+    Viresh Kumar <viresh.kumar@linaro.org>
+
+The documentation used to consider
+
+	git diff <commit> <commit>
+
+and
+
+	git diff <commit>..<commit>
+
+to be equal counterparts. However, rev-list-ish commands also use the
+<commit>..<commit> notation, but in a logically conflicting manner which
+was confusing for some users (including me!).
+
+Deprecating the notation entirely is not really an option because it
+would be an arduous process without much end-value. In addition, there
+are some valid use-cases that we don't want to break.
+
+Document the preference of the first form so that future confusion can
+be minimised.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+
+Thanks all on your feedback on the discussion thread[1]! I opted for
+just the documentation-only route so we don't break any valid use-cases.
+
+[1]: https://public-inbox.org/git/20190311093751.GA31092@archbookpro.localdomain/
+
+ Documentation/git-diff.txt | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/git-diff.txt b/Documentation/git-diff.txt
+index 72179d993c..10c7a2220c 100644
+--- a/Documentation/git-diff.txt
++++ b/Documentation/git-diff.txt
+@@ -63,7 +63,11 @@ two blob objects, or changes between two files on disk.
+ 
+ 'git diff' [<options>] <commit>..<commit> [--] [<path>...]::
+ 
+-	This is synonymous to the previous form.  If <commit> on
++	This is synonymous to the previous form.  However,
++	users should prefer the previous form over this form
++	as this form may be more confusing due to the same
++	notation having a logically conflicting meaning in
++	linkgit:git-rev-list[1]-ish commands.  If <commit> on
+ 	one side is omitted, it will have the same effect as
+ 	using HEAD instead.
+ 
+-- 
+2.21.0.512.g57bf1b23e1
+

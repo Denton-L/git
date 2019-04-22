@@ -1,0 +1,124 @@
+From d5a1663048d38bcbe4fbaff8fffe875c5795941e Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1555487380.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1555352526.git.liu.denton@gmail.com>
+References: <cover.1555352526.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 17 Apr 2019 00:49:40 -0700
+Subject: [PATCH v3 0/4] remove extern from function declarations
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>, Jeff King <peff@peff.net>, Emily Shaffer <emilyshaffer@google.com>, Thomas Gummerer <t.gummerer@gmail.com>
+
+Hi Thomas,
+
+Thanks for the feedback.  I couldn't find a tool that could selectively
+fix indentation on patches so I went through and manually realigned the
+parameter lists wherever the tools mangled the alignment. I guess this
+also implies that one pair of (tired) human eyes has manually inspected
+the machine-generated diff.
+
+Hopefully, patch 3/4 won't be as onerous to review as it was to write ;)
+
+---
+
+Changes since v1:
+
+* Used spatch with sed instead of sed alone
+* Fixed sed expression to ignore function variables
+
+Changes since v2:
+
+* Rebased on latest master (since last patchset hasn't been picked up
+  yet)
+* Manually aligned parameter lists that were mangled by the tools
+
+Denton Liu (4):
+  *.[ch]: remove extern from function declarations using spatch
+  *.[ch]: remove extern from function declarations using sed
+  *.[ch]: manually align parameter lists
+  cocci: prevent extern function declarations
+
+ advice.h                          |   2 +-
+ archive.h                         |  24 +-
+ bisect.h                          |  26 +-
+ blame.h                           |   2 +-
+ branch.h                          |  14 +-
+ builtin.h                         | 254 ++++++++++----------
+ bulk-checkin.h                    |  10 +-
+ cache.h                           | 386 +++++++++++++++---------------
+ checkout.h                        |   6 +-
+ column.h                          |  16 +-
+ commit.h                          | 116 ++++-----
+ compat/mingw.c                    |   2 +-
+ compat/mingw.h                    |   6 +-
+ compat/nedmalloc/malloc.c.h       |   6 +-
+ compat/obstack.h                  |  14 +-
+ compat/poll/poll.h                |   2 +-
+ compat/regex/regex.h              |  66 ++---
+ compat/win32/pthread.h            |   8 +-
+ config.h                          | 226 ++++++++---------
+ connect.h                         |  22 +-
+ contrib/coccinelle/noextern.cocci |   6 +
+ csum-file.h                       |  20 +-
+ decorate.h                        |   4 +-
+ delta.h                           |  14 +-
+ dir.h                             | 144 +++++------
+ exec-cmd.h                        |  16 +-
+ fmt-merge-msg.h                   |   2 +-
+ fsmonitor.h                       |  14 +-
+ gettext.h                         |   8 +-
+ git-compat-util.h                 | 132 +++++-----
+ grep.h                            |  22 +-
+ hashmap.h                         |  30 +--
+ help.h                            |  36 +--
+ http.h                            |  62 ++---
+ khash.h                           |  16 +-
+ kwset.h                           |  10 +-
+ line-log.h                        |  16 +-
+ lockfile.h                        |  12 +-
+ ls-refs.h                         |   4 +-
+ mailinfo.h                        |   6 +-
+ merge-blobs.h                     |   6 +-
+ object-store.h                    |  32 +--
+ object.h                          |  12 +-
+ oidmap.h                          |  12 +-
+ pack.h                            |  26 +-
+ packfile.h                        |  82 +++----
+ path.h                            |  42 ++--
+ pkt-line.h                        |  10 +-
+ ppc/sha1.c                        |   4 +-
+ prio-queue.h                      |  10 +-
+ protocol.h                        |   6 +-
+ quote.h                           |  34 +--
+ reachable.h                       |   8 +-
+ reflog-walk.h                     |  28 +--
+ refs.h                            |   2 +-
+ remote.h                          |  24 +-
+ replace-object.h                  |   4 +-
+ resolve-undo.h                    |  14 +-
+ run-command.h                     |   8 +-
+ serve.h                           |   6 +-
+ sha1-lookup.h                     |   8 +-
+ streaming.h                       |   8 +-
+ string-list.h                     |   4 +-
+ sub-process.h                     |   8 +-
+ submodule-config.h                |  22 +-
+ tag.h                             |  16 +-
+ tempfile.h                        |  30 +--
+ trace.h                           |  44 ++--
+ transport.h                       |   4 +-
+ tree-walk.h                       |   4 +-
+ upload-pack.h                     |   8 +-
+ url.h                             |  16 +-
+ urlmatch.h                        |   4 +-
+ utf8.h                            |   2 +-
+ varint.h                          |   4 +-
+ vcs-svn/sliding_window.h          |   2 +-
+ vcs-svn/svndiff.h                 |   4 +-
+ worktree.h                        |  36 +--
+ xdiff-interface.h                 |  12 +-
+ 79 files changed, 1197 insertions(+), 1191 deletions(-)
+ create mode 100644 contrib/coccinelle/noextern.cocci
+
+-- 
+2.21.0.832.gd5ec0d3bee
+

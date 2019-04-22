@@ -1,0 +1,34 @@
+From 8896a65c2cecfc84c494545e47c918a45cd63602 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1553354374.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Sat, 23 Mar 2019 08:19:34 -0700
+Subject: [PATCH 0/3] rebase: learn --keep-base
+To: Git Mailing List <git@vger.kernel.org>
+
+This series teaches rebase the --keep-base option.
+
+'git rebase --keep-base <upstream>' is equivalent to
+'git rebase --onto <upstream>... <upstream>' or
+'git rebase --onto $(git merge-base <upstream> HEAD) <upstream>' .
+
+This seems to be a common case that people (including myself!) run into; I was
+able to find these StackOverflow posts about this use case:
+
+* https://stackoverflow.com/questions/53234798/can-i-rebase-on-a-branchs-fork-point-without-explicitly-specifying-the-parent
+* https://stackoverflow.com/questions/41529128/how-do-you-rebase-only-changes-between-two-branches-into-another-branch
+* https://stackoverflow.com/a/4207357
+
+
+Denton Liu (3):
+  rebase: teach rebase --keep-base
+  t3416: test rebase --keep-base
+  git-rebase.txt: document --keep-base option
+
+ Documentation/git-rebase.txt     | 12 +++++--
+ builtin/rebase.c                 | 25 ++++++++++++--
+ t/t3416-rebase-onto-threedots.sh | 57 ++++++++++++++++++++++++++++++++
+ 3 files changed, 88 insertions(+), 6 deletions(-)
+
+-- 
+2.21.0.512.g57bf1b23e1
+

@@ -1,0 +1,59 @@
+From 5b30d939674542b2cfeeeef8341ab25c7d6c0543 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1552275703.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1548219737.git.liu.denton@gmail.com>
+References: <cover.1548219737.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Sun, 10 Mar 2019 20:41:43 -0700
+Subject: [PATCH v7 0/8] Fix scissors bug during conflict
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Phillip Wood <phillip.wood123@gmail.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+This is a complete replacement for dl/merge-cleanup-scissors-fix.
+
+Previous discussion on the cherry-pick/revert changes can be found here[1].
+
+Changes since revert/cherry-pick v3:
+
+* Rebased on top of latest master
+* Reordered and squashed patches
+* Added populate_opts_cb and save_opts to save default_msg_cleanup at Phillip's suggestion
+
+[1]: https://public-inbox.org/git/cover.1551867827.git.liu.denton@gmail.com/T/#u
+
+
+Denton Liu (8):
+  t7600: clean up 'merge --squash c3 with c7' test
+  t3507: cleanup space after redirection operators
+  commit: extract cleanup_mode functions to sequencer
+  sequencer.c: remove duplicate code
+  merge: cleanup messages like commit
+  merge: add scissors line on merge conflict
+  sequencer.c: define get_config_from_cleanup
+  cherry-pick/revert: add scissors line on merge conflict
+
+ Documentation/git-cherry-pick.txt |   7 ++
+ Documentation/git-revert.txt      |   7 ++
+ Documentation/merge-options.txt   |   7 ++
+ builtin/commit.c                  |  45 +++++------
+ builtin/merge.c                   |  40 ++++++++--
+ builtin/pull.c                    |   6 ++
+ builtin/rebase--interactive.c     |   2 +-
+ builtin/revert.c                  |   5 ++
+ sequencer.c                       | 102 ++++++++++++++++++++-----
+ sequencer.h                       |  10 ++-
+ t/t3507-cherry-pick-conflict.sh   | 120 +++++++++++++++++++++++++-----
+ t/t7600-merge.sh                  |  53 ++++++++++++-
+ t/t7604-merge-custom-message.sh   |  61 +++++++++++++++
+ wt-status.c                       |  12 ++-
+ wt-status.h                       |   1 +
+ 15 files changed, 398 insertions(+), 80 deletions(-)
+
+
+base-commit: 6e0cc6776106079ed4efa0cc9abace4107657abf
+-- 
+2.21.0.370.g4fdb13b891
+

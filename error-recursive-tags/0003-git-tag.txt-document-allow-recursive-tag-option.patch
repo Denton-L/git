@@ -1,0 +1,46 @@
+From fe503ddc8f01f3c0c598b00da22c201a7f16ba7f Mon Sep 17 00:00:00 2001
+Message-Id: <fe503ddc8f01f3c0c598b00da22c201a7f16ba7f.1553586707.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1553586707.git.liu.denton@gmail.com>
+References: <20190325233723.GD23728@sigill.intra.peff.net>
+	<cover.1553586707.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 26 Mar 2019 00:33:22 -0700
+Subject: [PATCH 3/3] git-tag.txt: document --allow-recursive-tag option
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Jeff King <peff@peff.net>,
+    Ævar Arnfjörð Bjarmason <avarab@gmail.com>,
+    Robert Dailey <rcdailey.lists@gmail.com>
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Documentation/git-tag.txt | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/git-tag.txt b/Documentation/git-tag.txt
+index a74e7b926d..7e7eb9a7e9 100644
+--- a/Documentation/git-tag.txt
++++ b/Documentation/git-tag.txt
+@@ -10,7 +10,7 @@ SYNOPSIS
+ --------
+ [verse]
+ 'git tag' [-a | -s | -u <keyid>] [-f] [-m <msg> | -F <file>] [-e]
+-	<tagname> [<commit> | <object>]
++	[--allow-recursive-tag] <tagname> [<commit> | <object>]
+ 'git tag' -d <tagname>...
+ 'git tag' [-n[<num>]] -l [--contains <commit>] [--no-contains <commit>]
+ 	[--points-at <object>] [--column[=<options>] | --no-column]
+@@ -193,6 +193,11 @@ This option is only applicable when listing tags without annotation lines.
+ 	that of linkgit:git-for-each-ref[1].  When unspecified,
+ 	defaults to `%(refname:strip=2)`.
+ 
++--allow-recursive-tag::
++	Usually recursively tagging a tag object is a mistake and the
++	command prevents you from making such a tag. This option
++	bypasses the safety and allows this to happen.
++
+ <tagname>::
+ 	The name of the tag to create, delete, or describe.
+ 	The new tag name must pass all checks defined by
+-- 
+2.21.0.512.g57bf1b23e1
+

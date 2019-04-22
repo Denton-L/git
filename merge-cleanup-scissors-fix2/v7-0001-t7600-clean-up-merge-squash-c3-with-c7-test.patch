@@ -1,0 +1,52 @@
+From 6716d28a5187c44c1d90f5ce840c44441f62352c Mon Sep 17 00:00:00 2001
+Message-Id: <6716d28a5187c44c1d90f5ce840c44441f62352c.1552275703.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1552275703.git.liu.denton@gmail.com>
+References: <cover.1548219737.git.liu.denton@gmail.com>
+	<cover.1552275703.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 22 Jan 2019 21:06:21 -0800
+Subject: [PATCH v7 1/8] t7600: clean up 'merge --squash c3 with c7' test
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Phillip Wood <phillip.wood123@gmail.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+This cleans up the original test by removing some unnecessary braces and
+removing a pipe.
+
+Helped-by: SZEDER Gábor <szeder.dev@gmail.com>
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t7600-merge.sh | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/t/t7600-merge.sh b/t/t7600-merge.sh
+index 106148254d..d879efd330 100755
+--- a/t/t7600-merge.sh
++++ b/t/t7600-merge.sh
+@@ -233,8 +233,7 @@ test_expect_success 'merge --squash c3 with c7' '
+ 	cat result.9z >file &&
+ 	git commit --no-edit -a &&
+ 
+-	{
+-		cat <<-EOF
++	cat >expect <<-EOF &&
+ 		Squashed commit of the following:
+ 
+ 		$(git show -s c7)
+@@ -242,8 +241,8 @@ test_expect_success 'merge --squash c3 with c7' '
+ 		# Conflicts:
+ 		#	file
+ 		EOF
+-	} >expect &&
+-	git cat-file commit HEAD | sed -e '1,/^$/d' >actual &&
++	git cat-file commit HEAD >tmp &&
++	sed -e '1,/^$/d' <tmp >actual &&
+ 	test_cmp expect actual
+ '
+ 
+-- 
+2.21.0.370.g4fdb13b891
+

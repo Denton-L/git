@@ -1,0 +1,34 @@
+From 70a508ca0b2d837b311afefcc2b0ffb6cfbd34fb Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1551867827.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 6 Mar 2019 02:23:47 -0800
+Subject: [PATCH 0/2] cherry-pick/revert cleanup scissors fix
+To: git@vger.kernel.org
+Cc: gitster@pobox.com
+
+As I stated earlier[1], I discovered today that git revert (and thus,
+git cherry-pick as well) do not place the scissors line properly as
+well. This patchset adds a scissors line when conflicts arise in both
+cherry-pick and revert, which fixes the same bug present in git-merge
+earlier.
+
+This patchset should apply on top of dl/merge-cleanup-scissors-fix.
+
+[1]: https://public-inbox.org/git/20190306014143.GA2580@dev-l/
+
+Denton Liu (2):
+  t3507: cleanup space after redirection operators
+  cherry-pick/revert: add scissors line on merge conflict
+
+ Documentation/git-cherry-pick.txt |   7 ++
+ Documentation/git-revert.txt      |   7 ++
+ builtin/merge.c                   |  13 +---
+ builtin/revert.c                  |   5 ++
+ sequencer.c                       |  22 +++---
+ sequencer.h                       |   3 +-
+ t/t3507-cherry-pick-conflict.sh   | 122 +++++++++++++++++++++++++-----
+ 7 files changed, 138 insertions(+), 41 deletions(-)
+
+-- 
+2.19.1.6.g4de041ebd8.dirty
+

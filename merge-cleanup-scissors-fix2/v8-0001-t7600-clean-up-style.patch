@@ -1,0 +1,85 @@
+From 08426189b5a29b376581eb0172e52222ab22387a Mon Sep 17 00:00:00 2001
+Message-Id: <08426189b5a29b376581eb0172e52222ab22387a.1552817044.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1552817044.git.liu.denton@gmail.com>
+References: <cover.1552275703.git.liu.denton@gmail.com>
+	<cover.1552817044.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 22 Jan 2019 21:06:21 -0800
+Subject: [PATCH v8 01/11] t7600: clean up style
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Denton Liu <liu.denton@gmail.com>,
+    Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>,
+    Phillip Wood <phillip.wood@dunelm.org.uk>,
+    Ramsay Jones <ramsay@ramsayjones.plus.com>,
+    SZEDER Gábor <szeder.dev@gmail.com>
+
+This cleans up the 'merge --squash c3 with c7' test by removing some
+unnecessary braces and removing a pipe. Finally, unindent a here-doc for
+style.
+
+Also, remove stray spaces after "> " for style.
+
+Helped-by: SZEDER Gábor <szeder.dev@gmail.com>
+Helped-by: Eric Sunshine <sunshine@sunshineco.com>
+Reviewed-by: Junio C Hamano <gitster@pobox.com>
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t7600-merge.sh | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
+
+diff --git a/t/t7600-merge.sh b/t/t7600-merge.sh
+index 106148254d..a9620cd991 100755
+--- a/t/t7600-merge.sh
++++ b/t/t7600-merge.sh
+@@ -233,17 +233,17 @@ test_expect_success 'merge --squash c3 with c7' '
+ 	cat result.9z >file &&
+ 	git commit --no-edit -a &&
+ 
+-	{
+-		cat <<-EOF
+-		Squashed commit of the following:
++	cat >expect <<-EOF &&
++	Squashed commit of the following:
+ 
+-		$(git show -s c7)
++	$(git show -s c7)
+ 
+-		# Conflicts:
+-		#	file
+-		EOF
+-	} >expect &&
+-	git cat-file commit HEAD | sed -e '1,/^$/d' >actual &&
++	# Conflicts:
++	#	file
++	EOF
++	git cat-file commit HEAD >actual &&
++	sed -e '1,/^$/d' <actual >tmp &&
++	mv tmp actual &&
+ 	test_cmp expect actual
+ '
+ 
+@@ -683,7 +683,7 @@ cat >editor <<\EOF
+ 	cat <"$1"
+ ) >"$1.tmp" && mv "$1.tmp" "$1"
+ # strip comments and blank lines from end of message
+-sed -e '/^#/d' < "$1" | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' > expected
++sed -e '/^#/d' < "$1" | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}' >expected
+ EOF
+ chmod 755 editor
+ 
+@@ -814,7 +814,7 @@ EOF
+ test_expect_success EXECKEEPSPID 'killed merge can be completed with --continue' '
+ 	git reset --hard c0 &&
+ 	! "$SHELL_PATH" -c '\''
+-	  echo kill -TERM $$ >> .git/FAKE_EDITOR
++	  echo kill -TERM $$ >>.git/FAKE_EDITOR
+ 	  GIT_EDITOR=.git/FAKE_EDITOR
+ 	  export GIT_EDITOR
+ 	  exec git merge --no-ff --edit c1'\'' &&
+-- 
+2.21.0.512.g57bf1b23e1
+

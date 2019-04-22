@@ -1,0 +1,48 @@
+From 18c8ed70602271a28c93df922eb3da8fb7563e2e Mon Sep 17 00:00:00 2001
+Message-Id: <18c8ed70602271a28c93df922eb3da8fb7563e2e.1555913472.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Sun, 21 Apr 2019 22:57:03 -0700
+Subject: [PATCH] revisions.txt: mention <rev>~ form
+To: Git Mailing List <git@vger.kernel.org>
+
+In revisions.txt, the '<rev>^' form is mentioned but the '<rev>~' form
+is missing. Although both forms are essentially equivalent (they each
+get the first parent of the specified revision), we should mention the
+latter for completeness. Make this change.
+
+While we're at it, the brief form of '<rev>^' makes it seem as if no
+numerical argument is accepted. Update documentation to make it obvious
+that an optional numerical argument is accepted.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Documentation/revisions.txt | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/Documentation/revisions.txt b/Documentation/revisions.txt
+index 2337a995ec..4ba7b4416a 100644
+--- a/Documentation/revisions.txt
++++ b/Documentation/revisions.txt
+@@ -131,7 +131,7 @@ from one location and push to another. In a non-triangular workflow,
+ This suffix is also accepted when spelled in uppercase, and means the same
+ thing no matter the case.
+ 
+-'<rev>{caret}', e.g. 'HEAD{caret}, v1.5.1{caret}0'::
++'<rev>{caret}[<n>]', e.g. 'HEAD{caret}, v1.5.1{caret}0'::
+   A suffix '{caret}' to a revision parameter means the first parent of
+   that commit object.  '{caret}<n>' means the <n>th parent (i.e.
+   '<rev>{caret}'
+@@ -139,7 +139,9 @@ thing no matter the case.
+   '<rev>{caret}0' means the commit itself and is used when '<rev>' is the
+   object name of a tag object that refers to a commit object.
+ 
+-'<rev>{tilde}<n>', e.g. 'master{tilde}3'::
++'<rev>{tilde}[<n>]', e.g. 'HEAD~, master{tilde}3'::
++  A suffix '{tilde}' to a revision parameter means the first parent of
++  that commit object.
+   A suffix '{tilde}<n>' to a revision parameter means the commit
+   object that is the <n>th generation ancestor of the named
+   commit object, following only the first parents.  I.e. '<rev>{tilde}3' is
+-- 
+2.21.0.1000.g11cd861522
+

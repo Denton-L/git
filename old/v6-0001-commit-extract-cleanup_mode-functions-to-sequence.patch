@@ -1,0 +1,123 @@
+From 69199be34dbe0648f88fa7eb5f0cc11ed1e7feb7 Mon Sep 17 00:00:00 2001
+Message-Id: <69199be34dbe0648f88fa7eb5f0cc11ed1e7feb7.1548219737.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1548219737.git.liu.denton@gmail.com>
+References: <cover.1545745331.git.liu.denton@gmail.com>
+	<cover.1548219737.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 24 Dec 2018 00:31:19 -0500
+Subject: [PATCH v6 1/4] commit: extract cleanup_mode functions to sequencer
+To: git@vger.kernel.org
+Cc: gitster@pobox.com
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ builtin/commit.c | 21 ++-------------------
+ sequencer.c      | 29 +++++++++++++++++++++++++++++
+ sequencer.h      |  4 ++++
+ 3 files changed, 35 insertions(+), 19 deletions(-)
+
+diff --git a/builtin/commit.c b/builtin/commit.c
+index 004b816635..3ac0a21a22 100644
+--- a/builtin/commit.c
++++ b/builtin/commit.c
+@@ -1165,20 +1165,7 @@ static int parse_and_validate_options(int argc, const char *argv[],
+ 		die(_("Only one of --include/--only/--all/--interactive/--patch can be used."));
+ 	if (argc == 0 && (also || (only && !amend && !allow_empty)))
+ 		die(_("No paths with --include/--only does not make sense."));
+-	if (!cleanup_arg || !strcmp(cleanup_arg, "default"))
+-		cleanup_mode = use_editor ? COMMIT_MSG_CLEANUP_ALL :
+-					    COMMIT_MSG_CLEANUP_SPACE;
+-	else if (!strcmp(cleanup_arg, "verbatim"))
+-		cleanup_mode = COMMIT_MSG_CLEANUP_NONE;
+-	else if (!strcmp(cleanup_arg, "whitespace"))
+-		cleanup_mode = COMMIT_MSG_CLEANUP_SPACE;
+-	else if (!strcmp(cleanup_arg, "strip"))
+-		cleanup_mode = COMMIT_MSG_CLEANUP_ALL;
+-	else if (!strcmp(cleanup_arg, "scissors"))
+-		cleanup_mode = use_editor ? COMMIT_MSG_CLEANUP_SCISSORS :
+-					    COMMIT_MSG_CLEANUP_SPACE;
+-	else
+-		die(_("Invalid cleanup mode %s"), cleanup_arg);
++	cleanup_mode = get_cleanup_mode(cleanup_arg, use_editor);
+ 
+ 	handle_untracked_files_arg(s);
+ 
+@@ -1615,11 +1602,7 @@ int cmd_commit(int argc, const char **argv, const char *prefix)
+ 		die(_("could not read commit message: %s"), strerror(saved_errno));
+ 	}
+ 
+-	if (verbose || /* Truncate the message just before the diff, if any. */
+-	    cleanup_mode == COMMIT_MSG_CLEANUP_SCISSORS)
+-		strbuf_setlen(&sb, wt_status_locate_end(sb.buf, sb.len));
+-	if (cleanup_mode != COMMIT_MSG_CLEANUP_NONE)
+-		strbuf_stripspace(&sb, cleanup_mode == COMMIT_MSG_CLEANUP_ALL);
++	cleanup_message(&sb, cleanup_mode, verbose);
+ 
+ 	if (message_is_empty(&sb, cleanup_mode) && !allow_empty_message) {
+ 		rollback_index_files();
+diff --git a/sequencer.c b/sequencer.c
+index f5370f4965..4f79892801 100644
+--- a/sequencer.c
++++ b/sequencer.c
+@@ -510,6 +510,25 @@ static int fast_forward_to(struct repository *r,
+ 	return 0;
+ }
+ 
++enum commit_msg_cleanup_mode get_cleanup_mode(const char *cleanup_arg,
++	int use_editor)
++{
++	if (!cleanup_arg || !strcmp(cleanup_arg, "default"))
++		return use_editor ? COMMIT_MSG_CLEANUP_ALL :
++				    COMMIT_MSG_CLEANUP_SPACE;
++	else if (!strcmp(cleanup_arg, "verbatim"))
++		return COMMIT_MSG_CLEANUP_NONE;
++	else if (!strcmp(cleanup_arg, "whitespace"))
++		return COMMIT_MSG_CLEANUP_SPACE;
++	else if (!strcmp(cleanup_arg, "strip"))
++		return COMMIT_MSG_CLEANUP_ALL;
++	else if (!strcmp(cleanup_arg, "scissors"))
++		return use_editor ? COMMIT_MSG_CLEANUP_SCISSORS :
++				    COMMIT_MSG_CLEANUP_SPACE;
++	else
++		die(_("Invalid cleanup mode %s"), cleanup_arg);
++}
++
+ void append_conflicts_hint(struct index_state *istate,
+ 			   struct strbuf *msgbuf)
+ {
+@@ -1012,6 +1031,16 @@ static int rest_is_empty(const struct strbuf *sb, int start)
+ 	return 1;
+ }
+ 
++void cleanup_message(struct strbuf *msgbuf,
++	enum commit_msg_cleanup_mode cleanup_mode, int verbose)
++{
++	if (verbose || /* Truncate the message just before the diff, if any. */
++	    cleanup_mode == COMMIT_MSG_CLEANUP_SCISSORS)
++		strbuf_setlen(msgbuf, wt_status_locate_end(msgbuf->buf, msgbuf->len));
++	if (cleanup_mode != COMMIT_MSG_CLEANUP_NONE)
++		strbuf_stripspace(msgbuf, cleanup_mode == COMMIT_MSG_CLEANUP_ALL);
++}
++
+ /*
+  * Find out if the message in the strbuf contains only whitespace and
+  * Signed-off-by lines.
+diff --git a/sequencer.h b/sequencer.h
+index 9d83f0f3e9..57ad6fc7de 100644
+--- a/sequencer.h
++++ b/sequencer.h
+@@ -115,7 +115,11 @@ extern const char sign_off_header[];
+  */
+ void append_signoff(struct strbuf *msgbuf, size_t ignore_footer, unsigned flag);
+ 
++enum commit_msg_cleanup_mode get_cleanup_mode(const char *cleanup_arg,
++	int use_editor);
+ void append_conflicts_hint(struct index_state *istate, struct strbuf *msgbuf);
++void cleanup_message(struct strbuf *msgbuf,
++	enum commit_msg_cleanup_mode cleanup_mode, int verbose);
+ int message_is_empty(const struct strbuf *sb,
+ 		     enum commit_msg_cleanup_mode cleanup_mode);
+ int template_untouched(const struct strbuf *sb, const char *template_file,
+-- 
+2.20.1.3.ge68552ea27.dirty
+

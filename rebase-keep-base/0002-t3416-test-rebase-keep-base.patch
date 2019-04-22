@@ -1,0 +1,94 @@
+From 6398944a6f9e696a6f6f7d616447160af93b0639 Mon Sep 17 00:00:00 2001
+Message-Id: <6398944a6f9e696a6f6f7d616447160af93b0639.1553354374.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1553354374.git.liu.denton@gmail.com>
+References: <cover.1553354374.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Sat, 23 Mar 2019 06:38:31 -0700
+Subject: [PATCH 2/3] t3416: test rebase --keep-base
+To: Git Mailing List <git@vger.kernel.org>
+
+Test rebase --keep-base to ensure it works correctly in the normal case
+and fails when there are multiple merge-bases, both in regular and
+interactive mode. Also, test to make sure conflicting options causes
+rebase to fail.
+
+While we're at it, add a missing set_fake_editor call to
+'rebase -i --onto master...side'.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t3416-rebase-onto-threedots.sh | 57 ++++++++++++++++++++++++++++++++
+ 1 file changed, 57 insertions(+)
+
+diff --git a/t/t3416-rebase-onto-threedots.sh b/t/t3416-rebase-onto-threedots.sh
+index ddf2f64853..9c2548423b 100755
+--- a/t/t3416-rebase-onto-threedots.sh
++++ b/t/t3416-rebase-onto-threedots.sh
+@@ -99,7 +99,64 @@ test_expect_success 'rebase -i --onto master...side' '
+ 	git checkout side &&
+ 	git reset --hard K &&
+ 
++	set_fake_editor &&
+ 	test_must_fail git rebase -i --onto master...side J
+ '
+ 
++test_expect_success 'rebase --keep-base --onto incompatible' '
++	test_must_fail git rebase --keep-base --onto master...
++'
++
++test_expect_success 'rebase --keep-base --root incompatible' '
++	test_must_fail git rebase --keep-base --root
++'
++
++test_expect_success 'rebase --keep-base master from topic' '
++	git reset --hard &&
++	git checkout topic &&
++	git reset --hard G &&
++
++	git rebase --keep-base master &&
++	git rev-parse C >base.expect &&
++	git merge-base master HEAD >base.actual &&
++	test_cmp base.expect base.actual &&
++
++	git rev-parse HEAD~2 >actual &&
++	git rev-parse C^0 >expect &&
++	test_cmp expect actual
++'
++
++test_expect_success 'rebase --keep-base master from side' '
++	git reset --hard &&
++	git checkout side &&
++	git reset --hard K &&
++
++	test_must_fail git rebase --keep-base master
++'
++
++test_expect_success 'rebase -i --keep-base master from topic' '
++	git reset --hard &&
++	git checkout topic &&
++	git reset --hard G &&
++
++	set_fake_editor &&
++	EXPECT_COUNT=2 git rebase -i --keep-base master &&
++	git rev-parse C >base.expect &&
++	git merge-base master HEAD >base.actual &&
++	test_cmp base.expect base.actual &&
++
++	git rev-parse HEAD~2 >actual &&
++	git rev-parse C^0 >expect &&
++	test_cmp expect actual
++'
++
++test_expect_success 'rebase -i --keep-base master from side' '
++	git reset --hard &&
++	git checkout side &&
++	git reset --hard K &&
++
++	set_fake_editor &&
++	test_must_fail git rebase -i --keep-base master
++'
++
+ test_done
+-- 
+2.21.0.512.g57bf1b23e1
+

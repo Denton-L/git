@@ -1,0 +1,48 @@
+From f8bc322cc5727d9cf45037f4231f88956f07b7f3 Mon Sep 17 00:00:00 2001
+Message-Id: <f8bc322cc5727d9cf45037f4231f88956f07b7f3.1551868745.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1551868745.git.liu.denton@gmail.com>
+References: <cover.1551868745.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 26 Feb 2019 22:58:26 -0800
+Subject: [PATCH 1/1] git-clean.txt: specify core.excludesFile variable is used
+To: git@vger.kernel.org
+Cc: rpjday@crashcourse.ca
+
+In the git-clean documentation, -x and -e documented .gitignore,
+$GIT_DIR/info/excludes but neglected to mention the file pointed to by
+core.excludesFile.
+
+Explicitly mention that variable so that the list is exhaustive.
+
+Reported-by: Robert P. J. Day <rpjday@crashcourse.ca>
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Documentation/git-clean.txt | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/Documentation/git-clean.txt b/Documentation/git-clean.txt
+index 03056dad0d..c6023b742c 100644
+--- a/Documentation/git-clean.txt
++++ b/Documentation/git-clean.txt
+@@ -55,13 +55,15 @@ OPTIONS
+ 
+ -e <pattern>::
+ --exclude=<pattern>::
+-	In addition to those found in .gitignore (per directory) and
+-	$GIT_DIR/info/exclude, also consider these patterns to be in the
++	In addition to those found in .gitignore (per directory),
++	$GIT_DIR/info/exclude, and the `core.excludesFile` variable, also
++	consider these patterns to be in the
+ 	set of the ignore rules in effect.
+ 
+ -x::
+ 	Don't use the standard ignore rules read from .gitignore (per
+-	directory) and $GIT_DIR/info/exclude, but do still use the ignore
++	directory), $GIT_DIR/info/exclude, and the `core.excludesFile`
++	variable, but do still use the ignore
+ 	rules given with `-e` options.  This allows removing all untracked
+ 	files, including build products.  This can be used (possibly in
+ 	conjunction with 'git reset') to create a pristine
+-- 
+2.21.0.317.g7f43cb445c
+

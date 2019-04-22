@@ -1,0 +1,134 @@
+From f3af8000aec51e49f3fe8f90dbfec61606596b2e Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1551940635.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1551867827.git.liu.denton@gmail.com>
+References: <cover.1551867827.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 6 Mar 2019 22:37:15 -0800
+Subject: [PATCH v2 0/3] cherry-pick/revert cleanup scissors fix
+To: git@vger.kernel.org
+Cc: Phillip Wood <phillip.wood123@gmail.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+As I stated earlier[1], I discovered today that git revert (and thus,
+git cherry-pick as well) do not place the scissors line properly as
+well. This patchset adds a scissors line when conflicts arise in both
+cherry-pick and revert, which fixes the same bug present in git-merge
+earlier.
+
+This patchset should apply on top of dl/merge-cleanup-scissors-fix.
+
+Changes since v1:
+
+* Address Phillip's concern of calling get_cleanup_mode with use_editor = 1;
+  only set to 1 if we are calling for revert or cherry-pick, else 0 to maintain
+  original behaviour (for rebasing).
+
+* Do not die if provided an invalid cleanup option, instead just warn and
+  fallback to default option.
+
+[1]: https://public-inbox.org/git/20190306014143.GA2580@dev-l/
+
+
+Denton Liu (3):
+  t3507: cleanup space after redirection operators
+  cherry-pick/revert: add scissors line on merge conflict
+  sequencer.c: don't die on invalid cleanup_arg
+
+ Documentation/git-cherry-pick.txt |   7 ++
+ Documentation/git-revert.txt      |   7 ++
+ builtin/merge.c                   |  13 +---
+ builtin/rebase--helper.c          |   2 +-
+ builtin/revert.c                  |   5 ++
+ sequencer.c                       |  39 +++++-----
+ sequencer.h                       |   3 +-
+ t/t3507-cherry-pick-conflict.sh   | 122 +++++++++++++++++++++++++-----
+ 8 files changed, 149 insertions(+), 49 deletions(-)
+
+Range-diff against v1:
+1:  70a508ca0b ! 1:  8fdc5bfb15 cherry-pick/revert: add scissors line on merge conflict
+    @@ -8,11 +8,11 @@
+     
+         Note that the removal of the if-else tower in git_sequencer_config may
+         appear to be a no-op refactor but it actually isn't. First of all, we
+    -    now accept "default" as a configuration option and also we die on an
+    -    invalid cleanup mode. Most importantly, though, if
+    +    now accept "default". More importantly, though, if
+         commit.cleanup = scissors, the cleanup enum will be set to
+    -    COMMIT_MSG_CLEANUP_SCISSORS instead of COMMIT_MSG_CLEANUP_SPACE. This
+    -    allows us to append scissors to MERGE_MSG in the case of a conflict.
+    +    COMMIT_MSG_CLEANUP_SCISSORS instead of COMMIT_MSG_CLEANUP_SPACE when we
+    +    are reverting or cherry-picking. This allows us to append scissors to
+    +    MERGE_MSG in the case of a conflict.
+     
+         Signed-off-by: Denton Liu <liu.denton@gmail.com>
+     
+    @@ -77,6 +77,22 @@
+      	strbuf_release(&msgbuf);
+      	fclose(fp);
+     
+    + diff --git a/builtin/rebase--helper.c b/builtin/rebase--helper.c
+    + --- a/builtin/rebase--helper.c
+    + +++ b/builtin/rebase--helper.c
+    +@@
+    + 		OPT_END()
+    + 	};
+    + 
+    ++	opts.action = REPLAY_INTERACTIVE_REBASE;
+    + 	sequencer_init_config(&opts);
+    + 	git_config_get_bool("rebase.abbreviatecommands", &abbreviate_commands);
+    + 
+    +-	opts.action = REPLAY_INTERACTIVE_REBASE;
+    + 	opts.allow_ff = 1;
+    + 	opts.allow_empty = 1;
+    + 
+    +
+      diff --git a/builtin/revert.c b/builtin/revert.c
+      --- a/builtin/revert.c
+      +++ b/builtin/revert.c
+    @@ -108,6 +124,18 @@
+      diff --git a/sequencer.c b/sequencer.c
+      --- a/sequencer.c
+      +++ b/sequencer.c
+    +@@
+    + static GIT_PATH_FUNC(rebase_path_strategy_opts, "rebase-merge/strategy_opts")
+    + static GIT_PATH_FUNC(rebase_path_allow_rerere_autoupdate, "rebase-merge/allow_rerere_autoupdate")
+    + 
+    ++static inline int is_rebase_i(const struct replay_opts *opts)
+    ++{
+    ++	return opts->action == REPLAY_INTERACTIVE_REBASE;
+    ++}
+    ++
+    + static int git_sequencer_config(const char *k, const char *v, void *cb)
+    + {
+    + 	struct replay_opts *opts = cb;
+     @@
+      		if (status)
+      			return status;
+    @@ -123,10 +151,22 @@
+     -		else
+     -			warning(_("invalid commit message cleanup mode '%s'"),
+     -				  s);
+    -+		opts->default_msg_cleanup = get_cleanup_mode(s, 1);
+    ++		opts->default_msg_cleanup = get_cleanup_mode(s, !is_rebase_i(opts));
+      
+      		free((char *)s);
+      		return status;
+    +@@
+    + 	git_config(git_sequencer_config, opts);
+    + }
+    + 
+    +-static inline int is_rebase_i(const struct replay_opts *opts)
+    +-{
+    +-	return opts->action == REPLAY_INTERACTIVE_REBASE;
+    +-}
+    +-
+    + static const char *get_dir(const struct replay_opts *opts)
+    + {
+    + 	if (is_rebase_i(opts))
+     @@
+      		die(_("Invalid cleanup mode %s"), cleanup_arg);
+      }
+-:  ---------- > 2:  f3af8000ae sequencer.c: don't die on invalid cleanup_arg
+-- 
+2.21.0.368.gbf248417d7
+

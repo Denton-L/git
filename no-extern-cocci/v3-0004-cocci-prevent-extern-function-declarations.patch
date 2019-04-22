@@ -1,0 +1,35 @@
+From d5a1663048d38bcbe4fbaff8fffe875c5795941e Mon Sep 17 00:00:00 2001
+Message-Id: <d5a1663048d38bcbe4fbaff8fffe875c5795941e.1555487381.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1555487380.git.liu.denton@gmail.com>
+References: <cover.1555352526.git.liu.denton@gmail.com>
+	<cover.1555487380.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 15 Apr 2019 10:56:15 -0700
+Subject: [PATCH v3 4/4] cocci: prevent extern function declarations
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>, Jeff King <peff@peff.net>, Emily Shaffer <emilyshaffer@google.com>, Thomas Gummerer <t.gummerer@gmail.com>
+
+Since function declarations already implicitly imply extern, create a
+Coccinelle rule which removes the redundant extern.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ contrib/coccinelle/noextern.cocci | 6 ++++++
+ 1 file changed, 6 insertions(+)
+ create mode 100644 contrib/coccinelle/noextern.cocci
+
+diff --git a/contrib/coccinelle/noextern.cocci b/contrib/coccinelle/noextern.cocci
+new file mode 100644
+index 0000000000..8cb39ac947
+--- /dev/null
++++ b/contrib/coccinelle/noextern.cocci
+@@ -0,0 +1,6 @@
++@@
++type T;
++identifier f;
++@@
++- extern
++  T f(...);
+-- 
+2.21.0.832.gd5ec0d3bee
+

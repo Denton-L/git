@@ -1,0 +1,33 @@
+From 2eda83517ebad39e14dca9d86b9dc2e0d32e37ef Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1551938421.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1551868745.git.liu.denton@gmail.com>
+References: <cover.1551868745.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 6 Mar 2019 22:00:21 -0800
+Subject: [PATCH v2 0/1] make git-clean.txt more precise
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+To: git@vger.kernel.org
+Cc: Martin Ågren <martin.agren@gmail.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+Robert reported that core.excludesFile was not mentioned in the
+git-clean docs[1]. This cleans that up by mentioning that in the docs.
+
+[1]: https://public-inbox.org/git/alpine.LFD.2.21.1902231328560.2222@localhost.localdomain/
+
+Changes since v1:
+
+* Use Martin's suggestions of referencing the gitignore(5) instead of
+  writing an exhaustive list. Also, sprinkle in some backticks ;)
+
+Denton Liu (1):
+  git-clean.txt: clarify ignore pattern files
+
+ Documentation/git-clean.txt | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
+
+-- 
+2.21.0.368.gbf248417d7
+

@@ -1,0 +1,124 @@
+From f18d3ee3fa6f69b79ca86ec6de12a47f0d51bf66 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1555832783.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1555523176.git.liu.denton@gmail.com>
+References: <cover.1555523176.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Sun, 21 Apr 2019 00:46:23 -0700
+Subject: [PATCH v7 0/6] rebase: learn --keep-base
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>, Junio C Hamano <gitster@pobox.com>, Ævar Arnfjörð Bjarmason <avarab@gmail.com>, Johannes Schindelin <Johannes.Schindelin@gmx.de>, Johannes Sixt <j6t@kdbg.org>, SZEDER Gábor <szeder.dev@gmail.com>
+
+Hi all,
+
+Sorry for yet another reroll. I realised earlier that rebase doesn't use
+--git-completion-helper for completion so I had to manually insert
+--keep-base into the completion script.
+
+Between this and forgetting to update the comment around the
+can_fast_forward call, I figured with the number of mistakes to fix, it
+was worth another reroll.
+
+Thanks,
+
+Denton
+
+---
+
+This patchset now depends "[PATCH 1/8] tests (rebase): spell out the
+`--keep-empty` option" which is the first patch of Johannes's "Do not
+use abbreviated options in tests" patchset[1]. (Thanks for catching
+that, Johannes!)
+
+Changes since v1:
+
+* Squashed old set into one patch
+* Fixed indentation style and dangling else
+* Added more documentation after discussion with Ævar
+
+Changes since v2:
+
+* Add testing for rebase --fork-point behaviour
+* Add testing for rebase fast-forward behaviour
+* Make rebase --onto fast-forward in more cases
+* Update documentation to include use-case
+
+Changes since v3:
+
+* Fix tests failing on bash 4.2
+* Fix typo in t3431 comment
+
+Changes since v4:
+
+* Make rebase --fork-point fast-forward in more cases
+
+Changes since v5:
+
+* Fix graph illustrations so that the "branch off" is visually in the
+  correct place
+* Refactor if-else in can_fast_forward into one-level-deep ifs to
+  increase clarity
+
+Changes since v6:
+
+* Remove redundant braces around if
+* Update comment around can_fast_forward call
+* Add completion for rebase
+
+[1]: https://public-inbox.org/git/a1b4b74b9167e279dae4cd8c58fb28d8a714a66a.1553537656.git.gitgitgadget@gmail.com/
+
+
+Denton Liu (6):
+  t3431: add rebase --fork-point tests
+  t3432: test rebase fast-forward behavior
+  rebase: refactor can_fast_forward into goto tower
+  rebase: fast-forward --onto in more cases
+  rebase: fast-forward --fork-point in more cases
+  rebase: teach rebase --keep-base
+
+ Documentation/git-rebase.txt           | 30 ++++++++-
+ builtin/rebase.c                       | 87 +++++++++++++++++++-------
+ contrib/completion/git-completion.bash |  2 +-
+ t/t3400-rebase.sh                      |  2 +-
+ t/t3404-rebase-interactive.sh          |  2 +-
+ t/t3416-rebase-onto-threedots.sh       | 57 +++++++++++++++++
+ t/t3431-rebase-fork-point.sh           | 57 +++++++++++++++++
+ t/t3432-rebase-fast-forward.sh         | 83 ++++++++++++++++++++++++
+ 8 files changed, 291 insertions(+), 29 deletions(-)
+ create mode 100755 t/t3431-rebase-fork-point.sh
+ create mode 100755 t/t3432-rebase-fast-forward.sh
+
+Interdiff against v6:
+diff --git a/builtin/rebase.c b/builtin/rebase.c
+index cf63195e7d..19e7e2a1c9 100644
+--- a/builtin/rebase.c
++++ b/builtin/rebase.c
+@@ -1723,7 +1723,9 @@ int cmd_rebase(int argc, const char **argv, const char *prefix)
+ 
+ 	/*
+ 	 * Check if we are already based on onto with linear history,
+-	 * but this should be done if this is not an interactive rebase.
++	 * in which case we could fast-forward without replacing the commits
++	 * with new commits recreated by replaying their changes. This
++	 * optimization must not be done if this is an interactive rebase.
+ 	 */
+ 	if (can_fast_forward(options.onto, options.upstream, options.restrict_revision,
+ 		    &options.orig_head, &merge_base) &&
+diff --git a/contrib/completion/git-completion.bash b/contrib/completion/git-completion.bash
+index 976e4a6548..f9dc431a39 100644
+--- a/contrib/completion/git-completion.bash
++++ b/contrib/completion/git-completion.bash
+@@ -2027,7 +2027,7 @@ _git_rebase ()
+ 			--autosquash --no-autosquash
+ 			--fork-point --no-fork-point
+ 			--autostash --no-autostash
+-			--verify --no-verify
++			--verify --no-verify --keep-base
+ 			--keep-empty --root --force-rebase --no-ff
+ 			--rerere-autoupdate
+ 			--exec
+-- 
+2.21.0.967.gf85e14fd49
+
