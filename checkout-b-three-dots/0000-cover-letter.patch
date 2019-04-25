@@ -1,0 +1,29 @@
+From 031780431d790c16b3862d6f155693e197bb74ed Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1556226502.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Thu, 25 Apr 2019 14:08:22 -0700
+Subject: [PATCH 0/3] checkout: allow -b/-B to work on a merge base
+To: Git Mailing List <git@vger.kernel.org>
+
+I noticed earlier that running
+
+	$ git checkout -b test master...
+
+would result in the following failure message:
+
+	fatal: Not a valid object name: 'master...'.
+
+I believe that this is a bug, so this patchset will allow this to succeed.
+
+Denton Liu (3):
+  t2018: cleanup in current test
+  t2018: demonstrate checkout -b merge base bug
+  checkout: allow -b/-B to work on a merge base
+
+ builtin/checkout.c         |  4 ++-
+ t/t2018-checkout-branch.sh | 52 +++++++++++++++++++-------------------
+ 2 files changed, 29 insertions(+), 27 deletions(-)
+
+-- 
+2.21.0.1033.g0e8cc1100c
+
