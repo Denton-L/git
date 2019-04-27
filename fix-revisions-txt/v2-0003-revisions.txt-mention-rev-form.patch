@@ -1,0 +1,39 @@
+From 9012ebc23c1053bfa544b2805338304a7cfa9b99 Mon Sep 17 00:00:00 2001
+Message-Id: <9012ebc23c1053bfa544b2805338304a7cfa9b99.1556367012.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1556367012.git.liu.denton@gmail.com>
+References: <18c8ed70602271a28c93df922eb3da8fb7563e2e.1555913472.git.liu.denton@gmail.com>
+	<cover.1556367012.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Sun, 21 Apr 2019 22:57:03 -0700
+Subject: [PATCH v2 3/3] revisions.txt: mention <rev>~ form
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Andreas Heiduk <asheiduk@gmail.com>, Duy Nguyen <pclouds@gmail.com>, Junio C Hamano <gitster@pobox.com>
+
+In revisions.txt, the '<rev>^' form is mentioned but the '<rev>~' form
+is missing. Although both forms are essentially equivalent (they each
+get the first parent of the specified revision), we should mention the
+latter for completeness. Make this change.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Documentation/revisions.txt | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/revisions.txt b/Documentation/revisions.txt
+index 68cce2ca06..372b286755 100644
+--- a/Documentation/revisions.txt
++++ b/Documentation/revisions.txt
+@@ -139,7 +139,9 @@ thing no matter the case.
+   '<rev>{caret}0' means the commit itself and is used when '<rev>' is the
+   object name of a tag object that refers to a commit object.
+ 
+-'<rev>{tilde}<n>', e.g. 'master{tilde}3'::
++'<rev>{tilde}[<n>]', e.g. 'HEAD{tilde}, master{tilde}3'::
++  A suffix '{tilde}' to a revision parameter means the first parent of
++  that commit object.
+   A suffix '{tilde}<n>' to a revision parameter means the commit
+   object that is the <n>th generation ancestor of the named
+   commit object, following only the first parents.  I.e. '<rev>{tilde}3' is
+-- 
+2.21.0.1000.g11cd861522
+

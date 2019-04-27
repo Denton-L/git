@@ -1,0 +1,58 @@
+From 90c787c219d25f38c1d53ae837160994a7bc6355 Mon Sep 17 00:00:00 2001
+Message-Id: <90c787c219d25f38c1d53ae837160994a7bc6355.1556367012.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1556367012.git.liu.denton@gmail.com>
+References: <18c8ed70602271a28c93df922eb3da8fb7563e2e.1555913472.git.liu.denton@gmail.com>
+	<cover.1556367012.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Fri, 26 Apr 2019 16:16:16 -0700
+Subject: [PATCH v2 2/3] revisions.txt: mark optional rev arguments with []
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Andreas Heiduk <asheiduk@gmail.com>, Duy Nguyen <pclouds@gmail.com>, Junio C Hamano <gitster@pobox.com>
+
+In revisions.txt, an optional rev argument was not distinguised.
+Instead, a user had to continue and read the description in order to
+learn that the argument was optional.
+
+Since the [] notation for an optional argument is common-knowledge in
+the Git documentation, mark optional arguments with [] so that it's more
+obvious for the reader.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Documentation/revisions.txt | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/Documentation/revisions.txt b/Documentation/revisions.txt
+index e5f11691b1..68cce2ca06 100644
+--- a/Documentation/revisions.txt
++++ b/Documentation/revisions.txt
+@@ -95,7 +95,7 @@ some output processing may assume ref names in UTF-8.
+   The construct '@{-<n>}' means the <n>th branch/commit checked out
+   before the current one.
+ 
+-'<branchname>@\{upstream\}', e.g. 'master@\{upstream\}', '@\{u\}'::
++'[<branchname>]@\{upstream\}', e.g. 'master@\{upstream\}', '@\{u\}'::
+   The suffix '@\{upstream\}' to a branchname (short form '<branchname>@\{u\}')
+   refers to the branch that the branch specified by branchname is set to build on
+   top of (configured with `branch.<name>.remote` and
+@@ -103,7 +103,7 @@ some output processing may assume ref names in UTF-8.
+   current one. These suffixes are also accepted when spelled in uppercase, and
+   they mean the same thing no matter the case.
+ 
+-'<branchname>@\{push\}', e.g. 'master@\{push\}', '@\{push\}'::
++'[<branchname>]@\{push\}', e.g. 'master@\{push\}', '@\{push\}'::
+   The suffix '@\{push}' reports the branch "where we would push to" if
+   `git push` were run while `branchname` was checked out (or the current
+   `HEAD` if no branchname is specified). Since our push destination is
+@@ -131,7 +131,7 @@ from one location and push to another. In a non-triangular workflow,
+ This suffix is also accepted when spelled in uppercase, and means the same
+ thing no matter the case.
+ 
+-'<rev>{caret}', e.g. 'HEAD{caret}, v1.5.1{caret}0'::
++'<rev>{caret}[<n>]', e.g. 'HEAD{caret}, v1.5.1{caret}0'::
+   A suffix '{caret}' to a revision parameter means the first parent of
+   that commit object.  '{caret}<n>' means the <n>th parent (i.e.
+   '<rev>{caret}'
+-- 
+2.21.0.1000.g11cd861522
+
