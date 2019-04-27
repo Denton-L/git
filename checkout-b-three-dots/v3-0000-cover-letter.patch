@@ -1,0 +1,104 @@
+From bb258527407126fa6e3d56de64dc76fd52c5d504 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1556366347.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1556305561.git.liu.denton@gmail.com>
+References: <cover.1556305561.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Sat, 27 Apr 2019 04:59:07 -0700
+Subject: [PATCH v3 0/2] allow checkout and branch to create branches on a merge base
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>, Junio C Hamano <gitster@pobox.com>
+
+Thanks again for the review, Junio.
+
+I've squashed 2/3 and 3/3 together and made that documentation change I
+was talking about earlier.
+
+---
+
+Changes since v2:
+
+* Squashed 2/3 with 3/3
+* Document merge base syntax for <start_point> in git-checkout.txt
+
+Changes since v1:
+
+* Moved multiple `test_when_finished` calls that appeared in "reverse
+  order" into one call that appears in the logical order
+* Made create_branch handle merge base revs instead of putting a hack
+  into checkout
+
+Denton Liu (2):
+  t2018: cleanup in current test
+  branch: make create_branch accept a merge base rev
+
+ Documentation/git-branch.txt   |  6 +++-
+ Documentation/git-checkout.txt |  4 +++
+ branch.c                       |  2 +-
+ t/t2018-checkout-branch.sh     | 56 ++++++++++++++++++----------------
+ t/t3200-branch.sh              | 14 ++++++---
+ 5 files changed, 50 insertions(+), 32 deletions(-)
+
+Range-diff against v2:
+1:  9d04faf29d = 1:  9d04faf29d t2018: cleanup in current test
+2:  5e8320cd80 < -:  ---------- t2018: demonstrate checkout -b merge base bug
+3:  c91c7535a7 ! 2:  bb25852740 branch: make create_branch accept a merge base rev
+    @@ -41,6 +41,21 @@
+      Note that this will create the new branch, but it will not switch the
+      working tree to it; use "git checkout <newbranch>" to switch to the
+     
+    + diff --git a/Documentation/git-checkout.txt b/Documentation/git-checkout.txt
+    + --- a/Documentation/git-checkout.txt
+    + +++ b/Documentation/git-checkout.txt
+    +@@
+    + <start_point>::
+    + 	The name of a commit at which to start the new branch; see
+    + 	linkgit:git-branch[1] for details. Defaults to HEAD.
+    +++
+    ++As a special case, you may use `"A...B"` as a shortcut for the
+    ++merge base of `A` and `B` if there is exactly one merge base. You can
+    ++leave out at most one of `A` and `B`, in which case it defaults to `HEAD`.
+    + 
+    + <tree-ish>::
+    + 	Tree to checkout from (when paths are given). If not specified,
+    +
+      diff --git a/branch.c b/branch.c
+      --- a/branch.c
+      +++ b/branch.c
+    @@ -61,20 +76,29 @@
+      	do_checkout branch2
+      '
+      
+    --test_expect_failure 'checkout -b to a merge base' '
+     +test_expect_success 'checkout -b to a merge base' '
+    ++	test_when_finished "
+    ++		git checkout branch1 &&
+    ++		test_might_fail git branch -D branch2" &&
+    ++	git checkout -b branch2 branch1...
+    ++'
+    ++
+    + test_expect_success 'checkout -b to a new branch, set to an explicit ref' '
+      	test_when_finished "
+      		git checkout branch1 &&
+    - 		test_might_fail git branch -D branch2" &&
+     @@
+      	do_checkout branch2 "" -B
+      '
+      
+    --test_expect_failure 'checkout -B to a merge base' '
+     +test_expect_success 'checkout -B to a merge base' '
+    - 	git checkout branch1 &&
+    ++	git checkout branch1 &&
+    ++
+    ++	git checkout -B branch2 branch1...
+    ++'
+    ++
+    + test_expect_success 'checkout -B to an existing branch from detached HEAD resets branch to HEAD' '
+    + 	git checkout $(git rev-parse --verify HEAD) &&
+      
+    - 	git checkout -B branch2 branch1...
+     
+      diff --git a/t/t3200-branch.sh b/t/t3200-branch.sh
+      --- a/t/t3200-branch.sh
+-- 
+2.21.0.1000.g11cd861522
+
