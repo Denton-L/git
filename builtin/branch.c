@@ -593,7 +593,7 @@ static int edit_branch_description(const char *branch_name)
 	return 0;
 }
 
-static void set_branch_remote(int argc, const char **argv, const char *remote_name)
+static void set_branch_remote(int argc, const char **argv, const char *remote_name, int is_push)
 {
 	struct branch *branch = branch_get(argv[0]);
 	struct remote *remote = remote_get(remote_name);
@@ -619,7 +619,7 @@ static void set_branch_remote(int argc, const char **argv, const char *remote_na
 	if (!branch_has_merge_config(branch))
 		die(_("configuring remote with no merge ref does not make sense"));
 
-	strbuf_addf(&buf, "branch.%s.remote", branch->name);
+	strbuf_addf(&buf, "branch.%s.%s", branch->name, is_push ? "pushRemote" : "remote");
 	git_config_set(buf.buf, remote_name);
 	strbuf_release(&buf);
 }
@@ -632,6 +632,7 @@ int cmd_branch(int argc, const char **argv, const char *prefix)
 	int quiet = 0, unset_upstream = 0;
 	const char *new_upstream = NULL;
 	const char *new_remote = NULL;
+	const char *new_push_remote = NULL;
 	enum branch_track track;
 	struct ref_filter filter;
 	int icase = 0;
@@ -650,6 +651,7 @@ int cmd_branch(int argc, const char **argv, const char *prefix)
 		OPT_STRING('u', "set-upstream-to", &new_upstream, N_("upstream"), N_("change the upstream info")),
 		OPT_BOOL(0, "unset-upstream", &unset_upstream, N_("Unset the upstream info")),
 		OPT_STRING(0, "set-remote-to", &new_remote, N_("remote"), N_("change the remote info")),
+		OPT_STRING(0, "set-push-remote-to", &new_push_remote, N_("remote"), N_("change the push remote info")),
 		OPT__COLOR(&branch_use_color, N_("use colored output")),
 		OPT_SET_INT('r', "remotes",     &filter.kind, N_("act on remote-tracking branches"),
 			FILTER_REFS_REMOTES),
@@ -712,7 +714,7 @@ int cmd_branch(int argc, const char **argv, const char *prefix)
 			     0);
 
 	if (!delete && !rename && !copy && !edit_description && !new_upstream &&
-	    !show_current && !unset_upstream && !new_remote && argc == 0)
+	    !show_current && !unset_upstream && !new_remote && !new_push_remote && argc == 0)
 		list = 1;
 
 	if (filter.with_commit || filter.merge != REF_FILTER_MERGED_NONE || filter.points_at.nr ||
@@ -720,7 +722,7 @@ int cmd_branch(int argc, const char **argv, const char *prefix)
 		list = 1;
 
 	if (!!delete + !!rename + !!copy + edit_description + !!new_upstream + !!show_current +
-	    list + unset_upstream + !!new_remote > 1)
+	    list + unset_upstream + !!new_remote + !!new_push_remote > 1)
 		usage_with_options(builtin_branch_usage, options);
 
 	if (filter.abbrev == -1)
@@ -862,7 +864,9 @@ int cmd_branch(int argc, const char **argv, const char *prefix)
 		git_config_set_multivar(buf.buf, NULL, NULL, 1);
 		strbuf_release(&buf);
 	} else if (new_remote) {
-		set_branch_remote(argc, argv, new_remote);
+		set_branch_remote(argc, argv, new_remote, 0);
+	} else if (new_push_remote) {
+		set_branch_remote(argc, argv, new_push_remote, 1);
 	} else if (argc > 0 && argc <= 2) {
 		if (filter.kind != FILTER_REFS_BRANCHES)
 			die(_("-a and -r options to 'git branch' do not make sense with a branch name"));

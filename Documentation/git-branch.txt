@@ -227,6 +227,13 @@ start-point is either a local or remote-tracking branch.
 	`branch.<branchname>.remote`. If no <branchname> is specified,
 	then it defaults to the current branch.
 
+--set-push-remote-to=<remote>::
+	Set up <branchname>'s tracking information so <remote> is
+	considered <branchname>'s remote for pushing by setting
+	`branch.<branchname>.pushRemote`. This overrides the setting in
+	`branch.<branchname>.remote`. If no <branchname> is specified,
+	then it defaults to the current branch.
+
 --edit-description::
 	Open an editor and edit the text to explain what the branch is
 	for, to be used by various other commands (e.g. `format-patch`,
