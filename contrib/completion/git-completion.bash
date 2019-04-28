@@ -1302,8 +1302,8 @@ _git_branch ()
 	--set-upstream-to=*)
 		__git_complete_refs --cur="${cur##--set-upstream-to=}"
 		;;
-	--set-remote-to=* | --set-push-remote-to=*)
-		__gitcomp_nl "$(__git_remotes)" "" "${cur#--set-*-to=}"
+	--set-remote-to=* | --set-push-remote-to=* | --set-remote-save-to-push=*)
+		__gitcomp_nl "$(__git_remotes)" "" "${cur#--set-*=}"
 		;;
 	--*)
 		__gitcomp_builtin branch

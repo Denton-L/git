@@ -1075,6 +1075,72 @@ test_expect_success '--set-push-remote-to fails when merge ref is not configured
 	test_i18ncmp expect err
 '
 
+test_expect_success '--set-remote-save-to-push works normally' '
+	test_when_finished "
+		test_unconfig branch.my16.remote &&
+		test_unconfig branch.my16.merge" &&
+	git branch --set-upstream-to a/master my16 &&
+	git branch --set-remote-save-to-push b my16 &&
+	echo b >expect &&
+	git config branch.my16.remote >actual &&
+	test_cmp expect actual &&
+	echo a >expect &&
+	git config branch.my16.pushRemote >actual &&
+	test_cmp expect actual
+'
+
+test_expect_success '--set-remote-save-to-push fails on multiple branches' '
+	git branch --set-upstream-to a/master b1 &&
+	git branch --set-upstream-to a/master b2 &&
+	echo "fatal: too many arguments to set new remote" >expect &&
+	test_must_fail git branch --set-remote-save-to-push b b1 b2 2>err &&
+	test_i18ncmp expect err
+'
+
+test_expect_success '--set-remote-save-to-push fails on detached HEAD' '
+	git checkout HEAD^{} &&
+	test_when_finished git checkout - &&
+	echo "fatal: could not set remote of HEAD to a when it does not point to any branch." >expect &&
+	test_must_fail git branch --set-remote-save-to-push a 2>err &&
+	test_i18ncmp expect err
+'
+
+test_expect_success '--set-remote-save-to-push fails on bogus branch' '
+	echo "fatal: branch '"'"'does-not-exist'"'"' does not exist" >expect &&
+	test_must_fail git branch --set-remote-save-to-push a does-not-exist 2>err &&
+	test_i18ncmp expect err
+'
+
+test_expect_success '--set-remote-save-to-push fails on bogus remote' '
+	test_when_finished "
+		test_unconfig branch.my16.remote &&
+		test_unconfig branch.my16.merge" &&
+	git branch --set-upstream-to a/master my16 &&
+	echo "fatal: no such remote '"'"'bogus'"'"'" >expect &&
+	test_must_fail git branch --set-remote-save-to-push bogus my16 2>err &&
+	test_i18ncmp expect err
+'
+
+test_expect_success '--set-remote-save-to-push fails on locked config' '
+	test_when_finished "
+		test_unconfig branch.my16.remote &&
+		test_unconfig branch.my16.merge" &&
+	git branch --set-upstream-to a/master my16 &&
+	test_when_finished "rm -f .git/config.lock" &&
+	>.git/config.lock &&
+	test_must_fail git branch --set-remote-save-to-push b my16 2>err &&
+	test_i18ngrep "could not lock config file .git/config: File exists" err
+'
+
+test_expect_success '--set-remote-save-to-push fails when merge ref is not configured' '
+	test_when_finished "
+		test_unconfig branch.my16.remote &&
+		test_unconfig branch.my16.merge" &&
+	echo "fatal: configuring remote with no merge ref does not make sense" >expect &&
+	test_must_fail git branch --set-remote-save-to-push a my16 2>err &&
+	test_i18ncmp expect err
+'
+
 # Keep this test last, as it changes the current branch
 cat >expect <<EOF
 $ZERO_OID $HEAD $GIT_COMMITTER_NAME <$GIT_COMMITTER_EMAIL> 1117150200 +0000	branch: Created from master

@@ -17,7 +17,8 @@ SYNOPSIS
 'git branch' [--track | --no-track] [-f] <branchname> [<start-point>]
 'git branch' (--set-upstream-to=<upstream> | -u <upstream>) [<branchname>]
 'git branch' --unset-upstream [<branchname>]
-'git branch' [--set-remote-to | --set-push-remote-to]=<remote> [<branchname>]
+'git branch' [--set-remote-to | --set-push-remote-to |
+	--set-remote-save-to-push]=<remote> [<branchname>]
 'git branch' (-m | -M) [<oldbranch>] <newbranch>
 'git branch' (-c | -C) [<oldbranch>] <newbranch>
 'git branch' (-d | -D) [-r] <branchname>...
@@ -233,6 +234,18 @@ start-point is either a local or remote-tracking branch.
 	`branch.<branchname>.pushRemote`. This overrides the setting in
 	`branch.<branchname>.remote`. If no <branchname> is specified,
 	then it defaults to the current branch.
+
+--set-remote-save-to-push=<remote>::
+	Set up <branchname>'s tracking information so the current
+	`branch.<branchname>.remote` is saved into
+	`branch.<branchname>.pushRemote` before
+	`branch.<branchname>.remote` is set to <remote>.
++
+This is useful in the case where you pull from one place (e.g. your
+upstream) and you push to another place (e.g. your own publishing
+repository). You can use `git branch --set-remote-save-to-push=upstream` to set
+the fetch remote to `upstream` and the push remote to the what was previously
+set.
 
 --edit-description::
 	Open an editor and edit the text to explain what the branch is
