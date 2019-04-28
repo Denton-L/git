@@ -17,6 +17,7 @@ SYNOPSIS
 'git branch' [--track | --no-track] [-f] <branchname> [<start-point>]
 'git branch' (--set-upstream-to=<upstream> | -u <upstream>) [<branchname>]
 'git branch' --unset-upstream [<branchname>]
+'git branch' [--set-remote-to | --set-push-remote-to]=<remote> [<branchname>]
 'git branch' (-m | -M) [<oldbranch>] <newbranch>
 'git branch' (-c | -C) [<oldbranch>] <newbranch>
 'git branch' (-d | -D) [-r] <branchname>...
@@ -219,6 +220,12 @@ start-point is either a local or remote-tracking branch.
 --unset-upstream::
 	Remove the upstream information for <branchname>. If no branch
 	is specified it defaults to the current branch.
+
+--set-remote-to=<remote>::
+	Set up <branchname>'s tracking information so <remote> is
+	considered <branchname>'s remote for fetching/pushing by setting
+	`branch.<branchname>.remote`. If no <branchname> is specified,
+	then it defaults to the current branch.
 
 --edit-description::
 	Open an editor and edit the text to explain what the branch is
