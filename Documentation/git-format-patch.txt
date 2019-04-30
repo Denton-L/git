@@ -19,6 +19,7 @@ SYNOPSIS
 		   [--start-number <n>] [--numbered-files]
 		   [--in-reply-to=<Message-Id>] [--suffix=.<sfx>]
 		   [--ignore-if-in-upstream]
+		   [--[no-]infer-cover-subject]
 		   [--rfc] [--subject-prefix=<Subject-Prefix>]
 		   [(--reroll-count|-v) <n>]
 		   [--to=<email>] [--cc=<email>]
@@ -170,6 +171,14 @@ will want to ensure that threading is disabled for `git send-email`.
 	from <since> but not from <until> and compare them with the
 	patches being generated, and any patch that matches is
 	ignored.
+
+--[no-]infer-cover-subject::
+	Instead of using the default "*** SUBJECT HERE ***" subject for
+	the cover letter, infer the subject from the branch's
+	description.
++
+Similar to a commit message, the subject is inferred as the beginning of
+the description up to and excluding the first blank line.
 
 --subject-prefix=<Subject-Prefix>::
 	Instead of the standard '[PATCH]' prefix in the subject
@@ -351,6 +360,7 @@ with configuration variables.
 	signOff = true
 	outputDirectory = <directory>
 	coverLetter = auto
+	inferCoverSubject = true
 ------------
 
 
