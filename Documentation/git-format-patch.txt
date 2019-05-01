@@ -363,8 +363,8 @@ with configuration variables.
 	inferCoverSubject = true
 ------------
 
-In addition, for a specific branch, you can specify a custom cover
-letter subject, and add additional "To:" or "Cc:" headers.
+In addition, for a specific branch, you can add additional "To:" or
+"Cc:" headers.
 
 ------------
 [format "branch-name"]

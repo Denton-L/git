@@ -1794,24 +1794,6 @@ int cmd_format_patch(int argc, const char **argv, const char *prefix)
 	if (rev.show_notes)
 		init_display_notes(&rev.notes_opt);
 
-	if (!output_directory && !use_stdout)
-		output_directory = config_output_directory;
-
-	if (!use_stdout)
-		output_directory = set_outdir(prefix, output_directory);
-	else
-		setup_pager();
-
-	if (output_directory) {
-		if (rev.diffopt.use_color != GIT_COLOR_ALWAYS)
-			rev.diffopt.use_color = GIT_COLOR_NEVER;
-		if (use_stdout)
-			die(_("standard output, or directory, which one?"));
-		if (mkdir(output_directory, 0777) < 0 && errno != EEXIST)
-			die_errno(_("could not create directory '%s'"),
-				  output_directory);
-	}
-
 	if (rev.pending.nr == 1) {
 		int check_head = 0;
 
@@ -1843,6 +1825,24 @@ int cmd_format_patch(int argc, const char **argv, const char *prefix)
 			else
 				branch_name = xstrdup(""); /* no branch */
 		}
+	}
+
+	if (!output_directory && !use_stdout)
+		output_directory = config_output_directory;
+
+	if (!use_stdout)
+		output_directory = set_outdir(prefix, output_directory);
+	else
+		setup_pager();
+
+	if (output_directory) {
+		if (rev.diffopt.use_color != GIT_COLOR_ALWAYS)
+			rev.diffopt.use_color = GIT_COLOR_NEVER;
+		if (use_stdout)
+			die(_("standard output, or directory, which one?"));
+		if (mkdir(output_directory, 0777) < 0 && errno != EEXIST)
+			die_errno(_("could not create directory '%s'"),
+				  output_directory);
 	}
 
 	add_branch_headers(&rev, branch_name);
