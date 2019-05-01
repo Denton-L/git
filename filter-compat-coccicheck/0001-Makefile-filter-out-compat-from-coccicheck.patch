@@ -1,0 +1,46 @@
+From 13f290d20eba6f95082aea2afae87b053fa43919 Mon Sep 17 00:00:00 2001
+Message-Id: <13f290d20eba6f95082aea2afae87b053fa43919.1556704498.git.liu.denton@gmail.com>
+In-Reply-To: <nycvar.QRO.7.76.6.1904301919580.45@tvgsbejvaqbjf.bet>
+References: <nycvar.QRO.7.76.6.1904301919580.45@tvgsbejvaqbjf.bet>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 1 May 2019 05:50:04 -0400
+Subject: [PATCH] Makefile: filter out compat/ from coccicheck
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Johannes Schindelin <Johannes.Schindelin@gmx.de>, SZEDER Gábor <szeder.dev@gmail.com>, Jeff King <peff@peff.net>, Junio C Hamano <gitster@pobox.com>, Emily Shaffer <emilyshaffer@google.com>, Thomas Gummerer <t.gummerer@gmail.com>
+
+Since most files in compat/ are pulled from external sources, ensure
+that they do not get modified when we run coccicheck because we do not
+want them to differ from upstream as much as possible.
+
+Make exceptions for mingw.c and win32/*.c as these are files that we
+have created.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Makefile | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 9f1b6e8926..b083c038c3 100644
+--- a/Makefile
++++ b/Makefile
+@@ -2782,11 +2782,14 @@ check: command-list.h
+ 	fi
+ 
+ C_SOURCES = $(patsubst %.o,%.c,$(C_OBJ))
++COCCI_COMPAT_SOURCES = $(addprefix compat/,mingw.c win32/%)
+ ifdef DC_SHA1_SUBMODULE
+-COCCI_SOURCES = $(filter-out sha1collisiondetection/%,$(C_SOURCES))
++COCCI_SOURCES := $(filter-out sha1collisiondetection/%,$(C_SOURCES))
+ else
+-COCCI_SOURCES = $(filter-out sha1dc/%,$(C_SOURCES))
++COCCI_SOURCES := $(filter-out sha1dc/%,$(C_SOURCES))
+ endif
++COCCI_SOURCES := $(filter-out compat/%,$(COCCI_SOURCES))
++COCCI_SOURCES += $(filter $(COCCI_COMPAT_SOURCES),$(C_SOURCES))
+ 
+ %.cocci.patch: %.cocci $(COCCI_SOURCES)
+ 	@echo '    ' SPATCH $<; \
+-- 
+2.21.0.1033.g0e8cc1100c
+
