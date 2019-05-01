@@ -1690,35 +1690,6 @@ int cmd_format_patch(int argc, const char **argv, const char *prefix)
 		rev.subject_prefix = strbuf_detach(&sprefix, NULL);
 	}
 
-	for (i = 0; i < extra_hdr.nr; i++) {
-		strbuf_addstr(&buf, extra_hdr.items[i].string);
-		strbuf_addch(&buf, '\n');
-	}
-
-	if (extra_to.nr)
-		strbuf_addstr(&buf, "To: ");
-	for (i = 0; i < extra_to.nr; i++) {
-		if (i)
-			strbuf_addstr(&buf, "    ");
-		strbuf_addstr(&buf, extra_to.items[i].string);
-		if (i + 1 < extra_to.nr)
-			strbuf_addch(&buf, ',');
-		strbuf_addch(&buf, '\n');
-	}
-
-	if (extra_cc.nr)
-		strbuf_addstr(&buf, "Cc: ");
-	for (i = 0; i < extra_cc.nr; i++) {
-		if (i)
-			strbuf_addstr(&buf, "    ");
-		strbuf_addstr(&buf, extra_cc.items[i].string);
-		if (i + 1 < extra_cc.nr)
-			strbuf_addch(&buf, ',');
-		strbuf_addch(&buf, '\n');
-	}
-
-	rev.extra_headers = strbuf_detach(&buf, NULL);
-
 	if (from) {
 		if (split_ident_line(&rev.from_ident, from, strlen(from)))
 			die(_("invalid ident line: %s"), from);
@@ -1820,6 +1791,35 @@ int cmd_format_patch(int argc, const char **argv, const char *prefix)
 				branch_name = xstrdup(""); /* no branch */
 		}
 	}
+
+	for (i = 0; i < extra_hdr.nr; i++) {
+		strbuf_addstr(&buf, extra_hdr.items[i].string);
+		strbuf_addch(&buf, '\n');
+	}
+
+	if (extra_to.nr)
+		strbuf_addstr(&buf, "To: ");
+	for (i = 0; i < extra_to.nr; i++) {
+		if (i)
+			strbuf_addstr(&buf, "    ");
+		strbuf_addstr(&buf, extra_to.items[i].string);
+		if (i + 1 < extra_to.nr)
+			strbuf_addch(&buf, ',');
+		strbuf_addch(&buf, '\n');
+	}
+
+	if (extra_cc.nr)
+		strbuf_addstr(&buf, "Cc: ");
+	for (i = 0; i < extra_cc.nr; i++) {
+		if (i)
+			strbuf_addstr(&buf, "    ");
+		strbuf_addstr(&buf, extra_cc.items[i].string);
+		if (i + 1 < extra_cc.nr)
+			strbuf_addch(&buf, ',');
+		strbuf_addch(&buf, '\n');
+	}
+
+	rev.extra_headers = strbuf_detach(&buf, NULL);
 
 	/*
 	 * We cannot move this anywhere earlier because we do want to
