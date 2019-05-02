@@ -209,6 +209,13 @@ struct string_list_item *string_list_append(struct string_list *list, const char
 struct string_list_item *string_list_append_nodup(struct string_list *list, char *string);
 
 /**
+ * Add all strings in append_list to list.  If list->strdup_string is
+ * set, then each string is copied; otherwise the new string_list_entry
+ * refers to the entry in the append_list.
+ */
+void string_list_append_all(struct string_list *list, const struct string_list *append_list);
+
+/**
  * Sort the list's entries by string value in `strcmp()` order.
  */
 void string_list_sort(struct string_list *list);

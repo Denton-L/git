@@ -215,6 +215,15 @@ struct string_list_item *string_list_append(struct string_list *list,
 			list->strdup_strings ? xstrdup(string) : (char *)string);
 }
 
+void string_list_append_all(struct string_list *list,
+			    const struct string_list *append_list)
+{
+	struct string_list_item *item;
+	ALLOC_GROW(list->items, list->nr + append_list->nr, list->alloc);
+	for_each_string_list_item(item, append_list)
+		string_list_append(list, item->string);
+}
+
 /*
  * Encapsulate the compare function pointer because ISO C99 forbids
  * casting from void * to a function pointer and vice versa.
