@@ -1046,6 +1046,24 @@ static void show_diffstat(struct rev_info *rev,
 	fprintf(rev->diffopt.file, "\n");
 }
 
+static const char *get_branch_output_dir(struct rev_info *rev, const char *branch_name)
+{
+	struct strbuf buf = STRBUF_INIT;
+	const char *output_directory;
+
+	if (!branch_name)
+		branch_name = find_branch_name(rev);
+
+	if (!branch_name || !*branch_name)
+		return NULL;
+
+	strbuf_addf(&buf, "format.%s.outputdirectory", branch_name);
+	git_config_get_string_const(buf.buf, &output_directory);
+	strbuf_release(&buf);
+
+	return output_directory;
+}
+
 static void add_branch_headers(struct rev_info *rev, const char *branch_name)
 {
 	struct strbuf buf = STRBUF_INIT;
@@ -1827,8 +1845,12 @@ int cmd_format_patch(int argc, const char **argv, const char *prefix)
 		}
 	}
 
-	if (!output_directory && !use_stdout)
-		output_directory = config_output_directory;
+	if (!use_stdout) {
+		if (!output_directory)
+			output_directory = get_branch_output_dir(&rev, branch_name);
+		if (!output_directory)
+			output_directory = config_output_directory;
+	}
 
 	if (!use_stdout)
 		output_directory = set_outdir(prefix, output_directory);

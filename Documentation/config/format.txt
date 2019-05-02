@@ -88,8 +88,11 @@ format.coverLetter::
 	generate a cover-letter only when there's more than one patch.
 
 format.outputDirectory::
+format.<branch-name>.outputDirectory::
 	Set a custom directory to store the resulting files instead of the
-	current working directory.
+	current working directory. If patches are being generated for
+	<branch-name>, the latter option takes priority if it exists,
+	otherwise we will fallback to the former.
 
 format.useAutoBase::
 	A boolean value which lets you enable the `--base=auto` option of

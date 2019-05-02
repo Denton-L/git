@@ -364,12 +364,13 @@ with configuration variables.
 ------------
 
 In addition, for a specific branch, you can add additional "To:" or
-"Cc:" headers.
+"Cc:" headers and change the patch output directory.
 
 ------------
 [format "branch-name"]
 	to = <email>
 	cc = <email>
+	outputDirectory = <directory>
 ------------
 
 DISCUSSION

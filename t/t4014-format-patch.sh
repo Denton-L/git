@@ -1756,12 +1756,24 @@ test_expect_success 'format-patch format.outputDirectory option' '
 	test_line_count = $(ls patches | wc -l) list
 '
 
-test_expect_success 'format-patch -o overrides format.outputDirectory' '
+test_expect_success 'format-patch format.side.outputDirectory option overrides format.outputDirectory' '
 	test_config format.outputDirectory patches &&
-	rm -fr patches patchset &&
+	test_config format.side.outputDirectory sidepatches &&
+	rm -fr patches sidepatches &&
+	git format-patch master..side &&
+	git rev-list master..side >list &&
+	test_path_is_missing patches &&
+	test_line_count = $(ls sidepatches | wc -l) list
+'
+
+test_expect_success 'format-patch -o overrides format.outputDirectory and format.side.outputDirectory' '
+	test_config format.outputDirectory patches &&
+	test_config format.side.outputDirectory sidepatches &&
+	rm -fr patches sidepatches patchset &&
 	git format-patch master..side -o patchset &&
 	test_path_is_missing patches &&
-	test_path_is_dir patchset
+	test_path_is_missing sidepatches &&
+	test_line_count = $(ls patchset | wc -l) list
 '
 
 test_expect_success 'format-patch --base' '
