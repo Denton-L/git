@@ -204,7 +204,7 @@ the description up to and excluding the first blank line.
 	Add a `To:` header to the email headers. This is in addition
 	to any configured headers, and may be used multiple times. The
 	emails given will be used along with any emails given by
-	`format.to` configurations.
+	`format.to` and `format.<branch-name>.to` configurations.
 	The negated form `--no-to` discards all `To:` headers added so
 	far (from config or command line).
 
@@ -212,7 +212,7 @@ the description up to and excluding the first blank line.
 	Add a `Cc:` header to the email headers. This is in addition
 	to any configured headers, and may be used multiple times. The
 	emails given will be used along with any emails given by
-	`format.cc` configurations.
+	`format.cc` and `format.<branch-name>.cc` configurations.
 	The negated form `--no-cc` discards all `Cc:` headers added so
 	far (from config or command line).
 
@@ -363,6 +363,14 @@ with configuration variables.
 	inferCoverSubject = true
 ------------
 
+In addition, for a specific branch, you can specify a custom cover
+letter subject, and add additional "To:" or "Cc:" headers.
+
+------------
+[format "branch-name"]
+	to = <email>
+	cc = <email>
+------------
 
 DISCUSSION
 ----------

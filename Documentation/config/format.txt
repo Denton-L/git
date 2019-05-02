@@ -28,15 +28,19 @@ format.headers::
 
 format.to::
 format.cc::
+format.<branch-name>.to::
+format.<branch-name>.cc::
 	Additional recipients to include in a patch to be submitted
-	by mail.  See the --to and --cc options in
-	linkgit:git-format-patch[1].
+	by mail.  For the <branch-name> options, the recipients are only
+	included if patches are generated for the given <branch-name>.
+	See the --to and --cc options in linkgit:git-format-patch[1].
 
 format.subjectPrefix::
 	The default for format-patch is to output files with the '[PATCH]'
 	subject prefix. Use this variable to change that prefix.
 
 format.inferCoverSubject::
+format.<branch-name>.inferCoverSubject::
 	A boolean that controls whether or not to infer the subject for
 	the cover letter based on the branch's description. See the
 	--infer-cover-subject option in linkgit:git-format-patch[1].

@@ -743,6 +743,8 @@ static char *default_attach = NULL;
 static struct string_list extra_hdr = STRING_LIST_INIT_NODUP;
 static struct string_list extra_to = STRING_LIST_INIT_NODUP;
 static struct string_list extra_cc = STRING_LIST_INIT_NODUP;
+int to_cleared;
+int cc_cleared;
 
 static void add_header(const char *value)
 {
@@ -1044,6 +1046,55 @@ static void show_diffstat(struct rev_info *rev,
 	fprintf(rev->diffopt.file, "\n");
 }
 
+static void add_branch_headers(struct rev_info *rev, const char *branch_name)
+{
+	struct strbuf buf = STRBUF_INIT;
+	const struct string_list *values;
+
+	if (!branch_name)
+		branch_name = find_branch_name(rev);
+
+	if (!branch_name || !*branch_name)
+		return;
+
+	/*
+	 * HACK: We only use branch-specific recipients iff the list has not
+	 * been cleared by an earlier --no-{to,cc} option on the command-line.
+	 *
+	 * When we get format.{to,cc} options, they can be cleared by
+	 * --no-{to,cc} options since the `git_config` call comes before the
+	 *  `parse_options` call.
+	 *
+	 *  However, in the case of branch.<name>.{to,cc}, this function needs
+	 *  to be called after `setup_revisions`, which must be called after
+	 *  `parse_options`. However, in order for the --no-{to,cc} logic to
+	 *  clear the extra_{to,cc} string_list, this function should actually
+	 *  be called _before_ `parse_options`. As a result, we have a circular
+	 *  dependency.
+	 *
+	 *  The {to,cc}_cleared flag lets us workaround this by just no
+	 *  including branch-specific recipients iff --no-{to,cc} has been
+	 *  specified on the command-line.
+	 */
+
+	if (!to_cleared) {
+		strbuf_addf(&buf, "format.%s.to", branch_name);
+		values = git_config_get_value_multi(buf.buf);
+		if (values)
+			string_list_append_all(&extra_to, values);
+	}
+
+	if (!cc_cleared) {
+		strbuf_reset(&buf);
+		strbuf_addf(&buf, "format.%s.cc", branch_name);
+		values = git_config_get_value_multi(buf.buf);
+		if (values)
+			string_list_append_all(&extra_cc, values);
+	}
+
+	strbuf_release(&buf);
+}
+
 static void make_cover_letter(struct rev_info *rev, int use_stdout,
 			      struct commit *origin,
 			      int nr, struct commit **list,
@@ -1316,18 +1367,20 @@ static int header_callback(const struct option *opt, const char *arg, int unset)
 
 static int to_callback(const struct option *opt, const char *arg, int unset)
 {
-	if (unset)
+	if (unset) {
+		to_cleared = 1;
 		string_list_clear(&extra_to, 0);
-	else
+	} else
 		string_list_append(&extra_to, arg);
 	return 0;
 }
 
 static int cc_callback(const struct option *opt, const char *arg, int unset)
 {
-	if (unset)
+	if (unset) {
+		cc_cleared = 1;
 		string_list_clear(&extra_cc, 0);
-	else
+	} else
 		string_list_append(&extra_cc, arg);
 	return 0;
 }
@@ -1791,6 +1844,8 @@ int cmd_format_patch(int argc, const char **argv, const char *prefix)
 				branch_name = xstrdup(""); /* no branch */
 		}
 	}
+
+	add_branch_headers(&rev, branch_name);
 
 	for (i = 0; i < extra_hdr.nr; i++) {
 		strbuf_addstr(&buf, extra_hdr.items[i].string);

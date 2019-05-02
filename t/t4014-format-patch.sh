@@ -253,6 +253,65 @@ test_expect_failure 'configuration To: header (rfc2047)' '
 	grep "^To: =?UTF-8?q?R=20=C3=84=20Cipient?= <rcipient@example.com>\$" hdrs9
 '
 
+test_expect_success 'branch-specific configuration To: header (ascii)' '
+
+	test_unconfig format.to &&
+	git config format.side.to "R E Cipient <rcipient@example.com>" &&
+	git format-patch --stdout master..side >patch10 &&
+	sed -e "/^\$/q" patch10 >hdrs10 &&
+	grep "^To: R E Cipient <rcipient@example.com>\$" hdrs10
+'
+
+test_expect_failure 'branch-specific configuration To: header (rfc822)' '
+
+	git config format.side.to "R. E. Cipient <rcipient@example.com>" &&
+	git format-patch --stdout master..side >patch10 &&
+	sed -e "/^\$/q" patch10 >hdrs10 &&
+	grep "^To: \"R. E. Cipient\" <rcipient@example.com>\$" hdrs10
+'
+
+test_expect_failure 'branch-specific configuration To: header (rfc2047)' '
+
+	git config format.side.to "R Ä Cipient <rcipient@example.com>" &&
+	git format-patch --stdout master..side >patch10 &&
+	sed -e "/^\$/q" patch10 >hdrs10 &&
+	grep "^To: =?UTF-8?q?R=20=C3=84=20Cipient?= <rcipient@example.com>\$" hdrs10
+'
+
+test_expect_success 'all recipients included from all sources' '
+
+	git config format.to "Format To1 <formatto1@example.com>" &&
+	git config --add format.to "Format To2 <formatto2@example.com>" &&
+	git config format.cc "Format Cc1 <formatcc1@example.com>" &&
+	git config --add format.cc "Format Cc2 <formatcc2@example.com>" &&
+	git config format.side.to "Branch To1 <branchto1@example.com>" &&
+	git config --add format.side.to "Branch To2 <branchto2@example.com>" &&
+	git config format.side.cc "Branch Cc1 <branchcc1@example.com>" &&
+	git config --add format.side.cc "Branch Cc2 <branchcc2@example.com>" &&
+	cat <<-\EOF >expect &&
+	To: Format To1 <formatto1@example.com>,
+	    Format To2 <formatto2@example.com>,
+	    Command-line To1 <commandlineto1@example.com>,
+	    Command-line To2 <commandlineto2@example.com>,
+	    Branch To1 <branchto1@example.com>,
+	    Branch To2 <branchto2@example.com>
+	Cc: Format Cc1 <formatcc1@example.com>,
+	    Format Cc2 <formatcc2@example.com>,
+	    Command-line Cc1 <commandlinecc1@example.com>,
+	    Command-line Cc2 <commandlinecc2@example.com>,
+	    Branch Cc1 <branchcc1@example.com>,
+	    Branch Cc2 <branchcc2@example.com>
+
+	EOF
+	git format-patch --stdout \
+		--to="Command-line To1 <commandlineto1@example.com>" \
+		--to="Command-line To2 <commandlineto2@example.com>" \
+		--cc="Command-line Cc1 <commandlinecc1@example.com>" \
+		--cc="Command-line Cc2 <commandlinecc2@example.com>" \
+		master..side | sed -ne "/^To:/,/^$/p;/^$/q" >patch10 &&
+	test_cmp expect patch10
+'
+
 # check_patch <patch>: Verify that <patch> looks like a half-sane
 # patch email to avoid a false positive with !grep
 check_patch () {
@@ -305,42 +364,51 @@ test_expect_success '--no-to overrides config.to' '
 
 	git config --replace-all format.to \
 		"R E Cipient <rcipient@example.com>" &&
-	git format-patch --no-to --stdout master..side >patch10 &&
-	sed -e "/^\$/q" patch10 >hdrs10 &&
-	check_patch hdrs10 &&
-	! grep "^To: R E Cipient <rcipient@example.com>\$" hdrs10
+	git config --replace-all format.side.to \
+		"B R Anch <branch@example.com>" &&
+	git format-patch --no-to --stdout master..side >patch11 &&
+	sed -e "/^\$/q" patch11 >hdrs11 &&
+	check_patch hdrs11 &&
+	! grep "R E Cipient <rcipient@example.com>" hdrs11 &&
+	! grep "B R Anch <branch@example.com>" hdrs11
 '
 
 test_expect_success '--no-to and --to replaces config.to' '
 
 	git config --replace-all format.to \
 		"Someone <someone@out.there>" &&
+	git config --replace-all format.side.to \
+		"B R Anch2 <branch2@example.com>" &&
 	git format-patch --no-to --to="Someone Else <else@out.there>" \
-		--stdout master..side >patch11 &&
-	sed -e "/^\$/q" patch11 >hdrs11 &&
-	check_patch hdrs11 &&
-	! grep "^To: Someone <someone@out.there>\$" hdrs11 &&
-	grep "^To: Someone Else <else@out.there>\$" hdrs11
+		--stdout master..side >patch12 &&
+	sed -e "/^\$/q" patch12 >hdrs12 &&
+	check_patch hdrs12 &&
+	! grep "Someone <someone@out.there>" hdrs12 &&
+	! grep "B R Anch2 <branch2@example.com>" hdrs12 &&
+	grep "^To: Someone Else <else@out.there>\$" hdrs12
 '
 
 test_expect_success '--no-cc overrides config.cc' '
 
 	git config --replace-all format.cc \
 		"C E Cipient <rcipient@example.com>" &&
-	git format-patch --no-cc --stdout master..side >patch12 &&
-	sed -e "/^\$/q" patch12 >hdrs12 &&
-	check_patch hdrs12 &&
-	! grep "^Cc: C E Cipient <rcipient@example.com>\$" hdrs12
+	git config --replace-all format.side.cc \
+		"B R Anch3 <branch3@example.com>" &&
+	git format-patch --no-cc --stdout master..side >patch13 &&
+	sed -e "/^\$/q" patch13 >hdrs13 &&
+	check_patch hdrs13 &&
+	! grep "C E Cipient <rcipient@example.com>" hdrs13 &&
+	! grep "B R Anch3 <branch3@example.com>" hdrs13
 '
 
 test_expect_success '--no-add-header overrides config.headers' '
 
 	git config --replace-all format.headers \
 		"Header1: B E Cipient <rcipient@example.com>" &&
-	git format-patch --no-add-header --stdout master..side >patch13 &&
-	sed -e "/^\$/q" patch13 >hdrs13 &&
-	check_patch hdrs13 &&
-	! grep "^Header1: B E Cipient <rcipient@example.com>\$" hdrs13
+	git format-patch --no-add-header --stdout master..side >patch14 &&
+	sed -e "/^\$/q" patch14 >hdrs14 &&
+	check_patch hdrs14 &&
+	! grep "^Header1: B E Cipient <rcipient@example.com>\$" hdrs14
 '
 
 test_expect_success 'multiple files' '
@@ -1052,7 +1120,7 @@ test_expect_success 'format-patch wraps extremely long subject (ascii)' '
 	git add file &&
 	git commit -m "$M512" &&
 	git format-patch --stdout -1 >patch &&
-	sed -n "/^Subject/p; /^ /p; /^$/q" <patch >subject &&
+	sed -n "/^Subject/p; /^ /p; /^Header1:/q" <patch >subject &&
 	test_cmp expect subject
 '
 
@@ -1091,7 +1159,7 @@ test_expect_success 'format-patch wraps extremely long subject (rfc2047)' '
 	git add file &&
 	git commit -m "$M512" &&
 	git format-patch --stdout -1 >patch &&
-	sed -n "/^Subject/p; /^ /p; /^$/q" <patch >subject &&
+	sed -n "/^Subject/p; /^ /p; /^Header1:/q" <patch >subject &&
 	test_cmp expect subject
 '
 
@@ -1100,7 +1168,7 @@ check_author() {
 	git add file &&
 	GIT_AUTHOR_NAME=$1 git commit -m author-check &&
 	git format-patch --stdout -1 >patch &&
-	sed -n "/^From: /p; /^ /p; /^$/q" <patch >actual &&
+	sed -n "/^From: /p; /^ /p; /^Date:/q" <patch >actual &&
 	test_cmp expect actual
 }
 
