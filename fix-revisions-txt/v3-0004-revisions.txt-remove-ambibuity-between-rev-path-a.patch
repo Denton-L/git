@@ -1,0 +1,59 @@
+From e765c0c7b89fc9c6eb00ca4afef094c9c1e46a38 Mon Sep 17 00:00:00 2001
+Message-Id: <e765c0c7b89fc9c6eb00ca4afef094c9c1e46a38.1557072286.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1557072286.git.liu.denton@gmail.com>
+References: <cover.1557071877.git.liu.denton@gmail.com>
+	<cover.1557072286.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Fri, 3 May 2019 10:01:08 +0200
+Subject: [PATCH v3 4/4] revisions.txt: remove ambibuity between <rev>:<path>
+ and :<path>
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Andreas Heiduk <asheiduk@gmail.com>,
+    Duy Nguyen <pclouds@gmail.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+From: Andreas Heiduk <asheiduk@gmail.com>
+
+The revision ':README' is mentioned as an example for '<rev>:<path>'
+but the explanation forwards to the ':<n>:<path>' syntax. At the same
+time ':<n>:<path>' did not mark the '<n>:' as optional.
+
+Signed-off-by: Andreas Heiduk <asheiduk@gmail.com>
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+Just for clarification, the correct procedure is to include my sign-off
+on top of Andreas' when I'm forwarding patches, correct? If it's not,
+Junio, please take my sign-off for me.
+
+ Documentation/revisions.txt | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
+
+diff --git a/Documentation/revisions.txt b/Documentation/revisions.txt
+index a38ec7fb52..82c1e5754e 100644
+--- a/Documentation/revisions.txt
++++ b/Documentation/revisions.txt
+@@ -196,19 +196,16 @@ existing tag object.
+   Depending on the given text, the shell's word splitting rules might
+   require additional quoting.
+ 
+-'<rev>:<path>', e.g. 'HEAD:README', ':README', 'master:./README'::
++'<rev>:<path>', e.g. 'HEAD:README', 'master:./README'::
+   A suffix ':' followed by a path names the blob or tree
+   at the given path in the tree-ish object named by the part
+   before the colon.
+-  ':path' (with an empty part before the colon)
+-  is a special case of the syntax described next: content
+-  recorded in the index at the given path.
+   A path starting with './' or '../' is relative to the current working directory.
+   The given path will be converted to be relative to the working tree's root directory.
+   This is most useful to address a blob or tree from a commit or tree that has
+   the same tree structure as the working tree.
+ 
+-':<n>:<path>', e.g. ':0:README', ':README'::
++':[<n>:]<path>', e.g. ':0:README', ':README'::
+   A colon, optionally followed by a stage number (0 to 3) and a
+   colon, followed by a path, names a blob object in the
+   index at the given path. A missing stage number (and the colon
+-- 
+2.21.0.1049.geb646f7864
+
