@@ -1,0 +1,51 @@
+From 5318dab19abbe2593bd24c6aaff8e6254a39a4e6 Mon Sep 17 00:00:00 2001
+Message-Id: <5318dab19abbe2593bd24c6aaff8e6254a39a4e6.1557072929.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1557072929.git.liu.denton@gmail.com>
+References: <cover.1557072929.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 30 Apr 2019 02:30:57 -0400
+Subject: [PATCH 3/7] branch.c: extract read_branch_config function
+To: Git Mailing List <git@vger.kernel.org>
+
+In the future, we'll need to use `read_branch_config` as a generic base
+for other branch-config reading functions. Extract it from
+`read_branch_desc` so that it can be reused later.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ branch.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/branch.c b/branch.c
+index 28b81a7e02..4b49976924 100644
+--- a/branch.c
++++ b/branch.c
+@@ -162,11 +162,11 @@ static void setup_tracking(const char *new_ref, const char *orig_ref,
+ 	free(tracking.src);
+ }
+ 
+-int read_branch_desc(struct strbuf *buf, const char *branch_name)
++static int read_branch_config(struct strbuf *buf, const char *branch_name, const char *key)
+ {
+ 	char *v = NULL;
+ 	struct strbuf name = STRBUF_INIT;
+-	strbuf_addf(&name, "branch.%s.description", branch_name);
++	strbuf_addf(&name, "branch.%s.%s", branch_name, key);
+ 	if (git_config_get_string(name.buf, &v)) {
+ 		strbuf_release(&name);
+ 		return -1;
+@@ -177,6 +177,11 @@ int read_branch_desc(struct strbuf *buf, const char *branch_name)
+ 	return 0;
+ }
+ 
++int read_branch_desc(struct strbuf *buf, const char *branch_name)
++{
++	return read_branch_config(buf, branch_name, "description");
++}
++
+ /*
+  * Check if 'name' can be a valid name for a branch; die otherwise.
+  * Return 1 if the named branch already exists; return 0 otherwise.
+-- 
+2.21.0.1049.geb646f7864
+

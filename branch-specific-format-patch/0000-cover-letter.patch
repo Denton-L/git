@@ -1,0 +1,51 @@
+From 7e625b688883c0528348f77d181bc28195d8ab92 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1557072929.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Sun, 5 May 2019 12:15:29 -0400
+Subject: [PATCH 0/7] teach branch-specific options for format-patch
+To: Git Mailing List <git@vger.kernel.org>
+
+Currently, format-patch only accepts branch.<name>.description as a
+branch-specific configuration variable. However, there are many other
+options which would be useful to have on a branch-by-branch basis,
+namely cover letter subject and To: and Cc: headers.
+
+Teach format-patch to recognise these branch-specific configuration
+options.
+
+Note that this patchset[1] was created using these new configuration
+options:
+
+	[branch "submitted/fix-revisions-txt"]
+		coverSubject = "cleanup revisions.txt"
+		cc = "Andreas Heiduk <asheiduk@gmail.com>"
+		cc = "Duy Nguyen <pclouds@gmail.com>"
+		cc = "Junio C Hamano <gitster@pobox.com>"
+
+So this is a live example of this patchset working in practice.
+
+[1]: https://public-inbox.org/git/cover.1557072286.git.liu.denton@gmail.com/
+
+Denton Liu (7):
+  t4014: clean up style
+  Doc: add more detail for git-format-patch
+  branch.c: extract read_branch_config function
+  format-patch: make cover letter subject configurable
+  format-patch: move extra_headers logic later
+  string-list: create string_list_append_all
+  format-patch: read branch-specific To: and Cc: headers
+
+ Documentation/config/branch.txt    |  10 +
+ Documentation/git-format-patch.txt |  33 +-
+ branch.c                           |  14 +-
+ branch.h                           |   5 +
+ builtin/log.c                      | 147 ++++--
+ string-list.c                      |   9 +
+ string-list.h                      |   7 +
+ t/t4014-format-patch.sh            | 708 +++++++++++++++++------------
+ t/t9902-completion.sh              |   5 +-
+ 9 files changed, 590 insertions(+), 348 deletions(-)
+
+-- 
+2.21.0.1049.geb646f7864
+
