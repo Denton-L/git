@@ -14,6 +14,7 @@
 	rebase = true
 [format]
 	thread = true
+	from = true
+	signOff = true
 	coverLetter = auto
 	to = Git Mailing List <git@vger.kernel.org>
-	signOff = true
