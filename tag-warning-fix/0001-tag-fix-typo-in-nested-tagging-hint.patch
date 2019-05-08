@@ -1,0 +1,51 @@
+From 4213b04b1f7262bc53c83dffc82956951dfe869f Mon Sep 17 00:00:00 2001
+Message-Id: <4213b04b1f7262bc53c83dffc82956951dfe869f.1557342925.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 8 May 2019 15:10:38 -0400
+Subject: [PATCH] tag: fix typo in nested tagging hint
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>
+
+In eea9c1e78f (tag: advise on nested tags, 2019-04-04), tag was taught
+to hint at the user if a nested tag is made. However, this message had a
+typo and it said "The object referred to by your new is...", which was
+missing a "tag" after "new". Fix this message by adding the "tag".
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+Hi Junio, sorry we didn't catch this before it got merged into master.
+Just a small typofix.
+
+ builtin/tag.c  | 2 +-
+ t/t7004-tag.sh | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/builtin/tag.c b/builtin/tag.c
+index 1debd3a11c..ef37dccf86 100644
+--- a/builtin/tag.c
++++ b/builtin/tag.c
+@@ -207,7 +207,7 @@ struct create_tag_options {
+ };
+ 
+ static const char message_advice_nested_tag[] =
+-	N_("You have created a nested tag. The object referred to by your new is\n"
++	N_("You have created a nested tag. The object referred to by your new tag is\n"
+ 	   "already a tag. If you meant to tag the object that it points to, use:\n"
+ 	   "\n"
+ 	   "\tgit tag -f %s %s^{}");
+diff --git a/t/t7004-tag.sh b/t/t7004-tag.sh
+index e285686662..6aeeb279a0 100755
+--- a/t/t7004-tag.sh
++++ b/t/t7004-tag.sh
+@@ -1702,7 +1702,7 @@ test_expect_success '--points-at finds annotated tags of tags' '
+ 
+ test_expect_success 'recursive tagging should give advice' '
+ 	sed -e "s/|$//" <<-EOF >expect &&
+-	hint: You have created a nested tag. The object referred to by your new is
++	hint: You have created a nested tag. The object referred to by your new tag is
+ 	hint: already a tag. If you meant to tag the object that it points to, use:
+ 	hint: |
+ 	hint: 	git tag -f nested annotated-v4.0^{}
+-- 
+2.21.0.1049.geb646f7864
+
