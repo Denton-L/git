@@ -1,0 +1,32 @@
+From 0e185c7c4b7ecb20631e1d330ce70ecf78427621 Mon Sep 17 00:00:00 2001
+Message-Id: <0e185c7c4b7ecb20631e1d330ce70ecf78427621.1557340984.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 8 May 2019 14:40:00 -0400
+Subject: [PATCH] Doc: add missing backticks to pull.rebase value
+To: Git Mailing List <git@vger.kernel.org>
+
+In the documentation for pull.rebase, all of the valid values are
+surrounded with backticks except for "true". Surround "true" with these
+missing backticks.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Documentation/config/pull.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Documentation/config/pull.txt b/Documentation/config/pull.txt
+index b87cab31b3..6cdb2f320d 100644
+--- a/Documentation/config/pull.txt
++++ b/Documentation/config/pull.txt
+@@ -9,7 +9,7 @@ pull.ff::
+ 	command line). This setting overrides `merge.ff` when pulling.
+ 
+ pull.rebase::
+-	When true, rebase branches on top of the fetched branch, instead
++	When `true`, rebase branches on top of the fetched branch, instead
+ 	of merging the default branch from the default remote when "git
+ 	pull" is run. See "branch.<name>.rebase" for setting this on a
+ 	per-branch basis.
+-- 
+2.21.0.1049.geb646f7864
+
