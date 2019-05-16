@@ -1,0 +1,46 @@
+From 4c3535f25bdffc8d94617c74f7c078cce59a044f Mon Sep 17 00:00:00 2001
+Message-Id: <4c3535f25bdffc8d94617c74f7c078cce59a044f.1558048212.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1558048212.git.liu.denton@gmail.com>
+References: <cover.1558048212.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Sat, 27 Apr 2019 10:24:03 -0700
+Subject: [PATCH v4 1/2] git-format-patch.txt: document --no-notes option
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>,
+    Beat Bolli <dev+git@drbeat.li>
+
+Internally, git-format-patch uses the `handle_revision_opt` parser. The
+parser handles the `--no-notes` option to negate an earlier `--notes`
+option, but it isn't documented. Document this option so that users are
+aware of it.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Documentation/git-format-patch.txt | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/git-format-patch.txt b/Documentation/git-format-patch.txt
+index 1af85d404f..2c3971390e 100644
+--- a/Documentation/git-format-patch.txt
++++ b/Documentation/git-format-patch.txt
+@@ -22,7 +22,8 @@ SYNOPSIS
+ 		   [--rfc] [--subject-prefix=Subject-Prefix]
+ 		   [(--reroll-count|-v) <n>]
+ 		   [--to=<email>] [--cc=<email>]
+-		   [--[no-]cover-letter] [--quiet] [--notes[=<ref>]]
++		   [--[no-]cover-letter] [--quiet]
++		   [--no-notes | --notes[=<ref>]]
+ 		   [--interdiff=<previous>]
+ 		   [--range-diff=<previous> [--creation-factor=<percent>]]
+ 		   [--progress]
+@@ -263,6 +264,7 @@ material (this may change in the future).
+ 	for details.
+ 
+ --notes[=<ref>]::
++--no-notes::
+ 	Append the notes (see linkgit:git-notes[1]) for the commit
+ 	after the three-dash line.
+ +
+-- 
+2.21.0.1049.geb646f7864
+
