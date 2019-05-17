@@ -1,0 +1,84 @@
+From 1082db2e1b6cdcaa13e32cf33ca0dafba9bc8925 Mon Sep 17 00:00:00 2001
+Message-Id: <1082db2e1b6cdcaa13e32cf33ca0dafba9bc8925.1558052674.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1558052674.git.liu.denton@gmail.com>
+References: <cover.1557072929.git.liu.denton@gmail.com>
+	<cover.1558052674.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Thu, 2 May 2019 04:49:02 -0400
+Subject: [PATCH v2 2/6] Doc: add more detail for git-format-patch
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Ævar Arnfjörð Bjarmason <avarab@gmail.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+In git-format-patch.txt, we were missing some key user information.
+First of all, using the `--to` and `--cc` options don't override
+`format.to` and `format.cc` variables, respectively. They add on to each
+other. Document this.
+
+In addition, document the special value of `--base=auto`.
+
+Finally, while we're at it, surround option arguments with <>.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Documentation/git-format-patch.txt | 17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
+
+diff --git a/Documentation/git-format-patch.txt b/Documentation/git-format-patch.txt
+index 1af85d404f..7b71d4e2ed 100644
+--- a/Documentation/git-format-patch.txt
++++ b/Documentation/git-format-patch.txt
+@@ -17,9 +17,9 @@ SYNOPSIS
+ 		   [--signature-file=<file>]
+ 		   [-n | --numbered | -N | --no-numbered]
+ 		   [--start-number <n>] [--numbered-files]
+-		   [--in-reply-to=Message-Id] [--suffix=.<sfx>]
++		   [--in-reply-to=<Message-Id>] [--suffix=.<sfx>]
+ 		   [--ignore-if-in-upstream]
+-		   [--rfc] [--subject-prefix=Subject-Prefix]
++		   [--rfc] [--subject-prefix=<Subject-Prefix>]
+ 		   [(--reroll-count|-v) <n>]
+ 		   [--to=<email>] [--cc=<email>]
+ 		   [--[no-]cover-letter] [--quiet] [--notes[=<ref>]]
+@@ -158,7 +158,7 @@ Beware that the default for 'git send-email' is to thread emails
+ itself.  If you want `git format-patch` to take care of threading, you
+ will want to ensure that threading is disabled for `git send-email`.
+ 
+---in-reply-to=Message-Id::
++--in-reply-to=<Message-Id>::
+ 	Make the first mail (or all the mails with `--no-thread`) appear as a
+ 	reply to the given Message-Id, which avoids breaking threads to
+ 	provide a new patch series.
+@@ -192,13 +192,17 @@ will want to ensure that threading is disabled for `git send-email`.
+ 
+ --to=<email>::
+ 	Add a `To:` header to the email headers. This is in addition
+-	to any configured headers, and may be used multiple times.
++	to any configured headers, and may be used multiple times. The
++	emails given will be used along with any emails given by
++	`format.to` configurations.
+ 	The negated form `--no-to` discards all `To:` headers added so
+ 	far (from config or command line).
+ 
+ --cc=<email>::
+ 	Add a `Cc:` header to the email headers. This is in addition
+-	to any configured headers, and may be used multiple times.
++	to any configured headers, and may be used multiple times. The
++	emails given will be used along with any emails given by
++	`format.cc` configurations.
+ 	The negated form `--no-cc` discards all `Cc:` headers added so
+ 	far (from config or command line).
+ 
+@@ -309,7 +313,8 @@ you can use `--suffix=-patch` to get `0001-description-of-my-change-patch`.
+ --base=<commit>::
+ 	Record the base tree information to identify the state the
+ 	patch series applies to.  See the BASE TREE INFORMATION section
+-	below for details.
++	below for details. If <commit> is equal to "auto", a base commit
++	is automatically chosen.
+ 
+ --root::
+ 	Treat the revision argument as a <revision range>, even if it
+-- 
+2.21.0.1049.geb646f7864
+
