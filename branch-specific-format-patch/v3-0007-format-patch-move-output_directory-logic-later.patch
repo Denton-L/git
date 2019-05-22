@@ -1,0 +1,100 @@
+From 70e28c54724984b88ccddf639282fd25f4e2fa06 Mon Sep 17 00:00:00 2001
+Message-Id: <70e28c54724984b88ccddf639282fd25f4e2fa06.1558492582.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1558492582.git.liu.denton@gmail.com>
+References: <cover.1558052674.git.liu.denton@gmail.com>
+	<cover.1558492582.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 1 May 2019 16:17:59 -0400
+Subject: [PATCH v3 7/8] format-patch: move output_directory logic later
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Ævar Arnfjörð Bjarmason <avarab@gmail.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+In a future patch, we need to create the output_directory after the
+branch_name logic. Simply transpose this logic later in the function so
+that this happens. (This patch is best viewed with `git diff
+--color-moved`.)
+
+Note that this logic only depends on `git_config` and the parseopt logic
+and is depended on by the patch creation logic which is directly below
+it so this move is effectively a no-op as no dependencies being
+reordered.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Documentation/git-format-patch.txt |  4 ++--
+ builtin/log.c                      | 36 +++++++++++++++---------------
+ 2 files changed, 20 insertions(+), 20 deletions(-)
+
+diff --git a/Documentation/git-format-patch.txt b/Documentation/git-format-patch.txt
+index 76e61b746a..707b4bdc6b 100644
+--- a/Documentation/git-format-patch.txt
++++ b/Documentation/git-format-patch.txt
+@@ -358,8 +358,8 @@ with configuration variables.
+ 	inferCoverSubject = true
+ ------------
+ 
+-In addition, for a specific branch, you can specify a custom cover
+-letter subject, and add additional "To:" or "Cc:" headers.
++In addition, for a specific branch, you can add additional "To:" or
++"Cc:" headers.
+ 
+ ------------
+ [format "branch-name"]
+diff --git a/builtin/log.c b/builtin/log.c
+index cb9ccdc59c..97980881ec 100644
+--- a/builtin/log.c
++++ b/builtin/log.c
+@@ -1771,24 +1771,6 @@ int cmd_format_patch(int argc, const char **argv, const char *prefix)
+ 	if (rev.show_notes)
+ 		init_display_notes(&rev.notes_opt);
+ 
+-	if (!output_directory && !use_stdout)
+-		output_directory = config_output_directory;
+-
+-	if (!use_stdout)
+-		output_directory = set_outdir(prefix, output_directory);
+-	else
+-		setup_pager();
+-
+-	if (output_directory) {
+-		if (rev.diffopt.use_color != GIT_COLOR_ALWAYS)
+-			rev.diffopt.use_color = GIT_COLOR_NEVER;
+-		if (use_stdout)
+-			die(_("standard output, or directory, which one?"));
+-		if (mkdir(output_directory, 0777) < 0 && errno != EEXIST)
+-			die_errno(_("could not create directory '%s'"),
+-				  output_directory);
+-	}
+-
+ 	if (rev.pending.nr == 1) {
+ 		int check_head = 0;
+ 
+@@ -1822,6 +1804,24 @@ int cmd_format_patch(int argc, const char **argv, const char *prefix)
+ 		}
+ 	}
+ 
++	if (!output_directory && !use_stdout)
++		output_directory = config_output_directory;
++
++	if (!use_stdout)
++		output_directory = set_outdir(prefix, output_directory);
++	else
++		setup_pager();
++
++	if (output_directory) {
++		if (rev.diffopt.use_color != GIT_COLOR_ALWAYS)
++			rev.diffopt.use_color = GIT_COLOR_NEVER;
++		if (use_stdout)
++			die(_("standard output, or directory, which one?"));
++		if (mkdir(output_directory, 0777) < 0 && errno != EEXIST)
++			die_errno(_("could not create directory '%s'"),
++				  output_directory);
++	}
++
+ 	add_branch_headers(&rev, branch_name);
+ 
+ 	for (i = 0; i < extra_hdr.nr; i++) {
+-- 
+2.22.0.rc1.169.g49223abbf8
+
