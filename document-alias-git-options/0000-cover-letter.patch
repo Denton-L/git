@@ -1,0 +1,30 @@
+From 13d9ddd3541e3815078c4853c6f7c25cddd89126 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1559333840.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Fri, 31 May 2019 16:17:20 -0400
+Subject: [PATCH 0/2] document alias accepting non-command first word
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Johannes Schindelin <Johannes.Schindelin@gmx.de>
+
+When I first saw Johannes' email here[1], I was surprised that an alias
+where the first-word is a command-line option to be passed into `git`
+was permitted. I was only used to aliases where the first word is a
+command.
+
+Document this behaviour so that users will be able to discover that this
+is a feature.
+
+[1]: https://public-inbox.org/git/nycvar.QRO.7.76.6.1905281235280.44@tvgsbejvaqbjf.bet/
+
+
+
+Denton Liu (2):
+  config/alias.txt: change " and ' to `
+  config/alias.txt: document alias accepting non-command first word
+
+ Documentation/config/alias.txt | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
+
+-- 
+2.22.0.rc1.169.g49223abbf8
+

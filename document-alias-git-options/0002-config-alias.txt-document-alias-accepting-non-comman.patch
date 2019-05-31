@@ -1,0 +1,46 @@
+From 13d9ddd3541e3815078c4853c6f7c25cddd89126 Mon Sep 17 00:00:00 2001
+Message-Id: <13d9ddd3541e3815078c4853c6f7c25cddd89126.1559333840.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1559333840.git.liu.denton@gmail.com>
+References: <cover.1559333840.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Fri, 31 May 2019 16:02:57 -0400
+Subject: [PATCH 2/2] config/alias.txt: document alias accepting non-command
+ first word
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Johannes Schindelin <Johannes.Schindelin@gmx.de>
+
+One can see that an alias that begins with a non-command first word,
+such as `loud-rebase = -c commit.verbose=true rebase`, is permitted.
+However, this isn't immediately obvious to users as alias instances
+typically begin with a command.
+
+Document the fact that an alias can begin with a non-command first word
+so that users will be able to discover that this is a feature.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Documentation/config/alias.txt | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/Documentation/config/alias.txt b/Documentation/config/alias.txt
+index 5425449a50..f241f03ebe 100644
+--- a/Documentation/config/alias.txt
++++ b/Documentation/config/alias.txt
+@@ -7,6 +7,14 @@ alias.*::
+ 	spaces, the usual shell quoting and escaping is supported.
+ 	A quote pair or a backslash can be used to quote them.
+ +
++Note that the first word of an alias does not necessarily have to be a
++command. It can be a command-line option that will be passed into the
++invocation of `git`. In particular, this is useful when used with `-c`
++to pass in one-time configurations. For example,
++`loud-rebase = -c commit.verbose=true rebase` can be defined such that
++running `git loud-merge` would be equivalent to
++`git -c commit.verbose=true rebase`.
+++
+ If the alias expansion is prefixed with an exclamation point,
+ it will be treated as a shell command.  For example, defining
+ `alias.new = !gitk --all --not ORIG_HEAD`, the invocation
+-- 
+2.22.0.rc1.169.g49223abbf8
+
