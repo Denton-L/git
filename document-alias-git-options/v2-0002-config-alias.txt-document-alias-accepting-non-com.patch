@@ -1,0 +1,49 @@
+From 44c4e1c560de607f30eb87234611a5bbc00620a7 Mon Sep 17 00:00:00 2001
+Message-Id: <44c4e1c560de607f30eb87234611a5bbc00620a7.1559755652.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1559755652.git.liu.denton@gmail.com>
+References: <cover.1559333840.git.liu.denton@gmail.com>
+	<cover.1559755652.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Fri, 31 May 2019 16:02:57 -0400
+Subject: [PATCH v2 2/2] config/alias.txt: document alias accepting non-command
+ first word
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Johannes Schindelin <Johannes.Schindelin@gmx.de>
+
+One can see that an alias that begins with a non-command first word,
+such as `loud-rebase = -c commit.verbose=true rebase`, is permitted.
+However, this isn't immediately obvious to users as alias instances
+typically begin with a command.
+
+Document the fact that an alias can begin with a non-command first word
+so that users will be able to discover that this is a feature.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Documentation/config/alias.txt | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/Documentation/config/alias.txt b/Documentation/config/alias.txt
+index 5425449a50..f1ca739d57 100644
+--- a/Documentation/config/alias.txt
++++ b/Documentation/config/alias.txt
+@@ -7,6 +7,16 @@ alias.*::
+ 	spaces, the usual shell quoting and escaping is supported.
+ 	A quote pair or a backslash can be used to quote them.
+ +
++Note that the first word of an alias does not necessarily have to be a
++command. It can be a command-line option that will be passed into the
++invocation of `git`. In particular, this is useful when used with `-c`
++to pass in one-time configurations or `-p` to force pagination. For example,
++`loud-rebase = -c commit.verbose=true rebase` can be defined such that
++running `git loud-rebase` would be equivalent to
++`git -c commit.verbose=true rebase`. Also, `ps = -p status` would be a
++helpful alias since `git ps` would paginate the output of `git status`
++where the original command does not.
+++
+ If the alias expansion is prefixed with an exclamation point,
+ it will be treated as a shell command.  For example, defining
+ `alias.new = !gitk --all --not ORIG_HEAD`, the invocation
+-- 
+2.22.0.rc1.169.g49223abbf8
+
