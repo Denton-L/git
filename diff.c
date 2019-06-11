@@ -3898,7 +3898,7 @@ static int reuse_worktree_file(struct index_state *istate,
 static int diff_populate_gitlink(struct diff_filespec *s, int size_only)
 {
 	struct strbuf buf = STRBUF_INIT;
-	char *dirty = "";
+	const char *dirty = "";
 
 	/* Are we looking at the work tree? */
 	if (s->dirty_submodule)
