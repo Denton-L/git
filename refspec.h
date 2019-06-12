@@ -10,8 +10,8 @@ struct refspec_item {
 	unsigned matching : 1;
 	unsigned exact_sha1 : 1;
 
-	char *src;
-	char *dst;
+	const char *src;
+	const char *dst;
 };
 
 #define REFSPEC_FETCH 1

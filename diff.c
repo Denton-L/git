@@ -3619,7 +3619,7 @@ static void builtin_diff(const char *name_a,
 	return;
 }
 
-static char *get_compact_summary(const struct diff_filepair *p, int is_renamed)
+static const char *get_compact_summary(const struct diff_filepair *p, int is_renamed)
 {
 	if (!is_renamed) {
 		if (p->status == DIFF_STATUS_ADDED) {
@@ -6737,7 +6737,7 @@ static char *run_textconv(struct repository *r,
 size_t fill_textconv(struct repository *r,
 		     struct userdiff_driver *driver,
 		     struct diff_filespec *df,
-		     char **outbuf)
+		     const char **outbuf)
 {
 	size_t size;
 

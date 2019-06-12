@@ -85,9 +85,9 @@ typedef int pid_t;
 #endif
 
 struct passwd {
-	char *pw_name;
-	char *pw_gecos;
-	char *pw_dir;
+	const char *pw_name;
+	const char *pw_gecos;
+	const char *pw_dir;
 };
 
 typedef void (__cdecl *sig_handler_t)(int);

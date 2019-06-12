@@ -863,7 +863,7 @@ static void print_line(const char *prefix, char first,
 
 static char *output_prefix(struct diff_options *opt)
 {
-	char *prefix = "";
+	const char *prefix = "";
 
 	if (opt->output_prefix) {
 		struct strbuf *sb = opt->output_prefix(opt, opt->output_prefix_data);

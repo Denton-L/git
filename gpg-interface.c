@@ -247,7 +247,7 @@ void set_signing_key(const char *key)
 int git_gpg_config(const char *var, const char *value, void *cb)
 {
 	struct gpg_format *fmt = NULL;
-	char *fmtname = NULL;
+	const char *fmtname = NULL;
 
 	if (!strcmp(var, "user.signingkey")) {
 		if (!value)
