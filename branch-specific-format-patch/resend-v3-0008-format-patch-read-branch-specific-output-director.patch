@@ -1,0 +1,144 @@
+From 2cf7c77f5946f91659941c550b9599815d87c7b4 Mon Sep 17 00:00:00 2001
+Message-Id: <2cf7c77f5946f91659941c550b9599815d87c7b4.1560547501.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1560547500.git.liu.denton@gmail.com>
+References: <cover.1558492582.git.liu.denton@gmail.com>
+	<cover.1560547500.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 1 May 2019 20:53:40 -0400
+Subject: [RESEND PATCH v3 8/8] format-patch: read branch-specific output
+ directory
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Ævar Arnfjörð Bjarmason <avarab@gmail.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+If a user wishes to have a per-branch output directory for patches, they
+must manually specify this on the command-line with `-o` for each
+invocation of format-patch. However, this can be cumbersome for a user
+to keep track of.
+
+Read `format.<branch-name>.outputDirectory` to give a branch-specific
+output directory that would override `format.outputDirectory`.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Documentation/config/format.txt    |  5 ++++-
+ Documentation/git-format-patch.txt |  3 ++-
+ builtin/log.c                      | 26 ++++++++++++++++++++++++--
+ t/t4014-format-patch.sh            | 18 +++++++++++++++---
+ 4 files changed, 45 insertions(+), 7 deletions(-)
+
+diff --git a/Documentation/config/format.txt b/Documentation/config/format.txt
+index 95e255347a..df67a83183 100644
+--- a/Documentation/config/format.txt
++++ b/Documentation/config/format.txt
+@@ -87,8 +87,11 @@ format.coverLetter::
+ 	generate a cover-letter only when there's more than one patch.
+ 
+ format.outputDirectory::
++format.<branch-name>.outputDirectory::
+ 	Set a custom directory to store the resulting files instead of the
+-	current working directory.
++	current working directory. If patches are being generated for
++	<branch-name>, the latter option takes priority if it exists,
++	otherwise we will fallback to the former.
+ 
+ format.useAutoBase::
+ 	A boolean value which lets you enable the `--base=auto` option of
+diff --git a/Documentation/git-format-patch.txt b/Documentation/git-format-patch.txt
+index 707b4bdc6b..346f1229d8 100644
+--- a/Documentation/git-format-patch.txt
++++ b/Documentation/git-format-patch.txt
+@@ -359,12 +359,13 @@ with configuration variables.
+ ------------
+ 
+ In addition, for a specific branch, you can add additional "To:" or
+-"Cc:" headers.
++"Cc:" headers and change the patch output directory.
+ 
+ ------------
+ [format "branch-name"]
+ 	to = <email>
+ 	cc = <email>
++	outputDirectory = <directory>
+ ------------
+ 
+ DISCUSSION
+diff --git a/builtin/log.c b/builtin/log.c
+index 97980881ec..a1fe8b994a 100644
+--- a/builtin/log.c
++++ b/builtin/log.c
+@@ -1023,6 +1023,24 @@ static void show_diffstat(struct rev_info *rev,
+ 	fprintf(rev->diffopt.file, "\n");
+ }
+ 
++static const char *get_branch_output_dir(struct rev_info *rev, const char *branch_name)
++{
++	struct strbuf buf = STRBUF_INIT;
++	const char *output_directory;
++
++	if (!branch_name)
++		branch_name = find_branch_name(rev);
++
++	if (!branch_name || !*branch_name)
++		return NULL;
++
++	strbuf_addf(&buf, "format.%s.outputdirectory", branch_name);
++	git_config_get_string_const(buf.buf, &output_directory);
++	strbuf_release(&buf);
++
++	return output_directory;
++}
++
+ static void add_branch_headers(struct rev_info *rev, const char *branch_name)
+ {
+ 	struct strbuf buf = STRBUF_INIT;
+@@ -1804,8 +1822,12 @@ int cmd_format_patch(int argc, const char **argv, const char *prefix)
+ 		}
+ 	}
+ 
+-	if (!output_directory && !use_stdout)
+-		output_directory = config_output_directory;
++	if (!use_stdout) {
++		if (!output_directory)
++			output_directory = get_branch_output_dir(&rev, branch_name);
++		if (!output_directory)
++			output_directory = config_output_directory;
++	}
+ 
+ 	if (!use_stdout)
+ 		output_directory = set_outdir(prefix, output_directory);
+diff --git a/t/t4014-format-patch.sh b/t/t4014-format-patch.sh
+index 23c467e95b..147934922c 100755
+--- a/t/t4014-format-patch.sh
++++ b/t/t4014-format-patch.sh
+@@ -1667,12 +1667,24 @@ test_expect_success 'format-patch format.outputDirectory option' '
+ 	test_line_count = $(ls patches | wc -l) list
+ '
+ 
+-test_expect_success 'format-patch -o overrides format.outputDirectory' '
++test_expect_success 'format-patch format.side.outputDirectory option overrides format.outputDirectory' '
+ 	test_config format.outputDirectory patches &&
+-	rm -fr patches patchset &&
++	test_config format.side.outputDirectory sidepatches &&
++	rm -fr patches sidepatches &&
++	git format-patch master..side &&
++	git rev-list master..side >list &&
++	test_path_is_missing patches &&
++	test_line_count = $(ls sidepatches | wc -l) list
++'
++
++test_expect_success 'format-patch -o overrides format.outputDirectory and format.side.outputDirectory' '
++	test_config format.outputDirectory patches &&
++	test_config format.side.outputDirectory sidepatches &&
++	rm -fr patches sidepatches patchset &&
+ 	git format-patch master..side -o patchset &&
+ 	test_path_is_missing patches &&
+-	test_path_is_dir patchset
++	test_path_is_missing sidepatches &&
++	test_line_count = $(ls patchset | wc -l) list
+ '
+ 
+ test_expect_success 'format-patch --base' '
+-- 
+2.22.0.355.g3bfa262345
+

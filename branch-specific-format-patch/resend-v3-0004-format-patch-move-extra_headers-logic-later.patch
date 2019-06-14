@@ -1,0 +1,106 @@
+From 82a56a0d76c1028773ced5ffbbf832ee8dba7173 Mon Sep 17 00:00:00 2001
+Message-Id: <82a56a0d76c1028773ced5ffbbf832ee8dba7173.1560547501.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1560547500.git.liu.denton@gmail.com>
+References: <cover.1558492582.git.liu.denton@gmail.com>
+	<cover.1560547500.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 1 May 2019 16:17:59 -0400
+Subject: [RESEND PATCH v3 4/8] format-patch: move extra_headers logic later
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Ævar Arnfjörð Bjarmason <avarab@gmail.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+In a future patch, we need to perform the addition of To: and Cc:
+to extra_headers after the branch_name logic. Simply transpose this
+logic later in the function so that this happens. (This patch is best
+viewed with `git diff --color-moved`.)
+
+Note that this logic only depends on `git_config` and
+`repo_init_revisions` and is depended on by the patch creation logic
+which is directly below it so this move is effectively a no-op as no
+dependencies being reordered.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ builtin/log.c | 58 +++++++++++++++++++++++++--------------------------
+ 1 file changed, 29 insertions(+), 29 deletions(-)
+
+diff --git a/builtin/log.c b/builtin/log.c
+index 617f074d60..3f97f344df 100644
+--- a/builtin/log.c
++++ b/builtin/log.c
+@@ -1667,35 +1667,6 @@ int cmd_format_patch(int argc, const char **argv, const char *prefix)
+ 		rev.subject_prefix = strbuf_detach(&sprefix, NULL);
+ 	}
+ 
+-	for (i = 0; i < extra_hdr.nr; i++) {
+-		strbuf_addstr(&buf, extra_hdr.items[i].string);
+-		strbuf_addch(&buf, '\n');
+-	}
+-
+-	if (extra_to.nr)
+-		strbuf_addstr(&buf, "To: ");
+-	for (i = 0; i < extra_to.nr; i++) {
+-		if (i)
+-			strbuf_addstr(&buf, "    ");
+-		strbuf_addstr(&buf, extra_to.items[i].string);
+-		if (i + 1 < extra_to.nr)
+-			strbuf_addch(&buf, ',');
+-		strbuf_addch(&buf, '\n');
+-	}
+-
+-	if (extra_cc.nr)
+-		strbuf_addstr(&buf, "Cc: ");
+-	for (i = 0; i < extra_cc.nr; i++) {
+-		if (i)
+-			strbuf_addstr(&buf, "    ");
+-		strbuf_addstr(&buf, extra_cc.items[i].string);
+-		if (i + 1 < extra_cc.nr)
+-			strbuf_addch(&buf, ',');
+-		strbuf_addch(&buf, '\n');
+-	}
+-
+-	rev.extra_headers = strbuf_detach(&buf, NULL);
+-
+ 	if (from) {
+ 		if (split_ident_line(&rev.from_ident, from, strlen(from)))
+ 			die(_("invalid ident line: %s"), from);
+@@ -1798,6 +1769,35 @@ int cmd_format_patch(int argc, const char **argv, const char *prefix)
+ 		}
+ 	}
+ 
++	for (i = 0; i < extra_hdr.nr; i++) {
++		strbuf_addstr(&buf, extra_hdr.items[i].string);
++		strbuf_addch(&buf, '\n');
++	}
++
++	if (extra_to.nr)
++		strbuf_addstr(&buf, "To: ");
++	for (i = 0; i < extra_to.nr; i++) {
++		if (i)
++			strbuf_addstr(&buf, "    ");
++		strbuf_addstr(&buf, extra_to.items[i].string);
++		if (i + 1 < extra_to.nr)
++			strbuf_addch(&buf, ',');
++		strbuf_addch(&buf, '\n');
++	}
++
++	if (extra_cc.nr)
++		strbuf_addstr(&buf, "Cc: ");
++	for (i = 0; i < extra_cc.nr; i++) {
++		if (i)
++			strbuf_addstr(&buf, "    ");
++		strbuf_addstr(&buf, extra_cc.items[i].string);
++		if (i + 1 < extra_cc.nr)
++			strbuf_addch(&buf, ',');
++		strbuf_addch(&buf, '\n');
++	}
++
++	rev.extra_headers = strbuf_detach(&buf, NULL);
++
+ 	/*
+ 	 * We cannot move this anywhere earlier because we do want to
+ 	 * know if --root was given explicitly from the command line.
+-- 
+2.22.0.355.g3bfa262345
+
