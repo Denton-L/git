@@ -1,0 +1,41 @@
+From 5cc5e354b6d84609f3d1de087b3390488abe5343 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1566182184.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Sun, 18 Aug 2019 22:36:24 -0400
+Subject: [PATCH 0/3] format-patch: teach --infer-cover-subject option
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Ævar Arnfjörð Bjarmason <avarab@gmail.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+Currently, format-patch only puts "*** SUBJECT HERE ***" when a cover
+letter is generated. However, it is already smart enough to be able to
+populate the cover letter with the branch description so there's no
+reason why it cannot populate the subject as well.
+
+Teach format-patch the --infer-cover-subject and corresponding
+format.inferCoverSubject configuration option which will read the
+subject from the branch description using the same rules as for a commit
+message (that is, it will expect a subject line followed by a blank
+line).
+
+Also includes some other cleanup along the way.
+
+This was based on patches 1-3 of an earlier patchset I sent[1].
+
+[1]: https://public-inbox.org/git/cover.1558492582.git.liu.denton@gmail.com/
+
+
+Denton Liu (3):
+  t4014: clean up style
+  Doc: add more detail for git-format-patch
+  format-patch: infer cover letter from branch description
+
+ Documentation/config/format.txt    |   5 +
+ Documentation/git-format-patch.txt |  35 +-
+ builtin/log.c                      |  56 ++-
+ t/t4014-format-patch.sh            | 656 ++++++++++++++++-------------
+ 4 files changed, 425 insertions(+), 327 deletions(-)
+
+-- 
+2.23.0.248.g3a9dd8fb08
+
