@@ -885,7 +885,7 @@ static int git_format_config(const char *var, const char *value, void *cb)
 		return 0;
 	}
 	if (!strcmp(var, "format.outputdirectory"))
-		return git_config_string(&config_output_directory, var, value);
+		return git_config_pathname(&config_output_directory, var, value);
 	if (!strcmp(var, "format.useautobase")) {
 		base_auto = git_config_bool(var, value);
 		return 0;
@@ -1841,13 +1841,21 @@ int cmd_format_patch(int argc, const char **argv, const char *prefix)
 	if (rev.show_notes)
 		init_display_notes(&rev.notes_opt);
 
-	if (!output_directory && !use_stdout)
-		output_directory = config_output_directory;
+	if (!use_stdout) {
+		const char *outdir_prefix = NULL;
+		const char *outdir = config_output_directory;
 
-	if (!use_stdout)
-		output_directory = set_outdir(prefix, output_directory);
-	else
+		if (output_directory)
+			outdir = output_directory;
+
+		if (output_directory ||
+		    (config_output_directory && starts_with(config_output_directory, "./")))
+			outdir_prefix = prefix;
+
+		output_directory = set_outdir(outdir_prefix, outdir);
+	} else {
 		setup_pager();
+	}
 
 	if (output_directory) {
 		int saved;

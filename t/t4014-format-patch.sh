@@ -1813,6 +1813,45 @@ test_expect_success 'format-patch format.outputDirectory option' '
 	test_line_count = $count list
 '
 
+test_expect_success 'format-patch format.outputDirectory option relative to git dir' '
+	test_config format.outputDirectory patches &&
+	rm -fr patches &&
+	mkdir -p sub &&
+	(
+		cd sub &&
+		git format-patch master..side
+	) &&
+	count=$(git rev-list --count master..side) &&
+	ls patches >list &&
+	test_line_count = $count list
+'
+
+test_expect_success 'format-patch format.outputDirectory option with relative path' '
+	test_config format.outputDirectory ./patches &&
+	mkdir -p sub &&
+	(
+		cd sub &&
+		rm -fr patches &&
+		git format-patch master..side &&
+		count=$(git rev-list --count master..side) &&
+		ls patches >list &&
+		test_line_count = $count list
+	)
+'
+
+test_expect_success 'format-patch format.outputDirectory option absolute path' '
+	test_config format.outputDirectory "$PWD/patches" &&
+	rm -fr patches &&
+	mkdir -p sub &&
+	(
+		cd sub &&
+		git format-patch master..side
+	) &&
+	count=$(git rev-list --count master..side) &&
+	ls patches >list &&
+	test_line_count = $count list
+'
+
 test_expect_success 'format-patch -o overrides format.outputDirectory' '
 	test_config format.outputDirectory patches &&
 	rm -fr patches patchset &&
