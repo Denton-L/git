@@ -1,0 +1,187 @@
+From de599f7ca9b5fe7e298bba0bb8c5d05f2f5cf34f Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1566285151.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1566258525.git.liu.denton@gmail.com>
+References: <cover.1566258525.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 20 Aug 2019 03:12:31 -0400
+Subject: [PATCH v3 00/13] format-patch: learn --infer-cover-subject option
+ (also t4014 cleanup)
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Ævar Arnfjörð Bjarmason <avarab@gmail.com>,
+    Junio C Hamano <gitster@pobox.com>,
+    Eric Sunshine <sunshine@sunshineco.com>
+
+Thanks for another round of reviews, Eric. I've incorporated most of
+your suggestions, including breaking the t4014 cleanup patch into
+multiple patches. Hopefully it isn't such a doozy to review now.
+
+Currently, format-patch only puts "*** SUBJECT HERE ***" when a cover
+letter is generated. However, it is already smart enough to be able to
+populate the cover letter with the branch description so there's no
+reason why it cannot populate the subject as well.
+
+Teach format-patch the `--infer-cover-subject` option and corresponding
+`format.inferCoverSubject` configuration option which will read the
+subject from the branch description using the same rules as for a commit
+message (that is, it will expect a subject line followed by a blank
+line).
+
+While we're at it, perform some major cleanup of t4014 including some
+stylistic cleanup and also, unmasking of Git return codes.
+
+This was based on patches 1-3 of an earlier patchset I sent[1].
+
+Changes since v2:
+
+* Break 1/4 into many different patches (one per paragraph of the
+  original patch)
+
+* Incorporate Eric's documentation/commit message suggestions
+
+Changes since v1:
+
+* Incorporate Eric's suggestions for cleanup in all patches
+
+* Add patch 3/4 to make it clear what is the default value for
+  format.coverLetter (since format.inferCoverSubject was borrowed from
+  this config but it also did not state what the default value was)
+
+* In 1/4, rename all instances of "expected" to "expect"
+
+[1]: https://public-inbox.org/git/cover.1558492582.git.liu.denton@gmail.com/
+
+
+Denton Liu (13):
+  t4014: drop unnecessary blank lines from test cases
+  t4014: s/expected/expect/
+  t4014: move closing sq onto its own line
+  t4014: use sq for test case names
+  t4014: remove spaces after redirect operators
+  t4014: use indentable here-docs
+  t4014: drop redirections to /dev/null
+  t4014: use test_line_count() where possible
+  t4014: remove confusing pipe in check_threading()
+  t4014: stop losing return codes of git commands
+  Doc: add more detail for git-format-patch
+  config/format.txt: specify default value of format.coverLetter
+  format-patch: learn --infer-cover-subject option
+
+ Documentation/config/format.txt    |   7 +
+ Documentation/git-format-patch.txt |  24 +-
+ builtin/log.c                      |  56 +-
+ t/t4014-format-patch.sh            | 822 +++++++++++++++--------------
+ 4 files changed, 486 insertions(+), 423 deletions(-)
+
+Range-diff against v2:
+ 1:  76a0a274fd <  -:  ---------- t4014: clean up style
+ -:  ---------- >  1:  fb000bfca2 t4014: drop unnecessary blank lines from test cases
+ -:  ---------- >  2:  568b3a03a0 t4014: s/expected/expect/
+ -:  ---------- >  3:  a205a920bd t4014: move closing sq onto its own line
+ -:  ---------- >  4:  66bf2e3dd4 t4014: use sq for test case names
+ -:  ---------- >  5:  6f1371275e t4014: remove spaces after redirect operators
+ -:  ---------- >  6:  b4295846f5 t4014: use indentable here-docs
+ -:  ---------- >  7:  34315412c8 t4014: drop redirections to /dev/null
+ -:  ---------- >  8:  de08dd886d t4014: use test_line_count() where possible
+ -:  ---------- >  9:  dec5a62e82 t4014: remove confusing pipe in check_threading()
+ -:  ---------- > 10:  64069c0c54 t4014: stop losing return codes of git commands
+ 2:  fd908bcc01 ! 11:  c12534ab5d Doc: add more detail for git-format-patch
+    @@ Commit message
+         Doc: add more detail for git-format-patch
+     
+         In git-format-patch.txt, we were missing some key user information.
+    -    First of all, using the `--to` and `--cc` options don't override
+    -    `format.to` and `format.cc` variables, respectively. They add on to each
+    -    other. Document this.
+    -
+    -    In addition, document the special value of `--base=auto`.
+    +    First of all, document the special value of `--base=auto`.
+     
+         Next, while we're at it, surround option arguments with <>.
+     
+ 3:  94a778c9aa <  -:  ---------- config/format.txt: make clear the default value of format.coverLetter
+ -:  ---------- > 12:  a08273ebcc config/format.txt: specify default value of format.coverLetter
+ 4:  e682bd347a ! 13:  de599f7ca9 format-patch: learn --infer-cover-letter option
+    @@ Metadata
+     Author: Denton Liu <liu.denton@gmail.com>
+     
+      ## Commit message ##
+    -    format-patch: learn --infer-cover-letter option
+    +    format-patch: learn --infer-cover-subject option
+     
+    -    We used to populate the subject of the cover letter generated by
+    -    git-format-patch with "*** SUBJECT HERE ***". However, if a user submits
+    -    multiple patchsets, they may want to keep a consistent subject between
+    -    rerolls.
+    +    Teach format-patch to use the first line of the branch description as
+    +    the Subject: of the generated cover letter, rather than "*** SUBJECT
+    +    HERE ***" if `--infer-cover-subject` is specified or the corresponding
+    +    `format.inferCoverSubject` option is enabled. This complements the
+    +    existing inclusion of the branch description in the cover letter body.
+     
+    -    If git-format-patch is run with `--infer-cover-letter` or
+    -    `format.inferCoverSubject`, infer the subject for the cover letter from
+    -    the top line(s) of a branch description, similar to how a subject is
+    -    read from a commit message.
+    +    The reason why this behaviour is not made default is because this change
+    +    is not backwards compatible and may break existing tooling that may rely
+    +    on the default template subject.
+     
+         Signed-off-by: Denton Liu <liu.denton@gmail.com>
+     
+    @@ Documentation/config/format.txt: format.subjectPrefix::
+      	subject prefix. Use this variable to change that prefix.
+      
+     +format.inferCoverSubject::
+    -+	A boolean value which lets you enable the
+    -+	`--infer-cover-subject` option of format-patch by default.
+    ++	A boolean that controls whether or not to take the first line of
+    ++	the branch description as the subject for the cover letter. See the
+    ++	`--infer-cover-subject` option in linkgit:git-format-patch[1].
+    ++	Default is false.
+     +
+      format.signature::
+      	The default for format-patch is to output a signature containing
+    @@ Documentation/git-format-patch.txt: will want to ensure that threading is disabl
+      	ignored.
+      
+     +--[no-]infer-cover-subject::
+    -+	Instead of using the default "*** SUBJECT HERE ***" subject for
+    -+	the cover letter, infer the subject from the branch's
+    -+	description.
+    -++
+    -+Similar to a commit message, the subject is inferred as the beginning of
+    -+the description up to and excluding the first blank line.
+    ++	Use the beginning of the branch description (up to the first
+    ++	blank line) as the cover letter subject instead of the default
+    ++	"*** SUBJECT HERE ***".
+     +
+      --subject-prefix=<Subject-Prefix>::
+      	Instead of the standard '[PATCH]' prefix in the subject
+    @@ builtin/log.c: int cmd_format_patch(int argc, const char **argv, const char *pre
+      			    N_("Use [RFC PATCH] instead of [PATCH]"),
+      			    PARSE_OPT_NOARG | PARSE_OPT_NONEG, rfc_callback },
+     +		OPT_BOOL(0, "infer-cover-subject", &infer_cover_subject,
+    -+			    N_("infer a cover letter subject from the branch description")),
+    ++			    N_("infer a cover letter subject from branch description")),
+      		{ OPTION_CALLBACK, 0, "subject-prefix", &rev, N_("prefix"),
+      			    N_("Use [<prefix>] instead of [PATCH]"),
+      			    PARSE_OPT_NONEG, subject_prefix_callback },
+    @@ builtin/log.c: int cmd_format_patch(int argc, const char **argv, const char *pre
+      		total++;
+     
+      ## t/t4014-format-patch.sh ##
+    +@@ t/t4014-format-patch.sh: test_expect_success 'format-patch --ignore-if-in-upstream HEAD' '
+    + '
+    + 
+    + test_expect_success 'get git version' '
+    +-	git_version="$(git --version | sed "s/.* //")"
+    ++	git_version="$(git --version >version && sed "s/.* //" <version)"
+    + '
+    + 
+    + signature() {
+     @@ t/t4014-format-patch.sh: test_expect_success 'format patch ignores color.ui' '
+      	test_cmp expect actual
+      '
+-- 
+2.23.0.248.g3a9dd8fb08
+
