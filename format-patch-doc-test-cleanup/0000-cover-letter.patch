@@ -1,0 +1,92 @@
+From 7c8522abf2aca59615e68993345c61e255f3a0c2 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1566635008.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1566285151.git.liu.denton@gmail.com>
+References: <cover.1566285151.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Sat, 24 Aug 2019 04:23:28 -0400
+Subject: [PATCH 00/13] format-patch: clean up tests and documentation
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Ævar Arnfjörð Bjarmason <avarab@gmail.com>,
+    Junio C Hamano <gitster@pobox.com>,
+    Eric Sunshine <sunshine@sunshineco.com>,
+    Johannes Sixt <j6t@kdbg.org>,
+    Junio C Hamano <gitster@pobox.com>,
+    Philip Oakley <philipoakley@iee.email>
+
+*** BLURB HERE ***
+
+As one of the older parts of the Git, the tests and documentation for
+format-patch have been needing cleanup for a while. Let's do that in
+this patchset!
+
+This patchset is based on v3 of "format-patch: learn
+--infer-cover-subject option (also t4014 cleanup)"[1].
+
+Changes since v3 of "format-patch: learn --infer-cover-subject option (also
+t4014 cleanup)":
+
+* Squash in Junio's and Hannes' suggestions
+
+* Add 't4014: let sed open its own files'
+
+[1]: https://public-inbox.org/git/xmqqwof3ljcz.fsf@gitster-ct.c.googlers.com/T/#m19570aff4828dfbd65d57cacf231c2938af1dc9f
+
+
+Denton Liu (13):
+  t4014: drop unnecessary blank lines from test cases
+  t4014: s/expected/expect/
+  t4014: move closing sq onto its own line
+  t4014: use sq for test case names
+  t4014: remove spaces after redirect operators
+  t4014: use indentable here-docs
+  t4014: drop redirections to /dev/null
+  t4014: let sed open its own files
+  t4014: use test_line_count() where possible
+  t4014: remove confusing pipe in check_threading()
+  t4014: stop losing return codes of git commands
+  Doc: add more detail for git-format-patch
+  config/format.txt: specify default value of format.coverLetter
+
+ Documentation/config/format.txt    |   1 +
+ Documentation/git-format-patch.txt |  23 +-
+ t/t4014-format-patch.sh            | 814 ++++++++++++++---------------
+ 3 files changed, 421 insertions(+), 417 deletions(-)
+
+Range-diff:
+ 1:  fb000bfca2 =  1:  fb000bfca2 t4014: drop unnecessary blank lines from test cases
+ 2:  568b3a03a0 !  2:  0a5ce9b95f t4014: s/expected/expect/
+    @@ Commit message
+         t4014: s/expected/expect/
+     
+         For test cases, the usual convention is to name expected output files
+    -    "expect", not "expected". Replace all instances with "expected" with
+    +    "expect", not "expected". Replace all instances of "expected" with
+         "expect" except for one case where the "expected" is used as the name
+         of a test case.
+     
+ 3:  a205a920bd =  3:  5c49703aa4 t4014: move closing sq onto its own line
+ 4:  66bf2e3dd4 =  4:  02a11147fd t4014: use sq for test case names
+ 5:  6f1371275e =  5:  8d9791c061 t4014: remove spaces after redirect operators
+ 6:  b4295846f5 =  6:  90ad0fcf70 t4014: use indentable here-docs
+ 7:  34315412c8 =  7:  804b3163f8 t4014: drop redirections to /dev/null
+ -:  ---------- >  8:  7d9a24a979 t4014: let sed open its own files
+ 8:  de08dd886d =  9:  d068d42098 t4014: use test_line_count() where possible
+ 9:  dec5a62e82 = 10:  6a9409cee0 t4014: remove confusing pipe in check_threading()
+10:  64069c0c54 ! 11:  c580ce447b t4014: stop losing return codes of git commands
+    @@ t/t4014-format-patch.sh: test_expect_success 'format-patch --ignore-if-in-upstre
+      
+     -git_version="$(git --version | sed "s/.* //")"
+     +test_expect_success 'get git version' '
+    -+	git_version="$(git --version | sed "s/.* //")"
+    ++	git_version=$(git --version) &&
+    ++	git_version=${git_version##* }
+     +'
+      
+      signature() {
+11:  c12534ab5d = 12:  a97f861e6a Doc: add more detail for git-format-patch
+12:  a08273ebcc <  -:  ---------- config/format.txt: specify default value of format.coverLetter
+13:  de599f7ca9 <  -:  ---------- format-patch: learn --infer-cover-subject option
+ -:  ---------- > 13:  7c8522abf2 config/format.txt: specify default value of format.coverLetter
+-- 
+2.23.0.248.g3a9dd8fb08
+
