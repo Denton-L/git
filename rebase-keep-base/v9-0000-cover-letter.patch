@@ -1,0 +1,413 @@
+From 6927aba6176fb1b6f30c63e7d8c096861b2f0141 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1566724236.git.liu.denton@gmail.com>
+In-Reply-To: <20190508001252.15752-1-avarab@gmail.com>
+References: <20190508001252.15752-1-avarab@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Sun, 25 Aug 2019 05:10:36 -0400
+Subject: [PATCH v9 0/9] rebase: learn --keep-base and improvements on
+ fast-forward behaviour
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>,
+    Eric Sunshine <sunshine@sunshineco.com>,
+    Johannes Schindelin <Johannes.Schindelin@gmx.de>,
+    Johannes Sixt <j6t@kdbg.org>,
+    SZEDER Gábor <szeder.dev@gmail.com>,
+    Ævar Arnfjörð Bjarmason <avarab@gmail.com>
+
+Hi all, it's been a while but I guess now's a good time as any to
+resurrect this topic. This is basically a resubmission of Ævar's WIP v8
+but I fixed a couple of minor whitespace issues.
+
+In addition, I opted to drop patches 9-13 from v8 since I don't think I
+can do a good enough job polishing them up and I don't really understand
+the intricacies of this part of the rebase code. Hopefully, Ævar will
+pick them up at a later time.
+
+Changes since v1:
+
+* Squashed old set into one patch
+* Fixed indentation style and dangling else
+* Added more documentation after discussion with Ævar
+
+Changes since v2:
+
+* Add testing for rebase --fork-point behaviour
+* Add testing for rebase fast-forward behaviour
+* Make rebase --onto fast-forward in more cases
+* Update documentation to include use-case
+
+Changes since v3:
+
+* Fix tests failing on bash 4.2
+* Fix typo in t3431 comment
+
+Changes since v4:
+
+* Make rebase --fork-point fast-forward in more cases
+
+Changes since v5:
+
+* Fix graph illustrations so that the "branch off" is visually in the
+  correct place
+* Refactor if-else in can_fast_forward into one-level-deep ifs to
+  increase clarity
+
+Changes since v6:
+
+* Remove redundant braces around if
+* Update comment around can_fast_forward call
+* Add completion for rebase
+
+Changes since v7:
+
+* Ævar sent in his WIP patchset
+
+Changes since v8:
+
+* Drop patches 9-13
+* Fix some minor whitespace issues from v7
+
+[1]: https://public-inbox.org/git/a1b4b74b9167e279dae4cd8c58fb28d8a714a66a.1553537656.git.gitgitgadget@gmail.com/
+
+
+Denton Liu (6):
+  t3431: add rebase --fork-point tests
+  t3432: test rebase fast-forward behavior
+  rebase: refactor can_fast_forward into goto tower
+  rebase: fast-forward --onto in more cases
+  rebase: fast-forward --fork-point in more cases
+  rebase: teach rebase --keep-base
+
+Ævar Arnfjörð Bjarmason (3):
+  t3432: distinguish "noop-same" v.s. "work-same" in "same head" tests
+  t3432: test for --no-ff's interaction with fast-forward
+  rebase tests: test linear branch topology
+
+ Documentation/git-rebase.txt           |  30 +++++-
+ builtin/rebase.c                       |  85 ++++++++++++-----
+ contrib/completion/git-completion.bash |   2 +-
+ t/t3400-rebase.sh                      |   2 +-
+ t/t3404-rebase-interactive.sh          |   2 +-
+ t/t3416-rebase-onto-threedots.sh       |  57 +++++++++++
+ t/t3421-rebase-topology-linear.sh      |  29 ++++++
+ t/t3431-rebase-fork-point.sh           |  57 +++++++++++
+ t/t3432-rebase-fast-forward.sh         | 125 +++++++++++++++++++++++++
+ 9 files changed, 361 insertions(+), 28 deletions(-)
+ create mode 100755 t/t3431-rebase-fork-point.sh
+ create mode 100755 t/t3432-rebase-fast-forward.sh
+
+Range-diff against v8:
+ 1:  eb64f6c91d !  1:  03f769d410 t3431: add rebase --fork-point tests
+    @@ t/t3431-rebase-fork-point.sh (new)
+     +	test_commit G
+     +'
+     +
+    -+test_rebase() {
+    ++test_rebase () {
+     +	expected="$1" &&
+     +	shift &&
+     +	test_expect_success "git rebase $*" "
+ 2:  4c087ec041 !  2:  bc8998079d t3432: test rebase fast-forward behavior
+    @@ t/t3432-rebase-fast-forward.sh (new)
+     +	git checkout -t -b side
+     +'
+     +
+    -+test_rebase_same_head() {
+    ++test_rebase_same_head () {
+     +	status="$1" &&
+     +	shift &&
+     +	test_expect_$status "git rebase $* with $changes is no-op" "
+ -:  ---------- >  3:  5c08e2b81f t3432: distinguish "noop-same" v.s. "work-same" in "same head" tests
+ -:  ---------- >  4:  48b4e41a17 t3432: test for --no-ff's interaction with fast-forward
+ 3:  3d348d2c37 =  5:  9bd34b4a40 rebase: refactor can_fast_forward into goto tower
+ 4:  27cbcfaeae !  6:  becb924232 rebase: fast-forward --onto in more cases
+    @@ Commit message
+         Add '-f' to test cases that failed as a result of this change because
+         they were not expecting a fast-forward so that a rebase is forced.
+     
+    -    While we're at it, remove a trailing whitespace from rebase.c.
+    -
+         Helped-by: Phillip Wood <phillip.wood@dunelm.org.uk>
+         Signed-off-by: Denton Liu <liu.denton@gmail.com>
+     
+    @@ builtin/rebase.c: int cmd_rebase(int argc, const char **argv, const char *prefix
+      		int flag;
+      
+      		if (!(options.flags & REBASE_FORCE)) {
+    -@@ builtin/rebase.c: int cmd_rebase(int argc, const char **argv, const char *prefix)
+    - 	strbuf_addf(&msg, "%s: checkout %s",
+    - 		    getenv(GIT_REFLOG_ACTION_ENVIRONMENT), options.onto_name);
+    - 	if (reset_head(&options.onto->object.oid, "checkout", NULL,
+    --		       RESET_HEAD_DETACH | RESET_ORIG_HEAD | 
+    -+		       RESET_HEAD_DETACH | RESET_ORIG_HEAD |
+    - 		       RESET_HEAD_RUN_POST_CHECKOUT_HOOK,
+    - 		       NULL, msg.buf))
+    - 		die(_("Could not detach HEAD"));
+     
+      ## t/t3400-rebase.sh ##
+    -@@ t/t3400-rebase.sh: test_expect_success 'rebase--am.sh and --show-current-patch' '
+    +@@ t/t3400-rebase.sh: test_expect_success 'rebase --am and --show-current-patch' '
+      		echo two >>init.t &&
+      		git commit -a -m two &&
+      		git tag two &&
+    @@ t/t3404-rebase-interactive.sh: test_expect_success C_LOCALE_OUTPUT 'rebase --edi
+      '
+     
+      ## t/t3432-rebase-fast-forward.sh ##
+    -@@ t/t3432-rebase-fast-forward.sh: test_expect_success 'add work to upstream' '
+    +@@ t/t3432-rebase-fast-forward.sh: test_expect_success 'add work same to upstream' '
+      changes='our and their changes'
+    - test_rebase_same_head success --onto B B
+    - test_rebase_same_head success --onto B... B
+    --test_rebase_same_head failure --onto master... master
+    -+test_rebase_same_head success --onto master... master
+    - test_rebase_same_head failure --fork-point --onto B B
+    - test_rebase_same_head failure --fork-point --onto B... B
+    --test_rebase_same_head failure --fork-point --onto master... master
+    -+test_rebase_same_head success --fork-point --onto master... master
+    + test_rebase_same_head success noop same success noop-force diff --onto B B
+    + test_rebase_same_head success noop same success noop-force diff --onto B... B
+    +-test_rebase_same_head failure work same success work diff --onto master... master
+    ++test_rebase_same_head success noop same success work diff --onto master... master
+    + test_rebase_same_head failure work same success work diff --fork-point --onto B B
+    + test_rebase_same_head failure work same success work diff --fork-point --onto B... B
+    +-test_rebase_same_head failure work same success work diff --fork-point --onto master... master
+    ++test_rebase_same_head success noop same success work diff --fork-point --onto master... master
+      
+      test_done
+ 5:  8254730810 !  7:  4dab5847cb rebase: fast-forward --fork-point in more cases
+    @@ builtin/rebase.c: int cmd_rebase(int argc, const char **argv, const char *prefix
+      		if (!(options.flags & REBASE_FORCE)) {
+     
+      ## t/t3432-rebase-fast-forward.sh ##
+    -@@ t/t3432-rebase-fast-forward.sh: test_rebase_same_head success --onto B... B
+    - test_rebase_same_head success --onto master... master
+    - test_rebase_same_head success --no-fork-point
+    - test_rebase_same_head success --fork-point master
+    --test_rebase_same_head failure --fork-point --onto B B
+    --test_rebase_same_head failure --fork-point --onto B... B
+    -+test_rebase_same_head success --fork-point --onto B B
+    -+test_rebase_same_head success --fork-point --onto B... B
+    - test_rebase_same_head success --fork-point --onto master... master
+    +@@ t/t3432-rebase-fast-forward.sh: test_rebase_same_head_ () {
+    + }
+    + 
+    + changes='no changes'
+    +-test_rebase_same_head success work same success work same
+    ++test_rebase_same_head success noop same success work same
+    + test_rebase_same_head success noop same success noop-force same master
+    + test_rebase_same_head success noop same success noop-force diff --onto B B
+    + test_rebase_same_head success noop same success noop-force diff --onto B... B
+    + test_rebase_same_head success noop same success noop-force same --onto master... master
+    + test_rebase_same_head success noop same success noop-force same --no-fork-point
+    +-test_rebase_same_head success work same success work same --fork-point master
+    +-test_rebase_same_head failure noop same success work diff --fork-point --onto B B
+    +-test_rebase_same_head failure work same success work diff --fork-point --onto B... B
+    +-test_rebase_same_head success work same success work same --fork-point --onto master... master
+    ++test_rebase_same_head success noop same success work same --fork-point master
+    ++test_rebase_same_head success noop same success work diff --fork-point --onto B B
+    ++test_rebase_same_head success noop same success work diff --fork-point --onto B... B
+    ++test_rebase_same_head success noop same success work same --fork-point --onto master... master
+      
+    - test_expect_success 'add work to side' '
+    -@@ t/t3432-rebase-fast-forward.sh: test_rebase_same_head success --onto B... B
+    - test_rebase_same_head success --onto master... master
+    - test_rebase_same_head success --no-fork-point
+    - test_rebase_same_head success --fork-point master
+    --test_rebase_same_head failure --fork-point --onto B B
+    --test_rebase_same_head failure --fork-point --onto B... B
+    -+test_rebase_same_head success --fork-point --onto B B
+    -+test_rebase_same_head success --fork-point --onto B... B
+    - test_rebase_same_head success --fork-point --onto master... master
+    + test_expect_success 'add work same to side' '
+    + 	test_commit E
+    + '
+      
+    - test_expect_success 'add work to upstream' '
+    -@@ t/t3432-rebase-fast-forward.sh: changes='our and their changes'
+    - test_rebase_same_head success --onto B B
+    - test_rebase_same_head success --onto B... B
+    - test_rebase_same_head success --onto master... master
+    --test_rebase_same_head failure --fork-point --onto B B
+    --test_rebase_same_head failure --fork-point --onto B... B
+    -+test_rebase_same_head success --fork-point --onto B B
+    -+test_rebase_same_head success --fork-point --onto B... B
+    - test_rebase_same_head success --fork-point --onto master... master
+    + changes='our changes'
+    +-test_rebase_same_head success work same success work same
+    ++test_rebase_same_head success noop same success work same
+    + test_rebase_same_head success noop same success noop-force same master
+    + test_rebase_same_head success noop same success noop-force diff --onto B B
+    + test_rebase_same_head success noop same success noop-force diff --onto B... B
+    + test_rebase_same_head success noop same success noop-force same --onto master... master
+    + test_rebase_same_head success noop same success noop-force same --no-fork-point
+    +-test_rebase_same_head success work same success work same --fork-point master
+    +-test_rebase_same_head failure work same success work diff --fork-point --onto B B
+    +-test_rebase_same_head failure work same success work diff --fork-point --onto B... B
+    +-test_rebase_same_head success work same success work same --fork-point --onto master... master
+    ++test_rebase_same_head success noop same success work same --fork-point master
+    ++test_rebase_same_head success noop same success work diff --fork-point --onto B B
+    ++test_rebase_same_head success noop same success work diff --fork-point --onto B... B
+    ++test_rebase_same_head success noop same success work same --fork-point --onto master... master
+      
+    - test_done
+    + test_expect_success 'add work same to upstream' '
+    + 	git checkout master &&
+ -:  ---------- >  8:  4699a90993 rebase tests: test linear branch topology
+ 6:  f18d3ee3fa !  9:  6927aba617 rebase: teach rebase --keep-base
+    @@ Commit message
+         in order to preserve the merge base. This is useful when contributing a
+         patch series to the Git mailing list, one often starts on top of the
+         current 'master'. However, while developing the patches, 'master' is
+    -    also developed further and it is sometimes not the bst idea to keep
+    +    also developed further and it is sometimes not the best idea to keep
+         rebasing on top of 'master', but to keep the base commit as-is.
+     
+         Alternatively, a user wishing to test individual commits in a topic
+    @@ Documentation/git-rebase.txt: git-rebase - Reapply commits on top of another bas
+     +	[--onto <newbase> | --keep-base] [<upstream> [<branch>]]
+      'git rebase' [-i | --interactive] [<options>] [--exec <cmd>] [--onto <newbase>]
+      	--root [<branch>]
+    - 'git rebase' --continue | --skip | --abort | --quit | --edit-todo | --show-current-patch
+    + 'git rebase' (--continue | --skip | --abort | --quit | --edit-todo | --show-current-patch)
+     @@ Documentation/git-rebase.txt: As a special case, you may use "A\...B" as a shortcut for the
+      merge base of A and B if there is exactly one merge base. You can
+      leave out at most one of A and B, in which case it defaults to HEAD.
+    @@ Documentation/git-rebase.txt: NOTE: While an "easy case recovery" sometimes appe
+     
+      ## builtin/rebase.c ##
+     @@
+    - #include "branch.h"
+    + #include "rebase-interactive.h"
+      
+      static char const * const builtin_rebase_usage[] = {
+     -	N_("git rebase [-i] [options] [--exec <cmd>] [--onto <newbase>] "
+    @@ builtin/rebase.c
+      		"--root [<branch>]"),
+      	N_("git rebase --continue | --abort | --skip | --edit-todo"),
+     @@ builtin/rebase.c: int cmd_rebase(int argc, const char **argv, const char *prefix)
+    - 	};
+    + 	struct rebase_options options = REBASE_OPTIONS_INIT;
+      	const char *branch_name;
+      	int ret, flags, total_argc, in_progress = 0;
+     +	int keep_base = 0;
+    @@ builtin/rebase.c: int cmd_rebase(int argc, const char **argv, const char *prefix
+      			 N_("allow pre-rebase hook to run")),
+      		OPT_NEGBIT('q', "quiet", &options.flags,
+     @@ builtin/rebase.c: int cmd_rebase(int argc, const char **argv, const char *prefix)
+    - 		usage_with_options(builtin_rebase_usage,
+    - 				   builtin_rebase_options);
+    + 		warning(_("git rebase --preserve-merges is deprecated. "
+    + 			  "Use --rebase-merges instead."));
+      
+     +	if (keep_base) {
+     +		if (options.onto_name)
+    @@ builtin/rebase.c: int cmd_rebase(int argc, const char **argv, const char *prefix
+     +			die(_("cannot combine '--keep-base' with '--root'"));
+     +	}
+     +
+    - 	if (action != NO_ACTION && !in_progress)
+    + 	if (action != ACTION_NONE && !in_progress)
+      		die(_("No rebase in progress?"));
+      	setenv(GIT_REFLOG_ACTION_ENVIRONMENT, "rebase", 0);
+     @@ builtin/rebase.c: int cmd_rebase(int argc, const char **argv, const char *prefix)
+    @@ t/t3416-rebase-onto-threedots.sh: test_expect_success 'rebase -i --onto master..
+      test_done
+     
+      ## t/t3431-rebase-fork-point.sh ##
+    -@@ t/t3431-rebase-fork-point.sh: test_rebase() {
+    +@@ t/t3431-rebase-fork-point.sh: test_rebase () {
+      
+      test_rebase 'G F E D B A'
+      test_rebase 'G F D B A' --onto D
+    @@ t/t3431-rebase-fork-point.sh: test_rebase() {
+      test_done
+     
+      ## t/t3432-rebase-fast-forward.sh ##
+    -@@ t/t3432-rebase-fast-forward.sh: test_rebase_same_head success master
+    - test_rebase_same_head success --onto B B
+    - test_rebase_same_head success --onto B... B
+    - test_rebase_same_head success --onto master... master
+    -+test_rebase_same_head success --keep-base master
+    -+test_rebase_same_head success --keep-base
+    - test_rebase_same_head success --no-fork-point
+    -+test_rebase_same_head success --keep-base --no-fork-point
+    - test_rebase_same_head success --fork-point master
+    - test_rebase_same_head success --fork-point --onto B B
+    - test_rebase_same_head success --fork-point --onto B... B
+    - test_rebase_same_head success --fork-point --onto master... master
+    -+test_rebase_same_head success --fork-point --keep-base master
+    +@@ t/t3432-rebase-fast-forward.sh: test_rebase_same_head success noop same success noop-force same master
+    + test_rebase_same_head success noop same success noop-force diff --onto B B
+    + test_rebase_same_head success noop same success noop-force diff --onto B... B
+    + test_rebase_same_head success noop same success noop-force same --onto master... master
+    ++test_rebase_same_head success noop same success noop-force same --keep-base master
+    ++test_rebase_same_head success noop same success noop-force same --keep-base
+    + test_rebase_same_head success noop same success noop-force same --no-fork-point
+    ++test_rebase_same_head success noop same success noop-force same --keep-base --no-fork-point
+    + test_rebase_same_head success noop same success work same --fork-point master
+    + test_rebase_same_head success noop same success work diff --fork-point --onto B B
+    + test_rebase_same_head success noop same success work diff --fork-point --onto B... B
+    + test_rebase_same_head success noop same success work same --fork-point --onto master... master
+    ++test_rebase_same_head success noop same success work same --keep-base --keep-base master
+      
+    - test_expect_success 'add work to side' '
+    + test_expect_success 'add work same to side' '
+      	test_commit E
+    -@@ t/t3432-rebase-fast-forward.sh: test_rebase_same_head success master
+    - test_rebase_same_head success --onto B B
+    - test_rebase_same_head success --onto B... B
+    - test_rebase_same_head success --onto master... master
+    -+test_rebase_same_head success --keep-base master
+    -+test_rebase_same_head success --keep-base
+    - test_rebase_same_head success --no-fork-point
+    -+test_rebase_same_head success --keep-base --no-fork-point
+    - test_rebase_same_head success --fork-point master
+    - test_rebase_same_head success --fork-point --onto B B
+    - test_rebase_same_head success --fork-point --onto B... B
+    - test_rebase_same_head success --fork-point --onto master... master
+    -+test_rebase_same_head success --fork-point --keep-base master
+    +@@ t/t3432-rebase-fast-forward.sh: test_rebase_same_head success noop same success noop-force same master
+    + test_rebase_same_head success noop same success noop-force diff --onto B B
+    + test_rebase_same_head success noop same success noop-force diff --onto B... B
+    + test_rebase_same_head success noop same success noop-force same --onto master... master
+    ++test_rebase_same_head success noop same success noop-force same --keep-base master
+    ++test_rebase_same_head success noop same success noop-force same --keep-base
+    + test_rebase_same_head success noop same success noop-force same --no-fork-point
+    ++test_rebase_same_head success noop same success noop-force same --keep-base --no-fork-point
+    + test_rebase_same_head success noop same success work same --fork-point master
+    + test_rebase_same_head success noop same success work diff --fork-point --onto B B
+    + test_rebase_same_head success noop same success work diff --fork-point --onto B... B
+    + test_rebase_same_head success noop same success work same --fork-point --onto master... master
+    ++test_rebase_same_head success noop same success work same --fork-point --keep-base master
+      
+    - test_expect_success 'add work to upstream' '
+    + test_expect_success 'add work same to upstream' '
+      	git checkout master &&
+     @@ t/t3432-rebase-fast-forward.sh: changes='our and their changes'
+    - test_rebase_same_head success --onto B B
+    - test_rebase_same_head success --onto B... B
+    - test_rebase_same_head success --onto master... master
+    -+test_rebase_same_head success --keep-base master
+    -+test_rebase_same_head success --keep-base
+    - test_rebase_same_head success --fork-point --onto B B
+    - test_rebase_same_head success --fork-point --onto B... B
+    - test_rebase_same_head success --fork-point --onto master... master
+    -+test_rebase_same_head success --fork-point --keep-base master
+    + test_rebase_same_head success noop same success noop-force diff --onto B B
+    + test_rebase_same_head success noop same success noop-force diff --onto B... B
+    + test_rebase_same_head success noop same success work diff --onto master... master
+    ++test_rebase_same_head success noop same success work diff --keep-base master
+    ++test_rebase_same_head success noop same success work diff --keep-base
+    + test_rebase_same_head failure work same success work diff --fork-point --onto B B
+    + test_rebase_same_head failure work same success work diff --fork-point --onto B... B
+    + test_rebase_same_head success noop same success work diff --fork-point --onto master... master
+    ++test_rebase_same_head success noop same success work diff --fork-point --keep-base master
+      
+      test_done
+-- 
+2.23.0.248.g3a9dd8fb08
+
