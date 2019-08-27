@@ -1,0 +1,50 @@
+From 862802366ab2dc636614b737bbb5d4fe26dba9e4 Mon Sep 17 00:00:00 2001
+Message-Id: <862802366ab2dc636614b737bbb5d4fe26dba9e4.1566880835.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1566880835.git.liu.denton@gmail.com>
+References: <cover.1566637431.git.liu.denton@gmail.com>
+	<cover.1566880835.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Sat, 24 Aug 2019 04:52:20 -0400
+Subject: [PATCH v2 1/3] completion: merge options for cherry-pick and revert
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>
+
+Since revert and cherry-pick share the same sequencer code, they should
+both accept the same command-line options. Derive the
+`__git_cherry_pick_inprogress_options` and
+`__git_revert_inprogress_options` variables from
+`__git_sequencer_inprogress_options` so that the options aren't
+unnecessarily duplicated twice.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ contrib/completion/git-completion.bash | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/contrib/completion/git-completion.bash b/contrib/completion/git-completion.bash
+index e087c4bf00..a7d3f58627 100644
+--- a/contrib/completion/git-completion.bash
++++ b/contrib/completion/git-completion.bash
+@@ -1361,7 +1361,9 @@ _git_checkout ()
+ 	esac
+ }
+ 
+-__git_cherry_pick_inprogress_options="--continue --quit --abort"
++__git_sequencer_inprogress_options="--continue --quit --abort"
++
++__git_cherry_pick_inprogress_options=$__git_sequencer_inprogress_options
+ 
+ _git_cherry_pick ()
+ {
+@@ -2512,7 +2514,7 @@ _git_restore ()
+ 	esac
+ }
+ 
+-__git_revert_inprogress_options="--continue --quit --abort"
++__git_revert_inprogress_options=$__git_sequencer_inprogress_options
+ 
+ _git_revert ()
+ {
+-- 
+2.23.0.248.g3a9dd8fb08
+

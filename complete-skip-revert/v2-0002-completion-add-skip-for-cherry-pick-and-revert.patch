@@ -1,0 +1,36 @@
+From c83feb3d6e15ee4666310aa0ac94596faec56d94 Mon Sep 17 00:00:00 2001
+Message-Id: <c83feb3d6e15ee4666310aa0ac94596faec56d94.1566880835.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1566880835.git.liu.denton@gmail.com>
+References: <cover.1566637431.git.liu.denton@gmail.com>
+	<cover.1566880835.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Sat, 24 Aug 2019 04:57:42 -0400
+Subject: [PATCH v2 2/3] completion: add --skip for cherry-pick and revert
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>
+
+Even though `--skip` is a valid command-line option for cherry-pick and
+revert while they are in progress, it is not completed. Add this missing
+option to the completion script.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ contrib/completion/git-completion.bash | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/contrib/completion/git-completion.bash b/contrib/completion/git-completion.bash
+index a7d3f58627..b4651411b2 100644
+--- a/contrib/completion/git-completion.bash
++++ b/contrib/completion/git-completion.bash
+@@ -1361,7 +1361,7 @@ _git_checkout ()
+ 	esac
+ }
+ 
+-__git_sequencer_inprogress_options="--continue --quit --abort"
++__git_sequencer_inprogress_options="--continue --quit --abort --skip"
+ 
+ __git_cherry_pick_inprogress_options=$__git_sequencer_inprogress_options
+ 
+-- 
+2.23.0.248.g3a9dd8fb08
+
