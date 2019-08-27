@@ -1,0 +1,37 @@
+From 4e429e1989173e07bcb9b622b732e46bf3dab828 Mon Sep 17 00:00:00 2001
+Message-Id: <4e429e1989173e07bcb9b622b732e46bf3dab828.1566878374.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1566878373.git.liu.denton@gmail.com>
+References: <cover.1566635008.git.liu.denton@gmail.com>
+	<cover.1566878373.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 19 Aug 2019 19:24:37 -0400
+Subject: [PATCH v2 13/13] config/format.txt: specify default value of
+ format.coverLetter
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Ævar Arnfjörð Bjarmason <avarab@gmail.com>,
+    Junio C Hamano <gitster@pobox.com>,
+    Eric Sunshine <sunshine@sunshineco.com>,
+    Johannes Sixt <j6t@kdbg.org>,
+    Junio C Hamano <gitster@pobox.com>,
+    Philip Oakley <philipoakley@iee.email>
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Documentation/config/format.txt | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Documentation/config/format.txt b/Documentation/config/format.txt
+index 414a5a8a9d..cb629fa769 100644
+--- a/Documentation/config/format.txt
++++ b/Documentation/config/format.txt
+@@ -77,6 +77,7 @@ format.coverLetter::
+ 	A boolean that controls whether to generate a cover-letter when
+ 	format-patch is invoked, but in addition can be set to "auto", to
+ 	generate a cover-letter only when there's more than one patch.
++	Default is false.
+ 
+ format.outputDirectory::
+ 	Set a custom directory to store the resulting files instead of the
+-- 
+2.23.0.248.g3a9dd8fb08
+
