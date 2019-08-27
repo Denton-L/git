@@ -1,0 +1,153 @@
+From 6bc7423ac1e6f7d81de96cd4911ff652dc0e5a88 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1566884063.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1566724236.git.liu.denton@gmail.com>
+References: <cover.1566724236.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 27 Aug 2019 01:34:23 -0400
+Subject: [PATCH v10 0/9] rebase: learn --keep-base and improvements on
+ fast-forward behaviour
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>,
+    Eric Sunshine <sunshine@sunshineco.com>,
+    Johannes Schindelin <Johannes.Schindelin@gmx.de>,
+    Johannes Sixt <j6t@kdbg.org>,
+    SZEDER Gábor <szeder.dev@gmail.com>,
+    Ævar Arnfjörð Bjarmason <avarab@gmail.com>,
+    Philip Oakley <philipoakley@iee.email>,
+    Pratyush Yadav <me@yadavpratyush.com>
+
+Thanks for your suggestions, Pratyush and Philip. I've incorporated both
+of them into this reroll.
+
+
+Changes since v1:
+
+* Squashed old set into one patch
+* Fixed indentation style and dangling else
+* Added more documentation after discussion with Ævar
+
+Changes since v2:
+
+* Add testing for rebase --fork-point behaviour
+* Add testing for rebase fast-forward behaviour
+* Make rebase --onto fast-forward in more cases
+* Update documentation to include use-case
+
+Changes since v3:
+
+* Fix tests failing on bash 4.2
+* Fix typo in t3431 comment
+
+Changes since v4:
+
+* Make rebase --fork-point fast-forward in more cases
+
+Changes since v5:
+
+* Fix graph illustrations so that the "branch off" is visually in the
+  correct place
+* Refactor if-else in can_fast_forward into one-level-deep ifs to
+  increase clarity
+
+Changes since v6:
+
+* Remove redundant braces around if
+* Update comment around can_fast_forward call
+* Add completion for rebase
+
+Changes since v7:
+
+* Ævar sent in his WIP patchset
+
+Changes since v8:
+
+* Drop patches 9-13
+* Fix some minor whitespace issues from v7
+
+Changes since v9:
+
+* Remove unnecessary if-statement in patch 6/9
+* Update commit message for patch 9/9 for clarity according to Philip's
+  suggestions
+
+[1]: https://public-inbox.org/git/a1b4b74b9167e279dae4cd8c58fb28d8a714a66a.1553537656.git.gitgitgadget@gmail.com/
+
+
+Denton Liu (6):
+  t3431: add rebase --fork-point tests
+  t3432: test rebase fast-forward behavior
+  rebase: refactor can_fast_forward into goto tower
+  rebase: fast-forward --onto in more cases
+  rebase: fast-forward --fork-point in more cases
+  rebase: teach rebase --keep-base
+
+Ævar Arnfjörð Bjarmason (3):
+  t3432: distinguish "noop-same" v.s. "work-same" in "same head" tests
+  t3432: test for --no-ff's interaction with fast-forward
+  rebase tests: test linear branch topology
+
+ Documentation/git-rebase.txt           |  30 +++++-
+ builtin/rebase.c                       |  84 ++++++++++++-----
+ contrib/completion/git-completion.bash |   2 +-
+ t/t3400-rebase.sh                      |   2 +-
+ t/t3404-rebase-interactive.sh          |   2 +-
+ t/t3416-rebase-onto-threedots.sh       |  57 +++++++++++
+ t/t3421-rebase-topology-linear.sh      |  29 ++++++
+ t/t3431-rebase-fork-point.sh           |  57 +++++++++++
+ t/t3432-rebase-fast-forward.sh         | 125 +++++++++++++++++++++++++
+ 9 files changed, 360 insertions(+), 28 deletions(-)
+ create mode 100755 t/t3431-rebase-fork-point.sh
+ create mode 100755 t/t3432-rebase-fast-forward.sh
+
+Range-diff against v9:
+ 1:  03f769d410 =  1:  03f769d410 t3431: add rebase --fork-point tests
+ 2:  bc8998079d =  2:  bc8998079d t3432: test rebase fast-forward behavior
+ 3:  5c08e2b81f =  3:  5c08e2b81f t3432: distinguish "noop-same" v.s. "work-same" in "same head" tests
+ 4:  48b4e41a17 =  4:  48b4e41a17 t3432: test for --no-ff's interaction with fast-forward
+ 5:  9bd34b4a40 !  5:  9acce7c911 rebase: refactor can_fast_forward into goto tower
+    @@ builtin/rebase.c: static int can_fast_forward(struct commit *onto, struct object
+     -		res = 0;
+     +		goto done;
+      	}
+    --	free_commit_list(merge_bases);
+     +
+     +	oidcpy(merge_base, &merge_bases->item->object.oid);
+     +	if (!oideq(merge_base, &onto->object.oid))
+    @@ builtin/rebase.c: static int can_fast_forward(struct commit *onto, struct object
+     +	res = 1;
+     +
+     +done:
+    -+	if (merge_bases)
+    -+		free_commit_list(merge_bases);
+    + 	free_commit_list(merge_bases);
+      	return res && is_linear_history(onto, head);
+      }
+    - 
+ 6:  becb924232 =  6:  3f208421d6 rebase: fast-forward --onto in more cases
+ 7:  4dab5847cb =  7:  126c20a95d rebase: fast-forward --fork-point in more cases
+ 8:  4699a90993 =  8:  bf6cc6a610 rebase tests: test linear branch topology
+ 9:  6927aba617 !  9:  6bc7423ac1 rebase: teach rebase --keep-base
+    @@ Commit message
+     
+         in order to preserve the merge base. This is useful when contributing a
+         patch series to the Git mailing list, one often starts on top of the
+    -    current 'master'. However, while developing the patches, 'master' is
+    -    also developed further and it is sometimes not the best idea to keep
+    -    rebasing on top of 'master', but to keep the base commit as-is.
+    +    current 'master'. While developing the patches, 'master' is also
+    +    developed further and it is sometimes not the best idea to keep rebasing
+    +    on top of 'master', but to keep the base commit as-is.
+     
+    -    Alternatively, a user wishing to test individual commits in a topic
+    -    branch without changing anything may run
+    +    In addition to this, a user wishing to test individual commits in a
+    +    topic branch without changing anything may run
+     
+                 git rebase -x ./test.sh master... master
+     
+-- 
+2.23.0.248.g3a9dd8fb08
+
