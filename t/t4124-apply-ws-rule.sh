@@ -36,7 +36,7 @@ prepare_test_file () {
 
 apply_patch () {
 	>target &&
-	sed -e "s|\([ab]\)/file|\1/target|" <patch |
+	sed -e "s|\([ab]\)/file|\1/target|" patch |
 	git apply "$@"
 }
 
