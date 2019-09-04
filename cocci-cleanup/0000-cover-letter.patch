@@ -1,0 +1,27 @@
+From 3c08556231576d8dfe496b87ae8cdcb87c00df24 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1567595331.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 4 Sep 2019 04:08:51 -0700
+Subject: [PATCH 0/2] cleanup compat/ sources using spatch
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Johannes Schindelin <Johannes.Schindelin@gmx.de>
+
+Sources under compat/ were excluded from cleanup using spatch since some
+of them were taken from an upstream and we didn't want to modify them so
+that merging in future updates would be simpler. However, most of the
+files in compat/ were created by us so it should be safe to apply
+cleanup to those files.
+
+
+Denton Liu (2):
+  mingw: apply array.cocci rule
+  compat/*.[ch]: remove extern from function declarations using spatch
+
+ compat/mingw.c         | 4 ++--
+ compat/mingw.h         | 6 +++---
+ compat/win32/pthread.h | 6 +++---
+ 3 files changed, 8 insertions(+), 8 deletions(-)
+
+-- 
+2.23.0.248.g3a9dd8fb08
+
