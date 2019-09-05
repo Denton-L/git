@@ -12,6 +12,9 @@
 	remote = upstream
 	merge = refs/heads/jch
 	rebase = true
+[branch "patches"]
+	remote = origin
+	merge = refs/heads/patches
 [format]
 	thread = true
 	from = true
