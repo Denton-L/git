@@ -3055,7 +3055,7 @@ static int apply_one_fragment(struct apply_state *state,
 		 */
 		if ((leading != frag->leading ||
 		     trailing != frag->trailing) && state->apply_verbosity > verbosity_silent)
-			fprintf_ln(stderr, _("Context reduced to (%ld/%ld)"
+			fprintf_ln(stderr, _("Context reduced to (%lu/%lu)"
 					     " to apply fragment at %d"),
 				   leading, trailing, applied_pos+1);
 		update_image(state, img, applied_pos, &preimage, &postimage);
@@ -3214,7 +3214,7 @@ static int apply_fragments(struct apply_state *state, struct image *img, struct 
 	while (frag) {
 		nth++;
 		if (apply_one_fragment(state, img, frag, inaccurate_eof, ws_rule, nth)) {
-			error(_("patch failed: %s:%ld"), name, frag->oldpos);
+			error(_("patch failed: %s:%lu"), name, frag->oldpos);
 			if (!state->apply_with_reject)
 				return -1;
 			frag->rejected = 1;

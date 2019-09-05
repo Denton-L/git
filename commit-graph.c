@@ -17,23 +17,23 @@
 #include "replace-object.h"
 #include "progress.h"
 
-#define GRAPH_SIGNATURE 0x43475048 /* "CGPH" */
-#define GRAPH_CHUNKID_OIDFANOUT 0x4f494446 /* "OIDF" */
-#define GRAPH_CHUNKID_OIDLOOKUP 0x4f49444c /* "OIDL" */
-#define GRAPH_CHUNKID_DATA 0x43444154 /* "CDAT" */
-#define GRAPH_CHUNKID_EXTRAEDGES 0x45444745 /* "EDGE" */
-#define GRAPH_CHUNKID_BASE 0x42415345 /* "BASE" */
+#define GRAPH_SIGNATURE 0x43475048U /* "CGPH" */
+#define GRAPH_CHUNKID_OIDFANOUT 0x4f494446U /* "OIDF" */
+#define GRAPH_CHUNKID_OIDLOOKUP 0x4f49444cU /* "OIDL" */
+#define GRAPH_CHUNKID_DATA 0x43444154U /* "CDAT" */
+#define GRAPH_CHUNKID_EXTRAEDGES 0x45444745U /* "EDGE" */
+#define GRAPH_CHUNKID_BASE 0x42415345U /* "BASE" */
 
 #define GRAPH_DATA_WIDTH (the_hash_algo->rawsz + 16)
 
-#define GRAPH_VERSION_1 0x1
+#define GRAPH_VERSION_1 0x1U
 #define GRAPH_VERSION GRAPH_VERSION_1
 
-#define GRAPH_EXTRA_EDGES_NEEDED 0x80000000
-#define GRAPH_EDGE_LAST_MASK 0x7fffffff
-#define GRAPH_PARENT_NONE 0x70000000
+#define GRAPH_EXTRA_EDGES_NEEDED 0x80000000U
+#define GRAPH_EDGE_LAST_MASK 0x7fffffffU
+#define GRAPH_PARENT_NONE 0x70000000U
 
-#define GRAPH_LAST_EDGE 0x80000000
+#define GRAPH_LAST_EDGE 0x80000000U
 
 #define GRAPH_HEADER_SIZE 8
 #define GRAPH_FANOUT_SIZE (4 * 256)
@@ -1162,8 +1162,8 @@ static int fill_oids_from_packs(struct write_commit_graph_context *ctx,
 	dirlen = packname.len;
 	if (ctx->report_progress) {
 		strbuf_addf(&progress_title,
-			    Q_("Finding commits for commit graph in %d pack",
-			       "Finding commits for commit graph in %d packs",
+			    Q_("Finding commits for commit graph in %u pack",
+			       "Finding commits for commit graph in %u packs",
 			       pack_indexes->nr),
 			    pack_indexes->nr);
 		ctx->progress = start_delayed_progress(progress_title.buf, 0);
@@ -1203,8 +1203,8 @@ static int fill_oids_from_commit_hex(struct write_commit_graph_context *ctx,
 
 	if (ctx->report_progress) {
 		strbuf_addf(&progress_title,
-			    Q_("Finding commits for commit graph from %d ref",
-			       "Finding commits for commit graph from %d refs",
+			    Q_("Finding commits for commit graph from %u ref",
+			       "Finding commits for commit graph from %u refs",
 			       commit_hex->nr),
 			    commit_hex->nr);
 		ctx->progress = start_delayed_progress(
@@ -1847,7 +1847,7 @@ int write_commit_graph(const char *obj_dir,
 	count_distinct = count_distinct_commits(ctx);
 
 	if (count_distinct >= GRAPH_EDGE_LAST_MASK) {
-		error(_("the commit graph format cannot write %d commits"), count_distinct);
+		error(_("the commit graph format cannot write %u commits"), count_distinct);
 		res = -1;
 		goto cleanup;
 	}

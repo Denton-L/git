@@ -195,7 +195,7 @@ int verify_bundle(struct repository *r,
 
 		r = &header->references;
 		printf_ln(Q_("The bundle contains this ref:",
-			     "The bundle contains these %d refs:",
+			     "The bundle contains these %u refs:",
 			     r->nr),
 			  r->nr);
 		list_refs(r, 0, NULL);
@@ -204,7 +204,7 @@ int verify_bundle(struct repository *r,
 			printf_ln(_("The bundle records a complete history."));
 		} else {
 			printf_ln(Q_("The bundle requires this ref:",
-				     "The bundle requires these %d refs:",
+				     "The bundle requires these %u refs:",
 				     r->nr),
 				  r->nr);
 			list_refs(r, 0, NULL);

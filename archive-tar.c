@@ -144,7 +144,7 @@ static int stream_blocked(const struct object_id *oid)
 static void strbuf_append_ext_header(struct strbuf *sb, const char *keyword,
 				     const char *value, unsigned int valuelen)
 {
-	int len, tmp;
+	unsigned int len, tmp;
 
 	/* "%u %s=%s\n" */
 	len = 1 + 1 + strlen(keyword) + 1 + valuelen + 1;
@@ -205,12 +205,12 @@ static void prepare_header(struct archiver_args *args,
 	xsnprintf(header->size, sizeof(header->size), "%011"PRIoMAX , S_ISREG(mode) ? (uintmax_t)size : (uintmax_t)0);
 	xsnprintf(header->mtime, sizeof(header->mtime), "%011lo", (unsigned long) args->time);
 
-	xsnprintf(header->uid, sizeof(header->uid), "%07o", 0);
-	xsnprintf(header->gid, sizeof(header->gid), "%07o", 0);
+	xsnprintf(header->uid, sizeof(header->uid), "%07o", 0U);
+	xsnprintf(header->gid, sizeof(header->gid), "%07o", 0U);
 	strlcpy(header->uname, "root", sizeof(header->uname));
 	strlcpy(header->gname, "root", sizeof(header->gname));
-	xsnprintf(header->devmajor, sizeof(header->devmajor), "%07o", 0);
-	xsnprintf(header->devminor, sizeof(header->devminor), "%07o", 0);
+	xsnprintf(header->devmajor, sizeof(header->devmajor), "%07o", 0U);
+	xsnprintf(header->devminor, sizeof(header->devminor), "%07o", 0U);
 
 	memcpy(header->magic, "ustar", 6);
 	memcpy(header->version, "00", 2);

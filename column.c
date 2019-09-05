@@ -214,7 +214,7 @@ void print_columns(const struct string_list *list, unsigned int colopts,
 		display_table(list, colopts, &nopts);
 		break;
 	default:
-		BUG("invalid layout mode %d", COL_LAYOUT(colopts));
+		BUG("invalid layout mode %u", COL_LAYOUT(colopts));
 	}
 }
 
