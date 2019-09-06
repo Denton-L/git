@@ -1,0 +1,4 @@
+[format]
+	outputDirectory = patches/branch-specific-format-patch
+	cc = Ævar Arnfjörð Bjarmason <avarab@gmail.com>
+	cc = Junio C Hamano <gitster@pobox.com>

@@ -1,0 +1,10 @@
+[format]
+	outputDirectory = patches/rebase-keep-base
+	cc = Junio C Hamano <gitster@pobox.com>
+	cc = Eric Sunshine <sunshine@sunshineco.com>
+	cc = Johannes Schindelin <Johannes.Schindelin@gmx.de>
+	cc = Johannes Sixt <j6t@kdbg.org>
+	cc = SZEDER Gábor <szeder.dev@gmail.com>
+	cc = Ævar Arnfjörð Bjarmason <avarab@gmail.com>
+	cc = Philip Oakley <philipoakley@iee.email>
+	cc = Pratyush Yadav <me@yadavpratyush.com>

@@ -1,0 +1,5 @@
+[format]
+	outputDirectory = patches/replace-bespoke-sq
+	cc = Junio C Hamano <gitster@pobox.com>
+	cc = Jeff King <peff@peff.net>
+	cc = Taylor Blau <me@ttaylorr.com>

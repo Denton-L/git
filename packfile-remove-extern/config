@@ -1,0 +1,4 @@
+[format]
+	outputDirectory = patches/packfile-remove-extern
+	cc = Jeff King <peff@peff.net>
+	cc = Derrick Stolee <dstolee@microsoft.com>

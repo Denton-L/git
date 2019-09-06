@@ -1,0 +1,8 @@
+[format]
+	outputDirectory = patches/format-patch-doc-test-cleanup
+	cc = Ævar Arnfjörð Bjarmason <avarab@gmail.com>
+	cc = Junio C Hamano <gitster@pobox.com>
+	cc = Eric Sunshine <sunshine@sunshineco.com>
+	cc = Johannes Sixt <j6t@kdbg.org>
+	cc = Junio C Hamano <gitster@pobox.com>
+	cc = Philip Oakley <philipoakley@iee.email>
