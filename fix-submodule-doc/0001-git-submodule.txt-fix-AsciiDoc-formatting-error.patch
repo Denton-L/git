@@ -1,0 +1,42 @@
+From 796a25ee1e9a9c0421d42ab6644e81d23a9bd99b Mon Sep 17 00:00:00 2001
+Message-Id: <796a25ee1e9a9c0421d42ab6644e81d23a9bd99b.1568142486.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 10 Sep 2019 11:43:42 -0700
+Subject: [PATCH] git-submodule.txt: fix AsciiDoc formatting error
+To: Git Mailing List <git@vger.kernel.org>
+
+In b57e8119e6 (submodule: teach set-branch subcommand, 2019-02-08), the
+`set-branch` subcommand was added for submodules. When the documentation
+was written, the syntax for a "index term" in AsciiDoc was
+accidentally used. This caused the documentation to be rendered as
+
+	set-branch -d|--default)|(-b|--branch <branch> [--] <path>
+
+instead of
+
+	set-branch (-d|--default)|(-b|--branch <branch>) [--] <path>
+
+Remove surrounding parentheses so that the "index term" syntax is not
+triggered (and because it looks nicer without them anyway ;) ).
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Documentation/git-submodule.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Documentation/git-submodule.txt b/Documentation/git-submodule.txt
+index 0ed5c24dc1..e349442f4c 100644
+--- a/Documentation/git-submodule.txt
++++ b/Documentation/git-submodule.txt
+@@ -173,7 +173,7 @@ submodule with the `--init` option.
+ If `--recursive` is specified, this command will recurse into the
+ registered submodules, and update any nested submodules within.
+ --
+-set-branch ((-d|--default)|(-b|--branch <branch>)) [--] <path>::
++set-branch (-d|--default)|(-b|--branch <branch>) [--] <path>::
+ 	Sets the default remote tracking branch for the submodule. The
+ 	`--branch` option allows the remote branch to be specified. The
+ 	`--default` option removes the submodule.<name>.branch configuration
+-- 
+2.23.0.163.g796a25ee1e
+

@@ -40,3 +40,5 @@
 	path = replace-bespoke-sq/config
 [includeIf "onbranch:submitted/cocci-compat"]
 	path = cocci-compat/config
+[includeIf "onbranch:submitted/fix-submodule-doc"]
+	path = fix-submodule-doc/config
