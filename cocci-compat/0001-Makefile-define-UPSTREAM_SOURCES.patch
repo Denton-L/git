@@ -1,0 +1,60 @@
+From bc3cd4637a52183fe9878b13ed761380cde76232 Mon Sep 17 00:00:00 2001
+Message-Id: <bc3cd4637a52183fe9878b13ed761380cde76232.1568101393.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1568101393.git.liu.denton@gmail.com>
+References: <cover.1568101393.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 3 Sep 2019 22:10:44 -0700
+Subject: [PATCH 1/2] Makefile: define UPSTREAM_SOURCES
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Johannes Schindelin <Johannes.Schindelin@gmx.de>,
+    SZEDER Gábor <szeder.dev@gmail.com>,
+    Jeff King <peff@peff.net>,
+    Junio C Hamano <gitster@pobox.com>
+
+After looking through the source files in compat/ and investigating the
+files' content and/or its Git history, I've determined the list of files
+that were copied from an upstream. Place the names of these files into
+the UPSTREAM_SOURCES variable in the Makefile.
+
+In addition, add the sha1collisiondetection/ and sha1dc/ sources as well
+since they are also imported from upstream.
+
+In a future commit, this variable will be used to determine which files
+are excluded when running the "coccicheck" target.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Makefile | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/Makefile b/Makefile
+index ad71ae1219..708df2c289 100644
+--- a/Makefile
++++ b/Makefile
+@@ -598,6 +598,7 @@ SCRIPT_SH =
+ SCRIPT_LIB =
+ TEST_BUILTINS_OBJS =
+ TEST_PROGRAMS_NEED_X =
++UPSTREAM_SOURCES =
+ 
+ # Having this variable in your environment would break pipelines because
+ # you cause "cd" to echo its destination to stdout.  It can also take
+@@ -1146,6 +1147,15 @@ BUILTIN_OBJS += builtin/verify-tag.o
+ BUILTIN_OBJS += builtin/worktree.o
+ BUILTIN_OBJS += builtin/write-tree.o
+ 
++UPSTREAM_SOURCES += compat/inet_ntop.c
++UPSTREAM_SOURCES += compat/inet_pton.c
++UPSTREAM_SOURCES += compat/obstack.%
++UPSTREAM_SOURCES += compat/nedmalloc/%
++UPSTREAM_SOURCES += compat/poll/%
++UPSTREAM_SOURCES += compat/regex/%
++UPSTREAM_SOURCES += sha1collisiondetection/%
++UPSTREAM_SOURCES += sha1dc/%
++
+ GITLIBS = common-main.o $(LIB_FILE) $(XDIFF_LIB)
+ EXTLIBS =
+ 
+-- 
+2.23.0.248.g3a9dd8fb08
+

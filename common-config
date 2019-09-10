@@ -38,3 +38,5 @@
 	path = cocci-cleanup/config
 [includeIf "onbranch:submitted/replace-bespoke-sq"]
 	path = replace-bespoke-sq/config
+[includeIf "onbranch:submitted/cocci-compat"]
+	path = cocci-compat/config
