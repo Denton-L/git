@@ -1,0 +1,28 @@
+From 39d6091ce636b2d732d589b55e7686796694e994 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1568317093.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Thu, 12 Sep 2019 12:38:13 -0700
+Subject: [PATCH 0/2] completion: teach rebase and archive to use __gitcomp_builtin
+To: Git Mailing List <git@vger.kernel.org>
+
+Currently, the completion function for rebase and archive don't take
+advantage of __gitcomp_builtin(). Teach them to use it so that future
+changes to options will automatically be included by the completion
+script with no extra work.
+
+I discovered rebase wasn't using it and fixed that and I started looking
+for other low-hanging fruit to fix. I deliberately left stuff like diff
+and log alone since that's a whole Pandora's box that I don't really
+want to open right now.
+
+
+Denton Liu (2):
+  completion: teach rebase to use __gitcomp_builtin
+  completion: teach archive to use __gitcomp_builtin
+
+ contrib/completion/git-completion.bash | 27 ++++++++------------------
+ 1 file changed, 8 insertions(+), 19 deletions(-)
+
+-- 
+2.23.0.37.g745f681289
+

@@ -42,3 +42,5 @@
 	path = cocci-compat/config
 [includeIf "onbranch:submitted/fix-submodule-doc"]
 	path = fix-submodule-doc/config
+[includeIf "onbranch:submitted/complete-more-using-helper"]
+	path = complete-more-using-helper/config
