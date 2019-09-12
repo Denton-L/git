@@ -1,0 +1,72 @@
+From 89b7e17469e19c9dca8afa729ec1a70f4e06a2b7 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1568309119.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1568101393.git.liu.denton@gmail.com>
+References: <cover.1568101393.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Thu, 12 Sep 2019 10:25:19 -0700
+Subject: [PATCH v2 0/3] Makefile: run coccicheck on all non-upstream sources
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Johannes Schindelin <Johannes.Schindelin@gmx.de>,
+    SZEDER Gábor <szeder.dev@gmail.com>,
+    Jeff King <peff@peff.net>,
+    Junio C Hamano <gitster@pobox.com>
+
+Before, when we ran coccicheck, it would only run on files that are
+currently being compiled. However, this leaves us with a blindspot where
+Windows-only sources are not checked since Coccinelle does not run on
+Windows.
+
+This patchset addresses this by making the "coccicheck" target run
+against all source files in the repository, except for source files that
+are pulled from some upstream source.
+
+This patchset should serve as a continuation of the original discussion
+about running coccicheck on all sources[1].
+
+These patches depend on "ds/midx-expire-repack" and "dl/compat-cleanup".
+
+[1]: https://public-inbox.org/git/nycvar.QRO.7.76.6.1905031127170.45@tvgsbejvaqbjf.bet/
+
+
+Denton Liu (3):
+  Makefile: define THIRD_PARTY_SOURCES
+  Makefile: strip leading ./ in $(FIND_SOURCE_FILES)
+  Makefile: run coccicheck on more source files
+
+ Makefile | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
+
+Range-diff against v1:
+1:  bc3cd4637a < -:  ---------- Makefile: define UPSTREAM_SOURCES
+-:  ---------- > 1:  3878cb2598 Makefile: define THIRD_PARTY_SOURCES
+-:  ---------- > 2:  239ffa690c Makefile: strip leading ./ in $(FIND_SOURCE_FILES)
+2:  f62b0c7d17 ! 3:  89b7e17469 Makefile: run coccicheck on more source files
+    @@ Commit message
+         Coccinelle currently runs only on Linux.
+     
+         Make the "coccicheck" target run on all C sources except for those that
+    -    are taken from some upstream. We don't want to patch these files since
+    -    we want them to be as close to upstream as possible so that it'll be
+    -    easier to pull in upstream updates.
+    +    are taken from some third-party source. We don't want to patch these
+    +    files since we want them to be as close to upstream as possible so that
+    +    it'll be easier to pull in upstream updates.
+     
+    -    This results in the following sources now being checked:
+    +    When running a build on Arch Linux with no additional flags provided,
+    +    after applying this patch, the following sources are now checked:
+     
+         * block-sha1/sha1.c
+         * compat/access.c
+    @@ Makefile: check: command-list.h
+     -COCCI_SOURCES = $(filter-out sha1dc/%,$(C_SOURCES))
+     -endif
+     +FIND_C_SOURCES = $(filter %.c,$(shell $(FIND_SOURCE_FILES)))
+    -+COCCI_SOURCES = $(filter-out $(UPSTREAM_SOURCES),$(FIND_C_SOURCES))
+    ++COCCI_SOURCES = $(filter-out $(THIRD_PARTY_SOURCES),$(FIND_C_SOURCES))
+      
+      %.cocci.patch: %.cocci $(COCCI_SOURCES)
+      	@echo '    ' SPATCH $<; \
+-- 
+2.23.0.37.g745f681289
+
