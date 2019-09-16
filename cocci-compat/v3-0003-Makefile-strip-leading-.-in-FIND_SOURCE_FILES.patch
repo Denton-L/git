@@ -1,0 +1,47 @@
+From 71861cbdf833c8c9300c6b45930b29655f5de611 Mon Sep 17 00:00:00 2001
+Message-Id: <71861cbdf833c8c9300c6b45930b29655f5de611.1568661443.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1568661443.git.liu.denton@gmail.com>
+References: <cover.1568309119.git.liu.denton@gmail.com>
+	<cover.1568661443.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 10 Sep 2019 12:19:36 -0700
+Subject: [PATCH v3 3/4] Makefile: strip leading ./ in $(FIND_SOURCE_FILES)
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Johannes Schindelin <Johannes.Schindelin@gmx.de>,
+    SZEDER Gábor <szeder.dev@gmail.com>,
+    Jeff King <peff@peff.net>,
+    Junio C Hamano <gitster@pobox.com>
+
+Currently, $(FIND_SOURCE_FILES) has two modes: if `git ls-files` is
+present, it will use that to enumerate the files in the repository; else
+it will use `$(FIND) .` to enumerate the files in the directory.
+
+There is a subtle difference between these two methods, however. With
+ls-files, filenames don't have a leading `./` while with $(FIND), they
+do. This does not currently pose a problem but in a future patch, we
+will be using `filter-out` to process the list of files with the
+assumption that there is no prefix.
+
+Unify the two possible invocations in $(FIND_SOURCE_FILES) by using sed
+to remove the `./` prefix in the $(FIND) case.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Makefile | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/Makefile b/Makefile
+index 49839579ec..20eb5c5c42 100644
+--- a/Makefile
++++ b/Makefile
+@@ -2612,6 +2612,7 @@ FIND_SOURCE_FILES = ( \
+ 		-o \( -name 'trash*' -type d -prune \) \
+ 		-o \( -name '*.[hcS]' -type f -print \) \
+ 		-o \( -name '*.sh' -type f -print \) \
++		| sed -e 's|^\./||' \
+ 	)
+ 
+ $(ETAGS_TARGET): FORCE
+-- 
+2.23.0
+

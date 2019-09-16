@@ -1,0 +1,144 @@
+From 0ecfcd8858f1734ca079cb260f0d27d43f1e1cc5 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1568661443.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1568309119.git.liu.denton@gmail.com>
+References: <cover.1568309119.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 16 Sep 2019 12:17:23 -0700
+Subject: [PATCH v3 0/4] Makefile: run coccicheck on all non-upstream sources
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Johannes Schindelin <Johannes.Schindelin@gmx.de>,
+    SZEDER Gábor <szeder.dev@gmail.com>,
+    Jeff King <peff@peff.net>,
+    Junio C Hamano <gitster@pobox.com>
+
+Hi all, I spent the weekend brooding over this and I opted to not
+convert $(FIND_SOURCE_FILES) into a list of filenames. I put the
+justification for it in 4/4 so, hopefully, it'll make sense for someone
+who might want to do the same change in the future.
+
+
+Before, when we ran coccicheck, it would only run on files that are
+currently being compiled. However, this leaves us with a blindspot where
+Windows-only sources are not checked since Coccinelle does not run on
+Windows.
+
+This patchset addresses this by making the "coccicheck" target run
+against all source files in the repository, except for source files that
+are pulled from some upstream source.
+
+This patchset should serve as a continuation of the original discussion
+about running coccicheck on all sources[1].
+
+These patches depend on "ds/midx-expire-repack" and "dl/compat-cleanup".
+
+[1]: https://public-inbox.org/git/nycvar.QRO.7.76.6.1905031127170.45@tvgsbejvaqbjf.bet/
+
+
+Denton Liu (4):
+  Makefile: strip leading ./ in $(LIB_H)
+  Makefile: define THIRD_PARTY_SOURCES
+  Makefile: strip leading ./ in $(FIND_SOURCE_FILES)
+  Makefile: run coccicheck on more source files
+
+ Makefile | 27 ++++++++++++++++++---------
+ 1 file changed, 18 insertions(+), 9 deletions(-)
+
+Range-diff against v2:
+-:  ---------- > 1:  e7fa5e1df7 Makefile: strip leading ./ in $(LIB_H)
+1:  72b4cc68f5 ! 2:  a7c855a973 Makefile: define THIRD_PARTY_SOURCES
+    @@ Metadata
+      ## Commit message ##
+         Makefile: define THIRD_PARTY_SOURCES
+     
+    -    After looking through the source files in compat/ and investigating the
+    -    files' content and/or its Git history, I've determined the list of files
+    -    that were copied from a third-party source. Place the names of these
+    -    files into the THIRD_PARTY_SOURCES variable in the Makefile.
+    +    Some files in our codebase are borrowed from other projects, and
+    +    minimally updated to suit our own needs. We'd sometimes need to tell
+    +    our own sources and these third-party sources apart for management
+    +    purposes (e.g. we may want to be less strict about coding style and
+    +    other issues on third-party files).
+     
+    -    In addition, add the sha1collisiondetection/ and sha1dc/ sources as well
+    -    since they are also imported from a third-party source.
+    -
+    -    In a future commit, this variable will be used to determine which files
+    -    are excluded when running the "coccicheck" target.
+    +    Define the $(MAKE) variable THIRD_PARTY_SOURCES that can be used to
+    +    match names of third-party sources.
+     
+         Signed-off-by: Denton Liu <liu.denton@gmail.com>
+    -    Signed-off-by: Junio C Hamano <gitster@pobox.com>
+     
+      ## Makefile ##
+     @@ Makefile: SCRIPT_SH =
+    @@ Makefile: BUILTIN_OBJS += builtin/verify-tag.o
+      BUILTIN_OBJS += builtin/worktree.o
+      BUILTIN_OBJS += builtin/write-tree.o
+      
+    ++# THIRD_PARTY_SOURCES is a list of patterns compatible with
+    ++# the $(filter) and $(filter-out) family of functions
+     +THIRD_PARTY_SOURCES += compat/inet_ntop.c
+     +THIRD_PARTY_SOURCES += compat/inet_pton.c
+     +THIRD_PARTY_SOURCES += compat/obstack.%
+2:  a51acfec66 ! 3:  71861cbdf8 Makefile: strip leading ./ in $(FIND_SOURCE_FILES)
+    @@ Commit message
+         to remove the `./` prefix in the $(FIND) case.
+     
+         Signed-off-by: Denton Liu <liu.denton@gmail.com>
+    -    Signed-off-by: Junio C Hamano <gitster@pobox.com>
+     
+      ## Makefile ##
+     @@ Makefile: FIND_SOURCE_FILES = ( \
+3:  75c36bc9a1 ! 4:  0ecfcd8858 Makefile: run coccicheck on more source files
+    @@ Commit message
+     
+         * compat/obstack.c
+     
+    +    Instead of generating $(FOUND_C_SOURCES) from a
+    +    `$(shell $(FIND_SOURCE_FILES))` invocation, an alternative design was
+    +    considered which involved converting $(FIND_SOURCE_FILES) into
+    +    $(SOURCE_FILES) which would hold a list of filenames from the
+    +    $(FIND_SOURCE_FILES) invocation. We would simply filter `%.c` files into
+    +    $(ALL_C_SOURCES). $(SOURCE_FILES) would then be passed directly to the
+    +    etags, ctags and cscope commands. We can see from the following
+    +    invocation
+    +
+    +            $ git ls-files '*.[hcS]' '*.sh' ':!*[tp][0-9][0-9][0-9][0-9]*' ':!contrib' | wc -c
+    +               12779
+    +
+    +    that the number of characters in this list would pose a problem on
+    +    platforms with short command-line length limits (such as CMD which has a
+    +    max of 8191 characters). As a result, we don't perform this change.
+    +
+    +    However, we can see that the same issue may apply when running
+    +    Coccinelle since $(COCCI_SOURCES) is also a list of filenames:
+    +
+    +            if ! echo $(COCCI_SOURCES) | xargs $$limit \
+    +                    $(SPATCH) --sp-file $< $(SPATCH_FLAGS) \
+    +                    >$@+ 2>$@.log; \
+    +
+    +    This is justified since platforms that support Coccinelle generally have
+    +    reasonably long command-line length limits and so we are safe for the
+    +    foreseeable future.
+    +
+         Signed-off-by: Denton Liu <liu.denton@gmail.com>
+    -    Signed-off-by: Junio C Hamano <gitster@pobox.com>
+     
+      ## Makefile ##
+     @@ Makefile: check: command-list.h
+    @@ Makefile: check: command-list.h
+     -else
+     -COCCI_SOURCES = $(filter-out sha1dc/%,$(C_SOURCES))
+     -endif
+    -+FIND_C_SOURCES = $(filter %.c,$(shell $(FIND_SOURCE_FILES)))
+    -+COCCI_SOURCES = $(filter-out $(THIRD_PARTY_SOURCES),$(FIND_C_SOURCES))
+    ++FOUND_C_SOURCES = $(filter %.c,$(shell $(FIND_SOURCE_FILES)))
+    ++COCCI_SOURCES = $(filter-out $(THIRD_PARTY_SOURCES),$(FOUND_C_SOURCES))
+      
+      %.cocci.patch: %.cocci $(COCCI_SOURCES)
+      	@echo '    ' SPATCH $<; \
+-- 
+2.23.0
+
