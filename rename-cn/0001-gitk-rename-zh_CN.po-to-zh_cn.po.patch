@@ -1,0 +1,42 @@
+From 6feff2e73e1c4ca838efcabe90e0978a4d88cb7d Mon Sep 17 00:00:00 2001
+Message-Id: <6feff2e73e1c4ca838efcabe90e0978a4d88cb7d.1568710294.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 17 Sep 2019 01:28:30 -0700
+Subject: [PATCH] gitk: rename zh_CN.po to zh_cn.po
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Paul Mackerras <paulus@ozlabs.org>
+
+When running make from a clean environment, all of the *.po files should
+be converted into *.msg files. After that, when make is run without any
+changes, make should not do anything.
+
+After beffae768a (gitk: Add Chinese (zh_CN) translation, 2017-03-11),
+zh_CN.po was introduced. When make was run, a zh_cn.msg file was
+generated (notice the lowercase). However, since make is case-sensitive,
+it expects zh_CN.po to generate a zh_CN.msg file so make will keep
+reattempting to generate a zh_CN.msg so successive make invocations
+result in
+
+    Generating catalog po/zh_cn.msg
+    msgfmt --statistics --tcl po/zh_cn.po -l zh_cn -d po/
+    317 translated messages.
+
+happening continuously.
+
+Rename zh_CN.po to zh_cn.po so that when make generates the zh_cn.msg
+file, it will realize that it was successfully generated and only run
+once.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ po/{zh_CN.po => zh_cn.po} | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ rename po/{zh_CN.po => zh_cn.po} (100%)
+
+diff --git a/po/zh_CN.po b/po/zh_cn.po
+similarity index 100%
+rename from po/zh_CN.po
+rename to po/zh_cn.po
+-- 
+2.23.0.248.g3a9dd8fb08
+
