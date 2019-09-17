@@ -44,7 +44,5 @@
 	path = fix-submodule-doc/config
 [includeIf "onbranch:submitted/complete-more-using-helper"]
 	path = complete-more-using-helper/config
-[includeIf "onbranch:submitted/rename-cn"]
-	path = rename-cn/config
 [includeIf "onbranch:submitted/submodule-set-url"]
 	path = submodule-set-url/config

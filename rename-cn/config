@@ -1,3 +1,0 @@
-[format]
-	outputDirectory = patches/rename-cn
-	cc = Paul Mackerras <paulus@ozlabs.org>
