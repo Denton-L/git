@@ -46,3 +46,5 @@
 	path = complete-more-using-helper/config
 [includeIf "onbranch:submitted/rename-cn"]
 	path = rename-cn/config
+[includeIf "onbranch:submitted/submodule-set-url"]
+	path = submodule-set-url/config
