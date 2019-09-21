@@ -46,3 +46,5 @@
 	path = complete-more-using-helper/config
 [includeIf "onbranch:submitted/submodule-set-url"]
 	path = submodule-set-url/config
+[includeIf "onbranch:submitted/multi-promisor"]
+	path = multi-promisor/config
