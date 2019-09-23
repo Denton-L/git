@@ -97,7 +97,8 @@ static void setup_commit_formats(void)
 		{ "mboxrd",	CMIT_FMT_MBOXRD,	0,	0 },
 		{ "fuller",	CMIT_FMT_FULLER,	0,	8 },
 		{ "full",	CMIT_FMT_FULL,		0,	8 },
-		{ "oneline",	CMIT_FMT_ONELINE,	1,	0 }
+		{ "oneline",	CMIT_FMT_ONELINE,	1,	0 },
+		{ "summary",	CMIT_FMT_SUMMARY,	1,	0 },
 		/*
 		 * Please update $__git_log_pretty_formats in
 		 * git-completion.bash when you add new formats.
@@ -1672,6 +1673,26 @@ void repo_format_commit_message(struct repository *r,
 				   do_repo_format_commit_message, (void *)format);
 }
 
+static void do_repo_format_commit_summary(struct strbuf *sb,
+					  struct format_commit_context *context,
+					  void *additional_context)
+{
+	struct ident_split ident;
+
+	parse_commit_header(context);
+	parse_commit_message(context);
+
+	strbuf_addstr(sb, "(\"");
+	format_subject(sb, context->message + context->subject_off, " ");
+	if (!split_ident_line(&ident,
+			      context->message + context->author.off,
+			      context->author.len)) {
+		strbuf_addstr(sb, "\", ");
+		strbuf_addstr(sb, show_ident_date(&ident, &context->pretty_ctx->date_mode));
+	}
+	strbuf_addstr(sb, ")");
+}
+
 static void pp_header(struct pretty_print_context *pp,
 		      const char *encoding,
 		      const struct commit *commit,
@@ -1921,6 +1942,14 @@ void pretty_print_commit(struct pretty_print_context *pp,
 
 	if (pp->fmt == CMIT_FMT_USERFORMAT) {
 		format_commit_message(commit, user_format, sb, pp);
+		return;
+	}
+	if (pp->fmt == CMIT_FMT_SUMMARY) {
+		if (!pp->date_mode_explicit)
+			pp->date_mode = *DATE_MODE(SHORT);
+
+		repo_format_commit_generic(the_repository, commit, sb, pp,
+					   do_repo_format_commit_summary, NULL);
 		return;
 	}
 

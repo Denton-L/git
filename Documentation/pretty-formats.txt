@@ -63,6 +63,15 @@ This is designed to be as compact as possible.
 
 	       <full commit message>
 
+* 'summary'
+
+	  <abbrev hash> ("<title line>", <short author date>)
++
+This format is useful for referring to other commits when writing a new
+commit message. Although by default, '<abbrev hash>' is used, this can
+be overridden with '--no-abbrev'. In addition, '<short author date>' can
+be overridden by with '--date='.
+
 * 'email'
 
 	  From <hash> <date>

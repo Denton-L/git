@@ -223,15 +223,35 @@ static void cmd_log_init_finish(int argc, const char **argv, const char *prefix,
 		read_mailmap(rev->mailmap, NULL);
 	}
 
-	if (rev->pretty_given && rev->commit_format == CMIT_FMT_RAW) {
+	if (rev->pretty_given) {
+		switch (rev->commit_format) {
+
 		/*
 		 * "log --pretty=raw" is special; ignore UI oriented
 		 * configuration variables such as decoration.
 		 */
-		if (!decoration_given)
-			decoration_style = 0;
-		if (!rev->abbrev_commit_explicit)
-			rev->abbrev_commit = 0;
+		case CMIT_FMT_RAW:
+			if (!decoration_given)
+				decoration_style = 0;
+			if (!rev->abbrev_commit_explicit)
+				rev->abbrev_commit = 0;
+			break;
+
+		/*
+		 * "log --pretty=summary" is special; ignore UI oriented
+		 * configuration variables such as decoration but keep
+		 * abbreviations.
+		 */
+		case CMIT_FMT_SUMMARY:
+			if (!decoration_given)
+				decoration_style = 0;
+			if (!rev->abbrev_commit_explicit)
+				rev->abbrev_commit = 1;
+			break;
+
+		default:
+			break;
+		}
 	}
 
 	if (decoration_style) {

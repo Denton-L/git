@@ -151,7 +151,7 @@ do
 	'
 done
 
-for p in oneline
+for p in oneline summary
 do
 	test_expect_success "NUL termination with --reflog --pretty=$p" '
 		revs="$(git rev-list --reflog)" &&
@@ -818,6 +818,58 @@ test_expect_success '%S in git log --format works with other placeholders (part 
 test_expect_success '%S in git log --format works with other placeholders (part 2)' '
 	git log --format="%h source-b" source-b >expect &&
 	git log --format="%h %S" source-b >actual &&
+	test_cmp expect actual
+'
+
+test_expect_success 'log --pretty=summary' '
+	git log --date=short --pretty="tformat:%h (\"%s\", %ad)" >expect &&
+	git log --pretty=summary >actual &&
+	test_cmp expect actual
+'
+
+test_expect_success 'log --pretty=summary with log.date is overridden by short date' '
+	git log --date=short --pretty="tformat:%h (\"%s\", %ad)" >expect &&
+	test_config log.date rfc &&
+	git log --pretty=summary >actual &&
+	test_cmp expect actual
+'
+
+test_expect_success 'log --pretty=summary with explicit date overrides short date' '
+	git log --date=rfc --pretty="tformat:%h (\"%s\", %ad)" >expect &&
+	git log --date=rfc --pretty=summary >actual &&
+	test_cmp expect actual
+'
+
+test_expect_success 'log --pretty=summary with log.abbrevCommit is overidden' '
+	git log --date=short --pretty="tformat:%h (\"%s\", %ad)" >expect &&
+	test_config log.abbrevCommit false &&
+	git log --pretty=summary >actual &&
+	test_cmp expect actual
+'
+
+test_expect_success 'log --pretty=summary with explicit --no-abbrev overrides abbreviated' '
+	git log --date=short --pretty="tformat:%H (\"%s\", %ad)" >expect &&
+	git log --no-abbrev --pretty=summary >actual &&
+	test_cmp expect actual
+'
+
+test_expect_success 'log --pretty=summary with log.decorate is overridden' '
+	git log --date=short --pretty="tformat:%h (\"%s\", %ad)" >expect &&
+	test_config log.decorate short &&
+	git log --pretty=summary >actual &&
+	test_cmp expect actual
+'
+
+test_expect_success 'log --pretty=summary with explicit decorate overrides no decoration' '
+	git log --date=short --pretty="tformat:%h%d (\"%s\", %ad)" >expect &&
+	git log --decorate=short --pretty=summary >actual &&
+	test_cmp expect actual
+'
+
+test_expect_success 'log --pretty=summary with --walk-reflogs' '
+	test_config log.date short &&
+	git log --walk-reflogs --pretty="tformat:%h %gd: %gs (\"%s\", %ad)" >expect &&
+	git log --walk-reflogs --pretty=summary >actual &&
 	test_cmp expect actual
 '
 

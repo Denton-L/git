@@ -627,7 +627,8 @@ void show_log(struct rev_info *opt)
 		ctx.print_email_subject = 1;
 	} else if (opt->commit_format != CMIT_FMT_USERFORMAT) {
 		fputs(diff_get_color_opt(&opt->diffopt, DIFF_COMMIT), opt->diffopt.file);
-		if (opt->commit_format != CMIT_FMT_ONELINE)
+		if (opt->commit_format != CMIT_FMT_ONELINE &&
+		    opt->commit_format != CMIT_FMT_SUMMARY)
 			fputs("commit ", opt->diffopt.file);
 
 		if (!opt->graph)
@@ -644,7 +645,8 @@ void show_log(struct rev_info *opt)
 			       find_unique_abbrev(&parent->object.oid, abbrev_commit));
 		fputs(diff_get_color_opt(&opt->diffopt, DIFF_RESET), opt->diffopt.file);
 		show_decorations(opt, commit);
-		if (opt->commit_format == CMIT_FMT_ONELINE) {
+		if (opt->commit_format == CMIT_FMT_ONELINE ||
+		    opt->commit_format == CMIT_FMT_SUMMARY) {
 			putc(' ', opt->diffopt.file);
 		} else {
 			putc('\n', opt->diffopt.file);
@@ -658,12 +660,15 @@ void show_log(struct rev_info *opt)
 			 * graph info here.
 			 */
 			show_reflog_message(opt->reflog_info,
-					    opt->commit_format == CMIT_FMT_ONELINE,
+					    (opt->commit_format == CMIT_FMT_ONELINE ||
+					     opt->commit_format == CMIT_FMT_SUMMARY),
 					    &opt->date_mode,
 					    opt->date_mode_explicit);
 			if (opt->commit_format == CMIT_FMT_ONELINE) {
 				putc('\n', opt->diffopt.file);
 				return;
+			} else if (opt->commit_format == CMIT_FMT_SUMMARY) {
+				putc(' ', opt->diffopt.file);
 			}
 		}
 	}
