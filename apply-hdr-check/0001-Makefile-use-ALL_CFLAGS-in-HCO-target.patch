@@ -1,0 +1,38 @@
+From 0336d1345abfef563d9228e250316cc58a01f2b3 Mon Sep 17 00:00:00 2001
+Message-Id: <0336d1345abfef563d9228e250316cc58a01f2b3.1569263631.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1569263631.git.liu.denton@gmail.com>
+References: <cover.1569263631.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 23 Sep 2019 11:18:13 -0700
+Subject: [PATCH 1/3] Makefile: use $(ALL_CFLAGS) in $(HCO) target
+To: Git Mailing List <git@vger.kernel.org>
+
+On platforms that can run `make hdr-check` but require custom flags,
+this target was failing because none of them were being passed to the
+compiler. For example, on MacOS, the NO_OPENSSL flag was being set but
+it was not being passed into compiler so the check was failing.
+
+Pass $(ALL_CFLAGS) into the compiler for the $(HCO) target so that these
+custom flags can be used.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Makefile b/Makefile
+index f879697ea3..d8df4e316b 100644
+--- a/Makefile
++++ b/Makefile
+@@ -2773,7 +2773,7 @@ CHK_HDRS = $(filter-out $(EXCEPT_HDRS),$(patsubst ./%,%,$(LIB_H)))
+ HCO = $(patsubst %.h,%.hco,$(CHK_HDRS))
+ 
+ $(HCO): %.hco: %.h FORCE
+-	$(QUIET_HDR)$(CC) -include git-compat-util.h -I. -o /dev/null -c -xc $<
++	$(QUIET_HDR)$(CC) -include git-compat-util.h -I. -o /dev/null -c -xc $(ALL_CFLAGS) $<
+ 
+ .PHONY: hdr-check $(HCO)
+ hdr-check: $(HCO)
+-- 
+2.23.0.565.g1cc52d20df
+

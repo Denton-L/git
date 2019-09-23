@@ -48,3 +48,5 @@
 	path = submodule-set-url/config
 [includeIf "onbranch:submitted/multi-promisor"]
 	path = multi-promisor/config
+[includeIf "onbranch:submitted/apply-hdr-check"]
+	path = apply-hdr-check/config
