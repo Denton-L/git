@@ -230,7 +230,7 @@ static void cmd_log_init_finish(int argc, const char **argv, const char *prefix,
 		 */
 		if (!decoration_given)
 			decoration_style = 0;
-		if (!rev->abbrev_commit_given)
+		if (!rev->abbrev_commit_explicit)
 			rev->abbrev_commit = 0;
 	}
 

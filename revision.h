@@ -185,7 +185,7 @@ struct rev_info {
 			show_signature:1,
 			pretty_given:1,
 			abbrev_commit:1,
-			abbrev_commit_given:1,
+			abbrev_commit_explicit:1,
 			zero_commit:1,
 			use_terminator:1,
 			missing_newline:1,
