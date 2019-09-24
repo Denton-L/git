@@ -1,0 +1,59 @@
+From a3a3357925cb144deb35b298cbe2796934fa0673 Mon Sep 17 00:00:00 2001
+Message-Id: <a3a3357925cb144deb35b298cbe2796934fa0673.1569315905.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1569263631.git.liu.denton@gmail.com>
+References: <cover.1569263631.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 23 Sep 2019 23:39:09 -0700
+Subject: [PATCH 4/3] pack-bitmap.h: fix unused variable warning
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+To: Git Mailing List <git@vger.kernel.org>
+
+When we ran `make hdr-check`, we got the following warning on Arch Linux:
+
+	pack-bitmap.h:20:19: error: ‘BITMAP_IDX_SIGNATURE’ defined but not used [-Werror=unused-const-variable=]
+	   20 | static const char BITMAP_IDX_SIGNATURE[] = {'B', 'I', 'T', 'M'};
+	      |                   ^~~~~~~~~~~~~~~~~~~~
+	cc1: all warnings being treated as errors
+
+"Use" the BITMAP_IDX_SIGNATURE variable by making the size of
+bitmap_disk_header.magic equal to the size of BITMAP_IDX_SIGNATURE. An
+alternative was to simply add MAYBE_UNUSED. However, this design was
+chosen because we eliminate the magic number (4) in the process.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+I'm tacking this patch on since this warning didn't show up until I
+compiled it on gcc 9.1.0.
+
+ pack-bitmap.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/pack-bitmap.h b/pack-bitmap.h
+index 00de3ec8e4..466c5afa09 100644
+--- a/pack-bitmap.h
++++ b/pack-bitmap.h
+@@ -9,16 +9,16 @@ struct commit;
+ struct repository;
+ struct rev_info;
+ 
++static const char BITMAP_IDX_SIGNATURE[] = {'B', 'I', 'T', 'M'};
++
+ struct bitmap_disk_header {
+-	char magic[4];
++	char magic[ARRAY_SIZE(BITMAP_IDX_SIGNATURE)];
+ 	uint16_t version;
+ 	uint16_t options;
+ 	uint32_t entry_count;
+ 	unsigned char checksum[GIT_MAX_RAWSZ];
+ };
+ 
+-static const char BITMAP_IDX_SIGNATURE[] = {'B', 'I', 'T', 'M'};
+-
+ #define NEEDS_BITMAP (1u<<22)
+ 
+ enum pack_bitmap_opts {
+-- 
+2.23.0.248.g3a9dd8fb08
+
