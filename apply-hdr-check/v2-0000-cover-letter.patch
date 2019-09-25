@@ -1,0 +1,99 @@
+From 14def72319521d7380fb6a8ec570d014c0f5361b Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1569398897.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1569263631.git.liu.denton@gmail.com>
+References: <cover.1569263631.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 25 Sep 2019 01:08:17 -0700
+Subject: [PATCH v2 0/4] fixes related to `make hdr-check`
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Jeff King <peff@peff.net>
+
+The first two patches fix errors causing `make hdr-check` to fail. The third is
+legacy from v1 but provides code cleanup so we leave it. Finally, the last
+patch is a patch which improves the portability and correctness of `hdr-check`.
+
+Changes since v1:
+
+* Reordered patches to put fixes first
+
+* Took Peff's improvement suggestions for the $(HCO) target
+
+* Added "pack-bitmap.h: fix unused variable warning"
+
+
+Denton Liu (4):
+  apply.h: include missing header
+  promisor-remote.h: include missing header
+  pack-bitmap.h: remove magic number
+  Makefile: emulate compile in $(HCO) target better
+
+ .gitignore        |  1 +
+ Makefile          | 12 +++++++++---
+ apply.h           |  1 +
+ pack-bitmap.h     |  6 +++---
+ promisor-remote.h |  2 ++
+ 5 files changed, 16 insertions(+), 6 deletions(-)
+
+Range-diff against v1:
+1:  0336d1345a < -:  ---------- Makefile: use $(ALL_CFLAGS) in $(HCO) target
+2:  1fc6dfc5fa = 1:  74efb6c04c apply.h: include missing header
+3:  8ccbd81673 = 2:  2befc450fb promisor-remote.h: include missing header
+4:  a3a3357925 ! 3:  50e37c16f9 pack-bitmap.h: fix unused variable warning
+    @@ Metadata
+     Author: Denton Liu <liu.denton@gmail.com>
+     
+      ## Commit message ##
+    -    pack-bitmap.h: fix unused variable warning
+    +    pack-bitmap.h: remove magic number
+     
+    -    When we ran `make hdr-check`, we got the following warning on Arch Linux:
+    +    When we ran `make hdr-check` with the following patch
+    +
+    +            diff --git a/Makefile b/Makefile
+    +            index f879697ea3..d8df4e316b 100644
+    +            --- a/Makefile
+    +            +++ b/Makefile
+    +            @@ -2773,7 +2773,7 @@ CHK_HDRS = $(filter-out $(EXCEPT_HDRS),$(patsubst ./%,%,$(LIB_H)))
+    +            HCO = $(patsubst %.h,%.hco,$(CHK_HDRS))
+    +
+    +            $(HCO): %.hco: %.h FORCE
+    +            -       $(QUIET_HDR)$(CC) -include git-compat-util.h -I. -o /dev/null -c -xc $<
+    +            +       $(QUIET_HDR)$(CC) -include git-compat-util.h -I. -o /dev/null -c -xc $(ALL_CFLAGS) $<
+    +
+    +            .PHONY: hdr-check $(HCO)
+    +            hdr-check: $(HCO)
+    +
+    +    and with `DEVELOPER=1`, we got the following warning on Arch Linux:
+     
+                 pack-bitmap.h:20:19: error: ‘BITMAP_IDX_SIGNATURE’ defined but not used [-Werror=unused-const-variable=]
+                    20 | static const char BITMAP_IDX_SIGNATURE[] = {'B', 'I', 'T', 'M'};
+    @@ Commit message
+                 cc1: all warnings being treated as errors
+     
+         "Use" the BITMAP_IDX_SIGNATURE variable by making the size of
+    -    bitmap_disk_header.magic equal to the size of BITMAP_IDX_SIGNATURE. An
+    -    alternative was to simply add MAYBE_UNUSED. However, this design was
+    -    chosen because we eliminate the magic number (4) in the process.
+    +    bitmap_disk_header.magic equal to the size of BITMAP_IDX_SIGNATURE,
+    +    thereby eliminating the magic number (4).
+    +
+    +    An alternative was to simply add MAYBE_UNUSED, however that does not
+    +    eliminate the magic number.
+    +
+    +    Another alternative was to change the definition to
+    +
+    +            extern const char BITMAP_IDX_SIGNATURE[4];
+    +
+    +    However, this design was also not chosen as the static definition allows
+    +    us to keep the declaration together for readability along with removing
+    +    the magic number.
+     
+      ## pack-bitmap.h ##
+     @@ pack-bitmap.h: struct commit;
+-:  ---------- > 4:  14def72319 Makefile: emulate compile in $(HCO) target better
+-- 
+2.23.0.248.g3a9dd8fb08
+

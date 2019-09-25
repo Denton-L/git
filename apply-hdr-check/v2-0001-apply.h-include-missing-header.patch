@@ -1,0 +1,50 @@
+From 74efb6c04c1081d73be4c2666fa45ff2807464c3 Mon Sep 17 00:00:00 2001
+Message-Id: <74efb6c04c1081d73be4c2666fa45ff2807464c3.1569398897.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1569398897.git.liu.denton@gmail.com>
+References: <cover.1569263631.git.liu.denton@gmail.com>
+	<cover.1569398897.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 23 Sep 2019 11:26:39 -0700
+Subject: [PATCH v2 1/4] apply.h: include missing header
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Jeff King <peff@peff.net>
+
+When running `make hdr-check`, we got the following error messages:
+
+	apply.h:146:22: error: use of undeclared identifier 'GIT_MAX_HEXSZ'
+		char old_oid_prefix[GIT_MAX_HEXSZ + 1];
+				    ^
+	apply.h:147:22: error: use of undeclared identifier 'GIT_MAX_HEXSZ'
+		char new_oid_prefix[GIT_MAX_HEXSZ + 1];
+				    ^
+	apply.h:151:33: error: array has incomplete element type 'struct object_id'
+		struct object_id threeway_stage[3];
+					       ^
+	./strbuf.h:79:8: note: forward declaration of 'struct object_id'
+	struct object_id;
+	       ^
+	3 errors generated.
+	make: *** [apply.hco] Error 1
+
+Include the missing "hash.h" header to fix these errors.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ apply.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/apply.h b/apply.h
+index a795193435..da3d95fa50 100644
+--- a/apply.h
++++ b/apply.h
+@@ -1,6 +1,7 @@
+ #ifndef APPLY_H
+ #define APPLY_H
+ 
++#include "hash.h"
+ #include "lockfile.h"
+ #include "string-list.h"
+ 
+-- 
+2.23.0.248.g3a9dd8fb08
+
