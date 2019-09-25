@@ -1,0 +1,156 @@
+From 0b84bf54175cd8ee967ab46ac393c2d5d18d772e Mon Sep 17 00:00:00 2001
+Message-Id: <0b84bf54175cd8ee967ab46ac393c2d5d18d772e.1569407150.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1569407150.git.liu.denton@gmail.com>
+References: <cover.1569407150.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 25 Sep 2019 02:06:20 -0700
+Subject: [BUG/PATCH 5/5] t4214: demonstrate octopus graph coloring failure
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Allan Caffee <allan.caffee@gmail.com>,
+    Noam Postavsky <npostavs@users.sourceforge.net>
+
+The graph coloring logic for octopus merges currently has a bug. This
+can be seen git.git with 74c7cfa875 (Merge of
+http://members.cox.net/junkio/git-jc.git, 2005-05-05), whose second
+child is 211232bae6 (Octopus merge of the following five patches.,
+2005-05-05).
+
+If one runs
+
+	git log --graph 74c7cfa875
+
+one can see that the octopus merge is colored incorrectly. In
+particular, the horizontal dashes are off by one color. Each horizontal
+dash should be the color of the line to their bottom-right. Instead, they
+are currently the color of the line to their bottom.
+
+Demonstrate this breakage with two sets of test cases. The first pair of
+test cases demonstrates the breakage with a similar case as the above.
+The second pair of test cases demonstrates a similar breakage but with
+the last parent crossing over.
+
+The second pair of test cases are included as a result of my (poor)
+attempts at fixing the bug. This case seems particularly tricky to
+handle. Good luck!
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t4214-log-graph-octopus.sh | 96 +++++++++++++++++++++++++++++++++++-
+ 1 file changed, 95 insertions(+), 1 deletion(-)
+
+diff --git a/t/t4214-log-graph-octopus.sh b/t/t4214-log-graph-octopus.sh
+index 097151da39..99e0ea034e 100755
+--- a/t/t4214-log-graph-octopus.sh
++++ b/t/t4214-log-graph-octopus.sh
+@@ -14,8 +14,11 @@ test_expect_success 'set up merge history' '
+ 	done &&
+ 	git checkout 1 -b merge &&
+ 	test_merge octopus-merge 1 2 3 4 &&
++	test_commit after-merge &&
+ 	git checkout 1 -b L &&
+-	test_commit left
++	test_commit left &&
++	git checkout 4 -b crossover &&
++	test_commit after-4
+ '
+ 
+ test_expect_success 'log --graph with tricky octopus merge, no color' '
+@@ -98,4 +101,95 @@ test_expect_success 'log --graph with normal octopus merge with colors' '
+ 	test_decode_color <actual.colors.raw | sed "s/ *\$//" >actual.colors &&
+ 	test_cmp expect.colors actual.colors
+ '
++
++test_expect_success 'log --graph with tricky octopus merge and its parent, no color' '
++	cat >expect.uncolored <<-\EOF &&
++	* left
++	| * after-merge
++	| *---.   octopus-merge
++	| |\ \ \
++	|/ / / /
++	| | | * 4
++	| | * | 3
++	| | |/
++	| * | 2
++	| |/
++	* | 1
++	|/
++	* initial
++	EOF
++	git log --color=never --graph --date-order --pretty=tformat:%s left after-merge >actual.raw &&
++	sed "s/ *\$//" actual.raw >actual &&
++	test_cmp expect.uncolored actual
++'
++
++test_expect_failure 'log --graph with tricky octopus merge and its parent with colors' '
++	test_config log.graphColors red,green,yellow,blue,magenta,cyan &&
++	cat >expect.colors <<-\EOF &&
++	* left
++	<RED>|<RESET> * after-merge
++	<RED>|<RESET> *<MAGENTA>-<RESET><MAGENTA>-<RESET><CYAN>-<RESET><CYAN>.<RESET>   octopus-merge
++	<RED>|<RESET> <RED>|<RESET><BLUE>\<RESET> <MAGENTA>\<RESET> <CYAN>\<RESET>
++	<RED>|<RESET><RED>/<RESET> <BLUE>/<RESET> <MAGENTA>/<RESET> <CYAN>/<RESET>
++	<RED>|<RESET> <BLUE>|<RESET> <MAGENTA>|<RESET> * 4
++	<RED>|<RESET> <BLUE>|<RESET> * <CYAN>|<RESET> 3
++	<RED>|<RESET> <BLUE>|<RESET> <CYAN>|<RESET><CYAN>/<RESET>
++	<RED>|<RESET> * <CYAN>|<RESET> 2
++	<RED>|<RESET> <CYAN>|<RESET><CYAN>/<RESET>
++	* <CYAN>|<RESET> 1
++	<CYAN>|<RESET><CYAN>/<RESET>
++	* initial
++	EOF
++	git log --color=always --graph --date-order --pretty=tformat:%s left after-merge >actual.colors.raw &&
++	test_decode_color <actual.colors.raw | sed "s/ *\$//" >actual.colors &&
++	test_cmp expect.colors actual.colors
++'
++
++test_expect_success 'log --graph with crossover in octopus merge, no color' '
++	cat >expect.uncolored <<-\EOF &&
++	* after-4
++	| *---.   octopus-merge
++	| |\ \ \
++	| |_|_|/
++	|/| | |
++	* | | | 4
++	| | | * 3
++	| |_|/
++	|/| |
++	| | * 2
++	| |/
++	|/|
++	| * 1
++	|/
++	* initial
++	EOF
++	git log --color=never --graph --date-order --pretty=tformat:%s after-4 octopus-merge >actual.raw &&
++	sed "s/ *\$//" actual.raw >actual &&
++	test_cmp expect.uncolored actual
++'
++
++test_expect_failure 'log --graph with crossover in octopus merge with colors' '
++	test_config log.graphColors red,green,yellow,blue,magenta,cyan &&
++	cat >expect.colors <<-\EOF &&
++	* after-4
++	<RED>|<RESET> *<BLUE>-<RESET><BLUE>-<RESET><RED>-<RESET><RED>.<RESET>   octopus-merge
++	<RED>|<RESET> <GREEN>|<RESET><YELLOW>\<RESET> <BLUE>\<RESET> <RED>\<RESET>
++	<RED>|<RESET> <GREEN>|<RESET><RED>_<RESET><YELLOW>|<RESET><RED>_<RESET><BLUE>|<RESET><RED>/<RESET>
++	<RED>|<RESET><RED>/<RESET><GREEN>|<RESET> <YELLOW>|<RESET> <BLUE>|<RESET>
++	* <GREEN>|<RESET> <YELLOW>|<RESET> <BLUE>|<RESET> 4
++	<MAGENTA>|<RESET> <GREEN>|<RESET> <YELLOW>|<RESET> * 3
++	<MAGENTA>|<RESET> <GREEN>|<RESET><MAGENTA>_<RESET><YELLOW>|<RESET><MAGENTA>/<RESET>
++	<MAGENTA>|<RESET><MAGENTA>/<RESET><GREEN>|<RESET> <YELLOW>|<RESET>
++	<MAGENTA>|<RESET> <GREEN>|<RESET> * 2
++	<MAGENTA>|<RESET> <GREEN>|<RESET><MAGENTA>/<RESET>
++	<MAGENTA>|<RESET><MAGENTA>/<RESET><GREEN>|<RESET>
++	<MAGENTA>|<RESET> * 1
++	<MAGENTA>|<RESET><MAGENTA>/<RESET>
++	* initial
++	EOF
++	git log --color=always --graph --date-order --pretty=tformat:%s after-4 octopus-merge >actual.colors.raw &&
++	test_decode_color <actual.colors.raw | sed "s/ *\$//" >actual.colors &&
++	test_cmp expect.colors actual.colors
++'
++
+ test_done
+-- 
+2.23.0.248.g3a9dd8fb08
+

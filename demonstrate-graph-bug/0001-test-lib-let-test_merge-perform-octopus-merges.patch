@@ -1,0 +1,44 @@
+From e77af8cde5380c3ba43f074232a50a262ef79791 Mon Sep 17 00:00:00 2001
+Message-Id: <e77af8cde5380c3ba43f074232a50a262ef79791.1569407150.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1569407150.git.liu.denton@gmail.com>
+References: <cover.1569407150.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 25 Sep 2019 01:52:39 -0700
+Subject: [BUG/PATCH 1/5] test-lib: let test_merge() perform octopus merges
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Allan Caffee <allan.caffee@gmail.com>,
+    Noam Postavsky <npostavs@users.sourceforge.net>
+
+Currently test_merge() only allows developers to merge in one branch.
+However, this restriction is artificial and there is no reason why it
+needs to be this way.
+
+Extend test_merge() to allow the specification of multiple branches so
+that octopus merges can be performed.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/test-lib-functions.sh | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/t/test-lib-functions.sh b/t/test-lib-functions.sh
+index 87bf3a2287..b299ecc326 100644
+--- a/t/test-lib-functions.sh
++++ b/t/test-lib-functions.sh
+@@ -228,9 +228,11 @@ test_commit () {
+ # can be a tag pointing to the commit-to-merge.
+ 
+ test_merge () {
++	label="$1" &&
++	shift &&
+ 	test_tick &&
+-	git merge -m "$1" "$2" &&
+-	git tag "$1"
++	git merge -m "$label" "$@" &&
++	git tag "$label"
+ }
+ 
+ # Efficiently create <nr> commits, each with a unique number (from 1 to <nr>
+-- 
+2.23.0.248.g3a9dd8fb08
+
