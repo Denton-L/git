@@ -1658,7 +1658,7 @@ static int parse_fragment(struct apply_state *state,
 
 	offset = parse_fragment_header(line, len, fragment);
 	if (offset < 0)
-		return -1;
+		return error(_("negative hunk offset: %d"), offset);
 	if (offset > 0 && patch->recount)
 		recount_diff(line + offset, size - offset, fragment);
 	oldlines = fragment->oldlines;
@@ -1677,11 +1677,13 @@ static int parse_fragment(struct apply_state *state,
 		if (!oldlines && !newlines)
 			break;
 		len = linelen(line, size);
-		if (!len || line[len-1] != '\n')
-			return -1;
+		if (line[len-1] != '\n')
+			BUG("end of line is not a newline");
+		if (!len)
+			return error(_("empty line in diff"));
 		switch (*line) {
 		default:
-			return -1;
+			return error(_("invalid first-character: %c"), *line);
 		case '\n': /* newer GNU diff, an empty context line */
 		case ' ':
 			oldlines--;
@@ -1725,14 +1727,14 @@ static int parse_fragment(struct apply_state *state,
 		 */
 		case '\\':
 			if (len < 12 || memcmp(line, "\\ ", 2))
-				return -1;
+				return error(_("was expecting line with \\ to be \"\\ No newline at end of file\""));
 			break;
 		}
 	}
 	if (oldlines || newlines)
-		return -1;
+		return error(_("mismatch between hunk header and actual number of lines"));
 	if (!patch->recount && !deleted && !added)
-		return -1;
+		return error(_("no lines added or removed"));
 
 	fragment->leading = leading;
 	fragment->trailing = trailing;
