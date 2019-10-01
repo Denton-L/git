@@ -24,8 +24,6 @@
 	notes = true
 	to = Git Mailing List <git@vger.kernel.org>
 
-[includeIf "onbranch:submitted/rebase-keep-base"]
-	path = rebase-keep-base/config
 [includeIf "onbranch:submitted/branch-specific-format-patch"]
 	path = branch-specific-format-patch/config
 [includeIf "onbranch:submitted/format-infer-subject"]
