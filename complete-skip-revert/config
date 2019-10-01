@@ -1,3 +1,0 @@
-[format]
-	outputDirectory = patches/complete-skip-revert
-	cc = Junio C Hamano <gitster@pobox.com>
