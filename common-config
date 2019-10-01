@@ -30,8 +30,6 @@
 	path = branch-specific-format-patch/config
 [includeIf "onbranch:submitted/format-infer-subject"]
 	path = format-infer-subject/config
-[includeIf "onbranch:submitted/format-patch-doc-test-cleanup"]
-	path = format-patch-doc-test-cleanup/config
 [includeIf "onbranch:submitted/complete-skip-revert"]
 	path = complete-skip-revert/config
 [includeIf "onbranch:submitted/replace-bespoke-sq"]
