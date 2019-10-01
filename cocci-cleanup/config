@@ -1,3 +1,0 @@
-[format]
-	outputDirectory = patches/cocci-cleanup
-	cc = Johannes Schindelin <Johannes.Schindelin@gmx.de>

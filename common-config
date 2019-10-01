@@ -34,8 +34,6 @@
 	path = format-patch-doc-test-cleanup/config
 [includeIf "onbranch:submitted/complete-skip-revert"]
 	path = complete-skip-revert/config
-[includeIf "onbranch:submitted/cocci-cleanup"]
-	path = cocci-cleanup/config
 [includeIf "onbranch:submitted/replace-bespoke-sq"]
 	path = replace-bespoke-sq/config
 [includeIf "onbranch:submitted/cocci-compat"]
