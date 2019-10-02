@@ -5,9 +5,8 @@ test_description='bad patches report errors appropriately'
 . ./test-lib.sh
 
 test_expect_success setup '
-	test_write_lines a b c>file &&
-	git add file &&
-	test_commit commit
+	test_write_lines a b c>filename &&
+	test_commit commit filename
 '
 
 test_patch () {
@@ -21,10 +20,10 @@ test_patch () {
 }
 
 test_patch 'negative hunk offset before' 'negative hunk offset' <<-\EOF
-diff --git a/file b/file
+diff --git a/filename b/filename
 index de98044..d68dd40 100644
---- a/file
-+++ b/file
+--- a/filename
++++ b/filename
 @@ -1,-3 +1,4 @@
  a
  b
@@ -33,10 +32,10 @@ index de98044..d68dd40 100644
 EOF
 
 test_patch 'negative hunk offset after' 'negative hunk offset' <<-\EOF
-diff --git a/file b/file
+diff --git a/filename b/filename
 index de98044..d68dd40 100644
---- a/file
-+++ b/file
+--- a/filename
++++ b/filename
 @@ -1,3 +1,-4 @@
  a
  b
@@ -45,10 +44,10 @@ index de98044..d68dd40 100644
 EOF
 
 test_patch 'invalid first-character' <<-\EOF
-diff --git a/file b/file
+diff --git a/filename b/filename
 index de98044..d68dd40 100644
---- a/file
-+++ b/file
+--- a/filename
++++ b/filename
 @@ -1,3 +1,4 @@
  a
  b
@@ -57,10 +56,10 @@ index de98044..d68dd40 100644
 EOF
 
 test_patch 'was expecting line with \\\\ to be \"\\\\ No newline at end of file\"' <<-\EOF
-diff --git a/file b/file
+diff --git a/filename b/filename
 index de98044..1c943a9 100644
---- a/file
-+++ b/file
+--- a/filename
++++ b/filename
 @@ -1,3 +1,3 @@
  a
  b
@@ -70,10 +69,10 @@ index de98044..1c943a9 100644
 EOF
 
 test_patch 'header mismatch in before' 'mismatch between hunk header and actual number of lines' <<-\EOF
-diff --git a/file b/file
+diff --git a/filename b/filename
 index de98044..d68dd40 100644
---- a/file
-+++ b/file
+--- a/filename
++++ b/filename
 @@ -1,2 +1,4 @@
  a
  b
@@ -82,10 +81,10 @@ index de98044..d68dd40 100644
 EOF
 
 test_patch 'header mismatch in after' 'mismatch between hunk header and actual number of lines' <<-\EOF
-diff --git a/file b/file
+diff --git a/filename b/filename
 index de98044..d68dd40 100644
---- a/file
-+++ b/file
+--- a/filename
++++ b/filename
 @@ -1,3 +1,5 @@
  a
  b
@@ -94,17 +93,17 @@ index de98044..d68dd40 100644
 EOF
 
 test_patch 'no lines added or removed' <<-\EOF
-diff --git a/file b/file
+diff --git a/filename b/filename
 index de98044..d68dd40 100644
---- a/file
-+++ b/file
+--- a/filename
++++ b/filename
 @@ -1,3 +1,3 @@
  a
  b
  c
 EOF
 
-test_patch 'new file depends on old contents' <<-\EOF
+test_patch 'new file newfile depends on old contents' <<-\EOF
 diff --git a/newfile b/newfile
 new file mode 100644
 index 0000000..de98044
@@ -116,11 +115,11 @@ index 0000000..de98044
  c
 EOF
 
-test_patch 'deleted file still has contents' <<-\EOF
-diff --git a/file b/file
+test_patch 'deleted file filename still has contents' <<-\EOF
+diff --git a/filename /dev/null
 deleted file mode 100644
 index de98044..0000000
---- a/file
+--- a/filename
 +++ /dev/null
 @@ -1,3 +1,4 @@
  a
