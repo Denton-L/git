@@ -97,6 +97,9 @@ struct am_state {
 	char *msg;
 	size_t msg_len;
 
+	/* number of lines before patch starts */
+	int prepatch_lines;
+
 	/* when --rebasing, records the original commit the patch came from */
 	struct object_id orig_commit;
 
@@ -146,6 +149,8 @@ static void am_state_init(struct am_state *state)
 
 	if (!git_config_get_bool("commit.gpgsign", &gpgsign))
 		state->sign_commit = gpgsign ? "" : NULL;
+
+	state->prepatch_lines = 0;
 }
 
 /**
@@ -1182,6 +1187,8 @@ static int parse_mail(struct am_state *state, const char *mail)
 	if (mi.format_flowed)
 		warning(_("Patch sent with format=flowed; "
 			  "space at the end of lines might be lost."));
+
+	state->prepatch_lines = mi.prepatch_lines;
 
 	/* Extract message and author information */
 	fp = xfopen(am_path(state, "info"), "r");

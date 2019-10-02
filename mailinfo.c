@@ -1176,8 +1176,11 @@ int mailinfo(struct mailinfo *mi, const char *msg, const char *patch)
 	ungetc(peek, mi->input);
 
 	/* process the email header */
-	while (read_one_header_line(&line, mi->input))
+	mi->prepatch_lines = 0;
+	while (read_one_header_line(&line, mi->input)) {
 		check_header(mi, &line, mi->p_hdr_data, 1);
+		mi->prepatch_lines++;
+	}
 
 	handle_body(mi, &line);
 	fwrite(mi->log_message.buf, 1, mi->log_message.len, cmitmsg);
