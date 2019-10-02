@@ -1680,7 +1680,7 @@ static int parse_fragment(struct apply_state *state,
 		if (line[len-1] != '\n')
 			BUG("end of line is not a newline");
 		if (!len)
-			return error(_("empty line in diff"));
+			return error(_("empty line in diff")); // TODO: can't trigger this
 		switch (*line) {
 		default:
 			return error(_("invalid first-character: %c"), *line);
