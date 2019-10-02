@@ -44,3 +44,5 @@
 	path = experimental/demonstrate-graph-bug/config
 [includeIf "onbranch:submitted/demonstrate-graph-bug"]
 	path = demonstrate-graph-bug/config
+[includeIf "onbranch:submitted/t0000-cover-blindspot"]
+	path = t0000-cover-blindspot/config
