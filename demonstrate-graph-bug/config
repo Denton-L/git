@@ -2,3 +2,5 @@
 	outputDirectory = patches/demonstrate-graph-bug
 	cc = Allan Caffee <allan.caffee@gmail.com>
 	cc = Noam Postavsky <npostavs@users.sourceforge.net>
+	cc = Jeff King <peff@peff.net>
+	cc = Junio C Hamano <gitster@pobox.com>

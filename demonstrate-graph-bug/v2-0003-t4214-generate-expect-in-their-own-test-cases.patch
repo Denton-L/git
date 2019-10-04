@@ -1,0 +1,112 @@
+From c09f761185859998d33c4944fe3a7317e3a8c987 Mon Sep 17 00:00:00 2001
+Message-Id: <c09f761185859998d33c4944fe3a7317e3a8c987.1570148053.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1570148053.git.liu.denton@gmail.com>
+References: <cover.1569407150.git.liu.denton@gmail.com>
+	<cover.1570148053.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 25 Sep 2019 01:34:55 -0700
+Subject: [PATCH v2 3/5] t4214: generate expect in their own test cases
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Allan Caffee <allan.caffee@gmail.com>,
+    Noam Postavsky <npostavs@users.sourceforge.net>,
+    Jeff King <peff@peff.net>,
+    Junio C Hamano <gitster@pobox.com>
+
+Before, the expect files of the test case were being generated in the
+setup method. However, it would make more sense to generate these files
+within the test cases that actually use them so that it's obvious to
+future readers where the expected values are coming from.
+
+Move the generation of the expect files in their own respective test
+cases.
+
+While we're at it, we want to establish a pattern in this test suite
+that, firstly, a non-colored test case is given then, immediately after,
+the colored version is given.
+
+Switch test cases "log --graph with tricky octopus merge, no color" and
+"log --graph with tricky octopus merge with colors" so that the "no
+color" version appears first.
+
+This patch is best viewed with `--color-moved`.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t4214-log-graph-octopus.sh | 42 ++++++++++++++++++------------------
+ 1 file changed, 21 insertions(+), 21 deletions(-)
+
+diff --git a/t/t4214-log-graph-octopus.sh b/t/t4214-log-graph-octopus.sh
+index f6e22ec825..16776e347c 100755
+--- a/t/t4214-log-graph-octopus.sh
++++ b/t/t4214-log-graph-octopus.sh
+@@ -5,6 +5,20 @@ test_description='git log --graph of skewed left octopus merge.'
+ . ./test-lib.sh
+ 
+ test_expect_success 'set up merge history' '
++	test_commit initial &&
++	for i in 1 2 3 4 ; do
++		git checkout master -b $i || return $?
++		# Make tag name different from branch name, to avoid
++		# ambiguity error when calling checkout.
++		test_commit $i $i $i tag$i || return $?
++	done &&
++	git checkout 1 -b merge &&
++	test_merge octopus-merge 1 2 3 4 &&
++	git checkout 1 -b L &&
++	test_commit left
++'
++
++test_expect_success 'log --graph with tricky octopus merge, no color' '
+ 	cat >expect.uncolored <<-\EOF &&
+ 	* left
+ 	| *---.   octopus-merge
+@@ -19,6 +33,13 @@ test_expect_success 'set up merge history' '
+ 	|/
+ 	* initial
+ 	EOF
++	git log --color=never --graph --date-order --pretty=tformat:%s --all >actual.raw &&
++	sed "s/ *\$//" actual.raw >actual &&
++	test_cmp expect.uncolored actual
++'
++
++test_expect_success 'log --graph with tricky octopus merge with colors' '
++	test_config log.graphColors red,green,yellow,blue,magenta,cyan &&
+ 	cat >expect.colors <<-\EOF &&
+ 	* left
+ 	<RED>|<RESET> *<BLUE>-<RESET><BLUE>-<RESET><MAGENTA>-<RESET><MAGENTA>.<RESET>   octopus-merge
+@@ -33,32 +54,11 @@ test_expect_success 'set up merge history' '
+ 	<MAGENTA>|<RESET><MAGENTA>/<RESET>
+ 	* initial
+ 	EOF
+-	test_commit initial &&
+-	for i in 1 2 3 4 ; do
+-		git checkout master -b $i || return $?
+-		# Make tag name different from branch name, to avoid
+-		# ambiguity error when calling checkout.
+-		test_commit $i $i $i tag$i || return $?
+-	done &&
+-	git checkout 1 -b merge &&
+-	test_merge octopus-merge 1 2 3 4 &&
+-	git checkout 1 -b L &&
+-	test_commit left
+-'
+-
+-test_expect_success 'log --graph with tricky octopus merge with colors' '
+-	test_config log.graphColors red,green,yellow,blue,magenta,cyan &&
+ 	git log --color=always --graph --date-order --pretty=tformat:%s --all >actual.colors.raw &&
+ 	test_decode_color <actual.colors.raw | sed "s/ *\$//" >actual.colors &&
+ 	test_cmp expect.colors actual.colors
+ '
+ 
+-test_expect_success 'log --graph with tricky octopus merge, no color' '
+-	git log --color=never --graph --date-order --pretty=tformat:%s --all >actual.raw &&
+-	sed "s/ *\$//" actual.raw >actual &&
+-	test_cmp expect.uncolored actual
+-'
+-
+ # Repeat the previous two tests with "normal" octopus merge (i.e.,
+ # without the first parent skewing to the "left" branch column).
+ 
+-- 
+2.23.0.565.g1cc52d20df
+
