@@ -1,0 +1,6 @@
+[format]
+	outputDirectory = patches/better-apply-error
+	cc = Duy Nguyen <pclouds@gmail.com>
+	cc = Jeff King <peff@peff.net>
+	cc = Junio C Hamano <gitster@pobox.com>
+	cc = Paul Tan <pyokagan@gmail.com>
