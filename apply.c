@@ -1786,7 +1786,7 @@ static int parse_single_patch(struct apply_state *state,
 		len = parse_fragment(state, line, size, patch, fragment);
 		if (len <= 0) {
 			free(fragment);
-			return error(_("corrupt patch at line %d"), state->linenr);
+			return error(_("corrupt patch at %s:%d"), state->patch_input_file, state->linenr);
 		}
 		fragment->patch = line;
 		fragment->size = len;
