@@ -35,6 +35,24 @@ static void git_apply_config(void)
 	git_config(git_xmerge_config, NULL);
 }
 
+static int bad_patch_error(const struct apply_state *state, const char *err, ...)
+{
+	va_list args;
+	struct strbuf msg = STRBUF_INIT;
+	struct strbuf path = STRBUF_INIT;
+	int return_value;
+
+	va_start(args, err);
+	strbuf_vaddf(&msg, err, args);
+	va_end(args);
+	return_value = error("%s: %s:%d", msg.buf,
+			relative_path(state->patch_input_file, state->prefix, &path),
+			state->linenr);
+	strbuf_reset(&path);
+	strbuf_reset(&msg);
+	return return_value;
+}
+
 static int parse_whitespace_option(struct apply_state *state, const char *option)
 {
 	if (!option) {
@@ -881,7 +899,7 @@ static int parse_traditional_patch(struct apply_state *state,
 		}
 	}
 	if (!name)
-		return error(_("unable to find filename in patch at line %d"), state->linenr);
+		return bad_patch_error(state, _("unable to find filename in patch"));
 
 	return 0;
 }
@@ -1547,8 +1565,8 @@ static int find_header(struct apply_state *state,
 			struct fragment dummy;
 			if (parse_fragment_header(line, len, &dummy) < 0)
 				continue;
-			error(_("patch fragment without header at line %d: %.*s"),
-				     state->linenr, (int)len-1, line);
+			bad_patch_error(state, _("patch fragment without header: %.*s"),
+				     (int)len-1, line);
 			return -128;
 		}
 
@@ -1785,8 +1803,13 @@ static int parse_single_patch(struct apply_state *state,
 		fragment->linenr = state->linenr;
 		len = parse_fragment(state, line, size, patch, fragment);
 		if (len <= 0) {
+			struct strbuf path = STRBUF_INIT;
+			int return_value;
+
 			free(fragment);
-			return error(_("corrupt patch at line %d"), state->linenr);
+			return_value = bad_patch_error(state, _("corrupt patch"));
+			strbuf_reset(&path);
+			return return_value;
 		}
 		fragment->patch = line;
 		fragment->size = len;
@@ -1975,8 +1998,9 @@ static struct fragment *parse_binary_hunk(struct apply_state *state,
  corrupt:
 	free(data);
 	*status_p = -1;
-	error(_("corrupt binary patch at line %d: %.*s"),
-	      state->linenr-1, llen-1, buffer);
+	state->linenr--;
+	bad_patch_error(state, _("corrupt binary patch: %.*s"),
+	      llen-1, buffer);
 	return NULL;
 }
 
@@ -2010,9 +2034,11 @@ static int parse_binary(struct apply_state *state,
 	int used, used_1;
 
 	forward = parse_binary_hunk(state, &buffer, &size, &status, &used);
-	if (!forward && !status)
+	if (!forward && !status) {
 		/* there has to be one hunk (forward hunk) */
-		return error(_("unrecognized binary patch at line %d"), state->linenr-1);
+		state->linenr--;
+		return bad_patch_error(state, _("unrecognized binary patch"));
+	}
 	if (status)
 		/* otherwise we already gave an error message */
 		return status;
@@ -2174,7 +2200,7 @@ static int parse_chunk(struct apply_state *state, char *buffer, unsigned long si
 		 */
 		if ((state->apply || state->check) &&
 		    (!patch->is_binary && !metadata_changes(patch))) {
-			error(_("patch with only garbage at line %d"), state->linenr);
+			bad_patch_error(state, _("patch with only garbage"));
 			return -128;
 		}
 	}
@@ -2933,7 +2959,7 @@ static int apply_one_fragment(struct apply_state *state,
 			break;
 		default:
 			if (state->apply_verbosity > verbosity_normal)
-				error(_("invalid start of line: '%c'"), first);
+				bad_patch_error(state, _("invalid start of line: '%c'"), first);
 			applied_pos = -1;
 			goto out;
 		}

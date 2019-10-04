@@ -87,6 +87,8 @@ enum show_patch_type {
 };
 
 struct am_state {
+	const char *prefix;
+
 	/* state directory path */
 	char *dir;
 
@@ -128,11 +130,13 @@ struct am_state {
 /**
  * Initializes am_state with the default values.
  */
-static void am_state_init(struct am_state *state)
+static void am_state_init(struct am_state *state, const char *prefix)
 {
 	int gpgsign;
 
 	memset(state, 0, sizeof(*state));
+
+	state->prefix = prefix;
 
 	state->dir = git_pathdup("rebase-apply");
 
@@ -1399,6 +1403,7 @@ static int run_apply(const struct am_state *state, const char *index_file)
 
 	if (init_apply_state(&apply_state, the_repository, NULL))
 		BUG("init_apply_state() failed");
+	apply_state.display_prefix = state->prefix;
 
 	argv_array_push(&apply_opts, "apply");
 	argv_array_pushv(&apply_opts, state->git_apply_opts.argv);
@@ -2306,7 +2311,7 @@ int cmd_am(int argc, const char **argv, const char *prefix)
 
 	git_config(git_am_config, NULL);
 
-	am_state_init(&state);
+	am_state_init(&state, prefix);
 
 	in_progress = am_in_progress(&state);
 	if (in_progress)
