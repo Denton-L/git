@@ -48,3 +48,5 @@
 	path = t0000-cover-blindspot/config
 [includeIf "onbranch:submitted/better-apply-error"]
 	path = better-apply-error/config
+[includeIf "onbranch:submitted/rev-list-prune-synopsis"]
+	path = rev-list-prune-synopsis/config
