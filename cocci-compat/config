@@ -1,6 +1,0 @@
-[format]
-	outputDirectory = patches/cocci-compat
-	cc = Johannes Schindelin <Johannes.Schindelin@gmx.de>
-	cc = SZEDER Gábor <szeder.dev@gmail.com>
-	cc = Jeff King <peff@peff.net>
-	cc = Junio C Hamano <gitster@pobox.com>
