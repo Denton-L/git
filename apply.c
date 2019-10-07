@@ -91,6 +91,7 @@ int init_apply_state(struct apply_state *state,
 {
 	memset(state, 0, sizeof(*state));
 	state->prefix = prefix;
+	state->display_prefix = prefix;
 	state->repo = repo;
 	state->apply = 1;
 	state->line_termination = '\n';
@@ -1785,8 +1786,15 @@ static int parse_single_patch(struct apply_state *state,
 		fragment->linenr = state->linenr;
 		len = parse_fragment(state, line, size, patch, fragment);
 		if (len <= 0) {
+			struct strbuf path = STRBUF_INIT;
+			int return_value;
+
 			free(fragment);
-			return error(_("corrupt patch at %s:%d"), state->patch_input_file, state->linenr);
+			return_value = error(_("corrupt patch at %s:%d"),
+					quote_path_relative(state->patch_input_file, state->display_prefix, &path),
+					state->linenr);
+			strbuf_reset(&path);
+			return return_value;
 		}
 		fragment->patch = line;
 		fragment->size = len;

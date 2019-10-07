@@ -42,6 +42,9 @@ enum apply_verbosity {
 struct apply_state {
 	const char *prefix;
 
+	/* Prefix to use when printing messages for users */
+	const char *display_prefix;
+
 	/* Lock file */
 	struct lock_file lock_file;
 
