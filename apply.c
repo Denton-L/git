@@ -44,11 +44,15 @@ static int patch_error(const char *filename, const char *prefix, int linenr, con
 	struct strbuf path = STRBUF_INIT;
 	int return_value;
 
-	if (strcmp(filename, STDIN_FILENAME))
-		filename = quote_path_relative(filename, prefix, &path);
-
 	strbuf_vaddf(&msg, err, args);
-	return_value = error("%s: %s:%d", msg.buf, filename, linenr);
+	if (!filename) {
+		return_value = error("%s: line %d", msg.buf, linenr);
+	} else {
+		if (strcmp(filename, STDIN_FILENAME))
+			filename = quote_path_relative(filename, prefix, &path);
+
+		return_value = error("%s: %s:%d", msg.buf, filename, linenr);
+	}
 	strbuf_reset(&path);
 	strbuf_reset(&msg);
 	return return_value;
@@ -1312,13 +1316,27 @@ static char *git_header_name(int p_value,
 	}
 }
 
-static int check_header_line(int linenr, struct patch *patch)
+static int check_header_line(int linenr, struct patch *patch,
+		const char *filename, const char *prefix)
 {
 	int extensions = (patch->is_delete == 1) + (patch->is_new == 1) +
 			 (patch->is_rename == 1) + (patch->is_copy == 1);
-	if (extensions > 1)
-		return error(_("inconsistent header lines %d and %d"),
-			     patch->extension_linenr, linenr);
+	if (extensions > 1) {
+		struct strbuf path = STRBUF_INIT;
+		int return_value;
+
+		if (!filename) {
+			return error(_("inconsistent header lines %d and %d"),
+				     patch->extension_linenr, linenr);
+		}
+		if (strcmp(filename, STDIN_FILENAME))
+			filename = quote_path_relative(filename, prefix, &path);
+		return_value = error(_("inconsistent header in '%s' lines %d and %d"),
+				     filename, patch->extension_linenr, linenr);
+		strbuf_reset(&path);
+		return return_value;
+
+	}
 	if (extensions && !patch->extension_linenr)
 		patch->extension_linenr = linenr;
 	return 0;
@@ -1400,7 +1418,7 @@ int parse_git_diff_header(struct strbuf *root,
 			res = p->fn(&parse_hdr_state, line + oplen, patch);
 			if (res < 0)
 				return -1;
-			if (check_header_line(*linenr, patch))
+			if (check_header_line(*linenr, patch, filename, prefix))
 				return -1;
 			if (res > 0)
 				goto done;
