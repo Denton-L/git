@@ -1,3 +1,0 @@
-[format]
-	outputDirectory = patches/fix-submodule-doc
-	cc = Junio C Hamano <gitster@pobox.com>

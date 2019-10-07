@@ -28,8 +28,6 @@
 	path = branch-specific-format-patch/config
 [includeIf "onbranch:submitted/format-infer-subject"]
 	path = format-infer-subject/config
-[includeIf "onbranch:submitted/fix-submodule-doc"]
-	path = fix-submodule-doc/config
 [includeIf "onbranch:submitted/submodule-set-url"]
 	path = submodule-set-url/config
 [includeIf "onbranch:submitted/multi-promisor"]
