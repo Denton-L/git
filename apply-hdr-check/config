@@ -1,3 +1,0 @@
-[format]
-	outputDirectory = patches/apply-hdr-check
-	cc = Jeff King <peff@peff.net>
