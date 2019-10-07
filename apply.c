@@ -35,6 +35,23 @@ static void git_apply_config(void)
 	git_config(git_xmerge_config, NULL);
 }
 
+static int bad_patch_error(const struct apply_state *state, const char *err, ...) {
+	va_list args;
+	struct strbuf msg = STRBUF_INIT;
+	struct strbuf path = STRBUF_INIT;
+	int return_value;
+
+	va_start(args, err);
+	strbuf_vaddf(&msg, err, args);
+	va_end(args);
+	return_value = error("%s: %s:%d", msg.buf,
+			quote_path_relative(state->patch_input_file, state->display_prefix, &path),
+			state->linenr);
+	strbuf_reset(&path);
+	strbuf_reset(&msg);
+	return return_value;
+}
+
 static int parse_whitespace_option(struct apply_state *state, const char *option)
 {
 	if (!option) {
