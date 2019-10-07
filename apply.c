@@ -899,7 +899,7 @@ static int parse_traditional_patch(struct apply_state *state,
 		}
 	}
 	if (!name)
-		return error(_("unable to find filename in patch at line %d"), state->linenr);
+		return bad_patch_error(state, _("unable to find filename in patch"));
 
 	return 0;
 }
@@ -1544,8 +1544,8 @@ static int find_header(struct apply_state *state,
 			struct fragment dummy;
 			if (parse_fragment_header(line, len, &dummy) < 0)
 				continue;
-			error(_("patch fragment without header at line %d: %.*s"),
-				     state->linenr, (int)len-1, line);
+			bad_patch_error(state, _("patch fragment without header: %.*s"),
+				     (int)len-1, line);
 			return -128;
 		}
 
@@ -1566,12 +1566,12 @@ static int find_header(struct apply_state *state,
 				continue;
 			if (!patch->old_name && !patch->new_name) {
 				if (!patch->def_name) {
-					error(Q_("git diff header lacks filename information when removing "
-							"%d leading pathname component (line %d)",
+					bad_patch_error(state, Q_("git diff header lacks filename information when removing "
+							"%d leading pathname component",
 							"git diff header lacks filename information when removing "
-							"%d leading pathname components (line %d)",
+							"%d leading pathname components",
 							state->p_value),
-						     state->p_value, state->linenr);
+						     state->p_value);
 					return -128;
 				}
 				patch->old_name = xstrdup(patch->def_name);
@@ -1579,8 +1579,7 @@ static int find_header(struct apply_state *state,
 			}
 			if ((!patch->new_name && !patch->is_delete) ||
 			    (!patch->old_name && !patch->is_new)) {
-				error(_("git diff header lacks filename information "
-					     "(line %d)"), state->linenr);
+				bad_patch_error(state, _("git diff header lacks filename information"));
 				return -128;
 			}
 			patch->is_toplevel_relative = 1;
@@ -1802,15 +1801,8 @@ static int parse_single_patch(struct apply_state *state,
 		fragment->linenr = state->linenr;
 		len = parse_fragment(state, line, size, patch, fragment);
 		if (len <= 0) {
-			struct strbuf path = STRBUF_INIT;
-			int return_value;
-
 			free(fragment);
-			return_value = error(_("corrupt patch at %s:%d"),
-					quote_path_relative(state->patch_input_file, state->display_prefix, &path),
-					state->linenr);
-			strbuf_reset(&path);
-			return return_value;
+			return bad_patch_error(state, _("corrupt patch"));
 		}
 		fragment->patch = line;
 		fragment->size = len;
@@ -1999,8 +1991,8 @@ static struct fragment *parse_binary_hunk(struct apply_state *state,
  corrupt:
 	free(data);
 	*status_p = -1;
-	error(_("corrupt binary patch at line %d: %.*s"),
-	      state->linenr-1, llen-1, buffer);
+	bad_patch_error(state, _("corrupt binary patch: %.*s"),
+	      llen-1, buffer);
 	return NULL;
 }
 
@@ -2036,7 +2028,7 @@ static int parse_binary(struct apply_state *state,
 	forward = parse_binary_hunk(state, &buffer, &size, &status, &used);
 	if (!forward && !status)
 		/* there has to be one hunk (forward hunk) */
-		return error(_("unrecognized binary patch at line %d"), state->linenr-1);
+		return bad_patch_error(state, _("unrecognized binary patch"));
 	if (status)
 		/* otherwise we already gave an error message */
 		return status;
@@ -2198,7 +2190,7 @@ static int parse_chunk(struct apply_state *state, char *buffer, unsigned long si
 		 */
 		if ((state->apply || state->check) &&
 		    (!patch->is_binary && !metadata_changes(patch))) {
-			error(_("patch with only garbage at line %d"), state->linenr);
+			bad_patch_error(state, _("patch with only garbage"));
 			return -128;
 		}
 	}
