@@ -24,6 +24,8 @@
 
 struct gitdiff_data {
 	struct strbuf *root;
+	const char *filename;
+	const char *prefix;
 	int linenr;
 	int p_value;
 };
@@ -35,20 +37,35 @@ static void git_apply_config(void)
 	git_config(git_xmerge_config, NULL);
 }
 
-static int bad_patch_error(const struct apply_state *state, const char *err, ...) {
-	va_list args;
+static int patch_error(const char *filename, const char *prefix, int linenr, const char *err, va_list args) {
 	struct strbuf msg = STRBUF_INIT;
 	struct strbuf path = STRBUF_INIT;
 	int return_value;
 
-	va_start(args, err);
 	strbuf_vaddf(&msg, err, args);
-	va_end(args);
 	return_value = error("%s: %s:%d", msg.buf,
-			quote_path_relative(state->patch_input_file, state->display_prefix, &path),
-			state->linenr);
+			quote_path_relative(filename, prefix, &path),
+			linenr);
 	strbuf_reset(&path);
 	strbuf_reset(&msg);
+	return return_value;
+}
+
+static int bad_patch_error(const struct apply_state *state, const char *err, ...) {
+	va_list args;
+	int return_value;
+	va_start(args, err);
+	return_value = patch_error(state->patch_input_file, state->display_prefix, state->linenr, err, args);
+	va_end(args);
+	return return_value;
+}
+
+static int bad_diff_error(const struct gitdiff_data *state, const char *err, ...) {
+	va_list args;
+	int return_value;
+	va_start(args, err);
+	return_value = patch_error(state->filename, state->prefix, state->linenr, err, args);
+	va_end(args);
 	return return_value;
 }
 
@@ -937,19 +954,19 @@ static int gitdiff_verify_name(struct gitdiff_data *state,
 	if (*name) {
 		char *another;
 		if (isnull)
-			return error(_("git apply: bad git-diff - expected /dev/null, got %s on line %d"),
-				     *name, state->linenr);
+			return bad_diff_error(state, _("git apply: bad git-diff - expected /dev/null, got %s"),
+				     *name);
 		another = find_name(state->root, line, NULL, state->p_value, TERM_TAB);
 		if (!another || strcmp(another, *name)) {
 			free(another);
-			return error((side == DIFF_NEW_NAME) ?
+			return bad_diff_error(state, (side == DIFF_NEW_NAME) ?
 			    _("git apply: bad git-diff - inconsistent new filename on line %d") :
-			    _("git apply: bad git-diff - inconsistent old filename on line %d"), state->linenr);
+			    _("git apply: bad git-diff - inconsistent old filename on line %d"));
 		}
 		free(another);
 	} else {
 		if (!is_dev_null(line))
-			return error(_("git apply: bad git-diff - expected /dev/null on line %d"), state->linenr);
+			return bad_diff_error(state, _("git apply: bad git-diff - expected /dev/null on line %d"));
 	}
 
 	return 0;
@@ -973,12 +990,12 @@ static int gitdiff_newname(struct gitdiff_data *state,
 				   DIFF_NEW_NAME);
 }
 
-static int parse_mode_line(const char *line, int linenr, unsigned int *mode)
+static int parse_mode_line(const struct gitdiff_data *state, const char *line, unsigned int *mode)
 {
 	char *end;
 	*mode = strtoul(line, &end, 8);
 	if (end == line || !isspace(*end))
-		return error(_("invalid mode on line %d: %s"), linenr, line);
+		return bad_diff_error(state, _("invalid mode"));
 	return 0;
 }
 
@@ -986,14 +1003,14 @@ static int gitdiff_oldmode(struct gitdiff_data *state,
 			   const char *line,
 			   struct patch *patch)
 {
-	return parse_mode_line(line, state->linenr, &patch->old_mode);
+	return parse_mode_line(state, line, &patch->old_mode);
 }
 
 static int gitdiff_newmode(struct gitdiff_data *state,
 			   const char *line,
 			   struct patch *patch)
 {
-	return parse_mode_line(line, state->linenr, &patch->new_mode);
+	return parse_mode_line(state, line, &patch->new_mode);
 }
 
 static int gitdiff_delete(struct gitdiff_data *state,
@@ -1305,6 +1322,8 @@ static int check_header_line(int linenr, struct patch *patch)
 }
 
 int parse_git_diff_header(struct strbuf *root,
+			  const char *filename,
+			  const char *prefix,
 			  int *linenr,
 			  int p_value,
 			  const char *line,
@@ -1336,6 +1355,8 @@ int parse_git_diff_header(struct strbuf *root,
 	size -= len;
 	(*linenr)++;
 	parse_hdr_state.root = root;
+	parse_hdr_state.filename = filename;
+	parse_hdr_state.prefix = prefix;
 	parse_hdr_state.linenr = *linenr;
 	parse_hdr_state.p_value = p_value;
 
@@ -1578,7 +1599,7 @@ static int find_header(struct apply_state *state,
 		 * or mode change, so we handle that specially
 		 */
 		if (!memcmp("diff --git ", line, 11)) {
-			int git_hdr_len = parse_git_diff_header(&state->root, &state->linenr,
+			int git_hdr_len = parse_git_diff_header(&state->root, state->patch_input_file, state->display_prefix, &state->linenr,
 								state->p_value, line, len,
 								size, patch);
 			if (git_hdr_len < 0)
