@@ -29,7 +29,7 @@ test_expect_success 'try to apply corrupted patch' '
 '
 
 test_expect_success 'compare diagnostic; ensure file is still here' '
-	echo "error: git diff header lacks filename information (line 4)" >expected &&
+	echo "error: git diff header lacks filename information: .git/rebase-apply/patch:4" >expected &&
 	test_path_is_file f &&
 	test_i18ncmp expected actual
 '
