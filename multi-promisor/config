@@ -1,4 +1,0 @@
-[format]
-	outputDirectory = patches/multi-promisor
-	cc = Junio C Hamano <gitster@pobox.com>
-	cc = Christian Couder <christian.couder@gmail.com>
