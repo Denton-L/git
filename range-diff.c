@@ -111,7 +111,7 @@ static int read_patches(const char *range, struct string_list *list)
 			if (!util->diff_offset)
 				util->diff_offset = buf.len;
 			line[len - 1] = '\n';
-			len = parse_git_diff_header(&root, &linenr, 1, line,
+			len = parse_git_diff_header(&root, NULL, NULL, &linenr, 1, line,
 						    len, size, &patch);
 			if (len < 0)
 				die(_("could not parse git header '%.*s'"), (int)len, line);
