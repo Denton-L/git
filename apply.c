@@ -22,6 +22,8 @@
 #include "rerere.h"
 #include "apply.h"
 
+#define STDIN_FILENAME "<stdin>"
+
 struct gitdiff_data {
 	struct strbuf *root;
 	const char *filename;
@@ -42,10 +44,11 @@ static int patch_error(const char *filename, const char *prefix, int linenr, con
 	struct strbuf path = STRBUF_INIT;
 	int return_value;
 
+	if (strcmp(filename, STDIN_FILENAME))
+		filename = quote_path_relative(filename, prefix, &path);
+
 	strbuf_vaddf(&msg, err, args);
-	return_value = error("%s: %s:%d", msg.buf,
-			quote_path_relative(filename, prefix, &path),
-			linenr);
+	return_value = error("%s: %s:%d", msg.buf, filename, linenr);
 	strbuf_reset(&path);
 	strbuf_reset(&msg);
 	return return_value;
@@ -4908,7 +4911,7 @@ int apply_all_patches(struct apply_state *state,
 		int fd;
 
 		if (!strcmp(arg, "-")) {
-			res = apply_patch(state, 0, "<stdin>", options);
+			res = apply_patch(state, 0, STDIN_FILENAME, options);
 			if (res < 0)
 				goto end;
 			errs |= res;
