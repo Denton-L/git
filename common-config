@@ -42,3 +42,5 @@
 	path = rev-list-prune-synopsis/config
 [includeIf "onbranch:submitted/format-patch-doc-test-cleanup"]
 	path = format-patch-doc-test-cleanup/config
+[includeIf "onbranch:submitted/quiet-spatch"]
+	path = quiet-spatch/config
