@@ -44,3 +44,5 @@
 	path = format-patch-doc-test-cleanup/config
 [includeIf "onbranch:submitted/quiet-spatch"]
 	path = quiet-spatch/config
+[includeIf "onbranch:submitted/compat-cleanup"]
+	path = compat-cleanup/config
