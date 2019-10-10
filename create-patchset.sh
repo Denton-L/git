@@ -3,7 +3,14 @@
 branch="$1"
 if test -z "$branch"
 then
-    branch=$(git branch --show-current | sed -e 's|^submitted/||')
+    branch="$(git branch --show-current)"
+    no_prefix="${branch##submitted/}"
+    if test "$branch" = "$no_prefix"
+    then
+	echo Missing \'submitted/\' prefix
+	exit 1
+    fi
+    branch="$no_prefix"
 fi
 
 patchdir="$(dirname "$0")"
