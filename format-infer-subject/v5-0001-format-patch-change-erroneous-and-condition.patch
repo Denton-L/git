@@ -1,0 +1,55 @@
+From 56fb230ad271dc9aa91c0f43ac8e4e7085c15775 Mon Sep 17 00:00:00 2001
+Message-Id: <56fb230ad271dc9aa91c0f43ac8e4e7085c15775.1571085952.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1571085952.git.liu.denton@gmail.com>
+References: <cover.1570821015.git.liu.denton@gmail.com>
+	<cover.1571085952.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 27 Aug 2019 22:06:48 -0400
+Subject: [PATCH v5 1/3] format-patch: change erroneous and condition
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Ævar Arnfjörð Bjarmason <avarab@gmail.com>,
+    Junio C Hamano <gitster@pobox.com>,
+    Eric Sunshine <sunshine@sunshineco.com>,
+    Johannes Sixt <j6t@kdbg.org>,
+    Junio C Hamano <gitster@pobox.com>,
+    Philip Oakley <philipoakley@iee.email>
+
+Commit 30984ed2e9 (format-patch: support deep threading, 2009-02-19),
+introduced the following lines:
+
+	#define THREAD_SHALLOW 1
+
+	[...]
+
+	thread = git_config_bool(var, value) && THREAD_SHALLOW;
+
+Since git_config_bool() returns a bool, the trailing `&& THREAD_SHALLOW`
+is a no-op.
+
+In Python, `x and y` is equivalent to `y if x else x`[1]. Since this
+seems to be a Python-ism that's mistakenly leaked into our code, convert
+this to the equivalent C expression.
+
+[1]: https://docs.python.org/3/reference/expressions.html#boolean-operations
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ builtin/log.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/builtin/log.c b/builtin/log.c
+index 44b10b3415..351f4ffcfd 100644
+--- a/builtin/log.c
++++ b/builtin/log.c
+@@ -835,7 +835,7 @@ static int git_format_config(const char *var, const char *value, void *cb)
+ 			thread = THREAD_SHALLOW;
+ 			return 0;
+ 		}
+-		thread = git_config_bool(var, value) && THREAD_SHALLOW;
++		thread = git_config_bool(var, value) ? THREAD_SHALLOW : THREAD_UNSET;
+ 		return 0;
+ 	}
+ 	if (!strcmp(var, "format.signoff")) {
+-- 
+2.23.0.17.g315c308950
+
