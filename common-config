@@ -46,3 +46,5 @@
 	path = quiet-spatch/config
 [includeIf "onbranch:submitted/compat-cleanup"]
 	path = compat-cleanup/config
+[includeIf "onbranch:submitted/merge-autostash"]
+	path = merge-autostash/config

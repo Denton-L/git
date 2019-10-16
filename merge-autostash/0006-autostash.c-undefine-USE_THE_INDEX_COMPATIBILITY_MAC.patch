@@ -1,0 +1,56 @@
+From 73607c2e00a87b05da0e374734eb5c4d7d377d84 Mon Sep 17 00:00:00 2001
+Message-Id: <73607c2e00a87b05da0e374734eb5c4d7d377d84.1571246693.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1571246693.git.liu.denton@gmail.com>
+References: <cover.1571246693.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 16 Oct 2019 00:35:14 -0700
+Subject: [RFC PATCH 6/7] autostash.c: undefine
+ USE_THE_INDEX_COMPATIBILITY_MACROS
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Alban Gruin <alban.gruin@gmail.com>,
+    Johannes Schindelin <johannes.schindelin@gmx.de>,
+    Junio C Hamano <gitster@pobox.com>
+
+Since autostash.c was recently introduced, we should avoid
+USE_THE_INDEX_COMPATIBILITY_MACROS since we are trying to move away from
+this in the rest of the codebase. Rewrite the autostash code to not need
+it and remove its definition.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ autostash.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
+
+diff --git a/autostash.c b/autostash.c
+index 722cf78b12..0a1f00d2e5 100644
+--- a/autostash.c
++++ b/autostash.c
+@@ -1,5 +1,3 @@
+-#define USE_THE_INDEX_COMPATIBILITY_MACROS
+-
+ #include "git-compat-util.h"
+ #include "autostash.h"
+ #include "cache-tree.h"
+@@ -46,7 +44,7 @@ int reset_head(struct object_id *oid, const char *action,
+ 	if (switch_to_branch && !starts_with(switch_to_branch, "refs/"))
+ 		BUG("Not a fully qualified branch: '%s'", switch_to_branch);
+ 
+-	if (!refs_only && hold_locked_index(&lock, LOCK_REPORT_ON_ERROR) < 0) {
++	if (!refs_only && repo_hold_locked_index(the_repository, &lock, LOCK_REPORT_ON_ERROR) < 0) {
+ 		ret = -1;
+ 		goto leave_reset_head;
+ 	}
+@@ -157,8 +155,8 @@ void perform_autostash(const char *path)
+ 	struct lock_file lock_file = LOCK_INIT;
+ 	int fd;
+ 
+-	fd = hold_locked_index(&lock_file, 0);
+-	refresh_cache(REFRESH_QUIET);
++	fd = repo_hold_locked_index(the_repository, &lock_file, 0);
++	refresh_index(the_repository->index, REFRESH_QUIET, NULL, NULL, NULL);
+ 	if (0 <= fd)
+ 		repo_update_index_if_able(the_repository, &lock_file);
+ 	rollback_lock_file(&lock_file);
+-- 
+2.23.0.897.g0a19638b1e
+

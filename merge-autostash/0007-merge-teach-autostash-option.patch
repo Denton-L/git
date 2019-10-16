@@ -1,0 +1,156 @@
+From f43c10e4818c91a8c6e9d5e0ce2a04710db3e300 Mon Sep 17 00:00:00 2001
+Message-Id: <f43c10e4818c91a8c6e9d5e0ce2a04710db3e300.1571246693.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1571246693.git.liu.denton@gmail.com>
+References: <cover.1571246693.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 15 Oct 2019 18:26:06 -0700
+Subject: [RFC PATCH 7/7] merge: teach --autostash option
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Alban Gruin <alban.gruin@gmail.com>,
+    Johannes Schindelin <johannes.schindelin@gmx.de>,
+    Junio C Hamano <gitster@pobox.com>
+
+In rebase, one can pass the `--autostash` option to cause the worktree
+to be automatically stashed before continuing with the rebase. This
+option is missing in merge, however.
+
+Implement the `--autostash` option and corresponding `merge.autoStash`
+option in merge which stashes before merging and then pops after.
+
+Reported-by: Alban Gruin <alban.gruin@gmail.com>
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ builtin/merge.c | 13 +++++++++++++
+ builtin/pull.c  |  9 +++++----
+ t/t5520-pull.sh |  8 --------
+ 3 files changed, 18 insertions(+), 12 deletions(-)
+
+diff --git a/builtin/merge.c b/builtin/merge.c
+index 062e911441..d1a5eaad0d 100644
+--- a/builtin/merge.c
++++ b/builtin/merge.c
+@@ -40,6 +40,7 @@
+ #include "branch.h"
+ #include "commit-reach.h"
+ #include "wt-status.h"
++#include "autostash.h"
+ 
+ #define DEFAULT_TWOHEAD (1<<0)
+ #define DEFAULT_OCTOPUS (1<<1)
+@@ -58,6 +59,8 @@ static const char * const builtin_merge_usage[] = {
+ 	NULL
+ };
+ 
++static GIT_PATH_FUNC(merge_autostash, "MERGE_AUTOSTASH")
++
+ static int show_diffstat = 1, shortlog_len = -1, squash;
+ static int option_commit = -1;
+ static int option_edit = -1;
+@@ -81,6 +84,7 @@ static int show_progress = -1;
+ static int default_to_upstream = 1;
+ static int signoff;
+ static const char *sign_commit;
++static int autostash;
+ static int no_verify;
+ 
+ static struct strategy all_strategy[] = {
+@@ -285,6 +289,8 @@ static struct option builtin_merge_options[] = {
+ 	OPT_SET_INT(0, "progress", &show_progress, N_("force progress reporting"), 1),
+ 	{ OPTION_STRING, 'S', "gpg-sign", &sign_commit, N_("key-id"),
+ 	  N_("GPG sign commit"), PARSE_OPT_OPTARG, NULL, (intptr_t) "" },
++	OPT_BOOL(0, "autostash", &autostash,
++	      N_("automatically stash/stash pop before and after")),
+ 	OPT_BOOL(0, "overwrite-ignore", &overwrite_ignore, N_("update ignored files (default)")),
+ 	OPT_BOOL(0, "signoff", &signoff, N_("add Signed-off-by:")),
+ 	OPT_BOOL(0, "no-verify", &no_verify, N_("bypass pre-merge-commit and commit-msg hooks")),
+@@ -440,6 +446,7 @@ static void finish(struct commit *head_commit,
+ 		strbuf_addf(&reflog_message, "%s: %s",
+ 			getenv("GIT_REFLOG_ACTION"), msg);
+ 	}
++	apply_autostash(merge_autostash());
+ 	if (squash) {
+ 		squash_message(head_commit, remoteheads);
+ 	} else {
+@@ -631,6 +638,9 @@ static int git_merge_config(const char *k, const char *v, void *cb)
+ 	} else if (!strcmp(k, "commit.gpgsign")) {
+ 		sign_commit = git_config_bool(k, v) ? "" : NULL;
+ 		return 0;
++	} else if (!strcmp(k, "merge.autostash")) {
++		autostash = git_config_bool(k, v);
++		return 0;
+ 	}
+ 
+ 	status = fmt_merge_msg_config(k, v, cb);
+@@ -724,6 +734,8 @@ static int try_merge_strategy(const char *strategy, struct commit_list *common,
+ 		for (j = common; j; j = j->next)
+ 			commit_list_insert(j->item, &reversed);
+ 
++		if (autostash)
++			perform_autostash(merge_autostash());
+ 		hold_locked_index(&lock, LOCK_DIE_ON_ERROR);
+ 		clean = merge_recursive(&o, head,
+ 				remoteheads->item, reversed, &result);
+@@ -1288,6 +1300,7 @@ int cmd_merge(int argc, const char **argv, const char *prefix)
+ 
+ 		/* Invoke 'git reset --merge' */
+ 		ret = cmd_reset(nargc, nargv, prefix);
++		apply_autostash(merge_autostash());
+ 		goto done;
+ 	}
+ 
+diff --git a/builtin/pull.c b/builtin/pull.c
+index d25ff13a60..ee186781ae 100644
+--- a/builtin/pull.c
++++ b/builtin/pull.c
+@@ -183,7 +183,7 @@ static struct option pull_options[] = {
+ 		N_("verify that the named commit has a valid GPG signature"),
+ 		PARSE_OPT_NOARG),
+ 	OPT_BOOL(0, "autostash", &opt_autostash,
+-		N_("automatically stash/stash pop before and after rebase")),
++		N_("automatically stash/stash pop before and after")),
+ 	OPT_PASSTHRU_ARGV('s', "strategy", &opt_strategies, N_("strategy"),
+ 		N_("merge strategy to use"),
+ 		0),
+@@ -671,6 +671,10 @@ static int run_merge(void)
+ 	argv_array_pushv(&args, opt_strategy_opts.argv);
+ 	if (opt_gpg_sign)
+ 		argv_array_push(&args, opt_gpg_sign);
++	if (opt_autostash == 0)
++		argv_array_push(&args, "--no-autostash");
++	else if (opt_autostash == 1)
++		argv_array_push(&args, "--autostash");
+ 	if (opt_allow_unrelated_histories > 0)
+ 		argv_array_push(&args, "--allow-unrelated-histories");
+ 
+@@ -918,9 +922,6 @@ int cmd_pull(int argc, const char **argv, const char *prefix)
+ 	if (get_oid("HEAD", &orig_head))
+ 		oidclr(&orig_head);
+ 
+-	if (!opt_rebase && opt_autostash != -1)
+-		die(_("--[no-]autostash option is only valid with --rebase."));
+-
+ 	autostash = config_autostash;
+ 	if (opt_rebase) {
+ 		if (opt_autostash != -1)
+diff --git a/t/t5520-pull.sh b/t/t5520-pull.sh
+index cf4cc32fd0..75f162495a 100755
+--- a/t/t5520-pull.sh
++++ b/t/t5520-pull.sh
+@@ -365,14 +365,6 @@ test_expect_success 'pull --rebase --no-autostash & rebase.autostash unset' '
+ 	test_pull_autostash_fail --rebase --no-autostash
+ '
+ 
+-for i in --autostash --no-autostash
+-do
+-	test_expect_success "pull $i (without --rebase) is illegal" '
+-		test_must_fail git pull $i . copy 2>err &&
+-		test_i18ngrep "only valid with --rebase" err
+-	'
+-done
+-
+ test_expect_success 'pull.rebase' '
+ 	git reset --hard before-rebase &&
+ 	test_config pull.rebase true &&
+-- 
+2.23.0.897.g0a19638b1e
+
