@@ -1,5 +1,0 @@
-[format]
-	outputDirectory = patches/format-patch-doc-test-cleanup
-	cc = Bert Wesarg <bert.wesarg@googlemail.com>
-	cc = Junio C Hamano <gitster@pobox.com>
-	cc = SZEDER Gábor <szeder.dev@gmail.com>
