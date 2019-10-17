@@ -42,3 +42,5 @@
 	path = compat-cleanup/config
 [includeIf "onbranch:submitted/merge-autostash"]
 	path = merge-autostash/config
+[includeIf "onbranch:submitted/t5520-cleanup"]
+	path = t5520-cleanup/config

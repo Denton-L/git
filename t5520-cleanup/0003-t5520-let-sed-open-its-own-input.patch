@@ -1,0 +1,34 @@
+From 5f2078c84ce9a95ef868c34f1e8afb4335f5fa38 Mon Sep 17 00:00:00 2001
+Message-Id: <5f2078c84ce9a95ef868c34f1e8afb4335f5fa38.1571354136.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1571354136.git.liu.denton@gmail.com>
+References: <cover.1571354136.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Thu, 17 Oct 2019 16:04:17 -0700
+Subject: [PATCH 03/12] t5520: let sed open its own input
+To: Git Mailing List <git@vger.kernel.org>
+
+We were using a redirection operator to feed input into sed. However,
+since sed is capable of opening its own files, make sed open its own
+files instead of redirecting input into it.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t5520-pull.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/t/t5520-pull.sh b/t/t5520-pull.sh
+index a3de2e19b6..55560ce3cd 100755
+--- a/t/t5520-pull.sh
++++ b/t/t5520-pull.sh
+@@ -5,7 +5,7 @@ test_description='pulling into void'
+ . ./test-lib.sh
+ 
+ modify () {
+-	sed -e "$1" <"$2" >"$2.x" &&
++	sed -e "$1" "$2" >"$2.x" &&
+ 	mv "$2.x" "$2"
+ }
+ 
+-- 
+2.23.0.897.g0a19638b1e
+

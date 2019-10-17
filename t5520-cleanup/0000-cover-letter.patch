@@ -1,0 +1,32 @@
+From 4d2bf64cf8b2e51c36808e0784b96575ce89b656 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1571354136.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Thu, 17 Oct 2019 16:15:36 -0700
+Subject: [PATCH 00/12] t5520: various test cleanup
+To: Git Mailing List <git@vger.kernel.org>
+
+Like earlier patchsets, I want to implement a feature that involves
+modifications to the test suite. Since that feature will probably take a
+while to polish up, however, let's clean up the test suite in a separate
+patchset first so it's not blocked by the feature work.
+
+Denton Liu (12):
+  t5520: improve test style
+  t5520: use sq for test case names
+  t5520: let sed open its own input
+  t5520: replace test -f with test_path_is_file
+  t5520: remove spaces after redirect operator
+  t5520: use test_line_count where possible
+  t5520: replace test -{n,z} with test-lib functions
+  t5520: use test_cmp_rev where possible
+  t5520: test single-line files by git with test_cmp
+  t5520: don't put git in upstream of pipe
+  t5520: replace subshell cat comparison with test_cmp
+  t5520: replace `! git` with `test_must_fail git`
+
+ t/t5520-pull.sh | 351 +++++++++++++++++++++++++++++-------------------
+ 1 file changed, 213 insertions(+), 138 deletions(-)
+
+-- 
+2.23.0.897.g0a19638b1e
+
