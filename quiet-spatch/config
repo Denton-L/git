@@ -1,3 +1,0 @@
-[format]
-	outputDirectory = patches/quiet-spatch
-	cc = René Scharfe <l.s.r@web.de>
