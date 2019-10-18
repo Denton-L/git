@@ -1,0 +1,38 @@
+From 0cfabb201c5a79f665e79252edcfc28aa3df59ff Mon Sep 17 00:00:00 2001
+Message-Id: <0cfabb201c5a79f665e79252edcfc28aa3df59ff.1571435195.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1571435195.git.liu.denton@gmail.com>
+References: <cover.1571354136.git.liu.denton@gmail.com>
+	<cover.1571435195.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Thu, 17 Oct 2019 15:13:13 -0700
+Subject: [PATCH v2 12/15] t5520: don't put git in upstream of pipe
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>
+
+Before, if the invocation of git failed, it would be masked by the pipe
+since only the return code of the last element of a pipe is used.
+Rewrite the test to put the Git command on its own line so its return
+code is not masked.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t5520-pull.sh | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/t/t5520-pull.sh b/t/t5520-pull.sh
+index 8b7e7ae55d..8ddf89e550 100755
+--- a/t/t5520-pull.sh
++++ b/t/t5520-pull.sh
+@@ -668,7 +668,8 @@ test_expect_success 'pull --rebase fails on corrupt HEAD' '
+ 	(
+ 		cd corrupt &&
+ 		test_commit one &&
+-		obj=$(git rev-parse --verify HEAD | sed "s#^..#&/#") &&
++		git rev-parse --verify HEAD >head &&
++		obj=$(sed "s#^..#&/#" head) &&
+ 		rm -f .git/objects/$obj &&
+ 		test_must_fail git pull --rebase
+ 	)
+-- 
+2.23.0.897.g0a19638b1e
+
