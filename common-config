@@ -20,7 +20,7 @@
 	from = true
 	signOff = true
 	coverLetter = auto
-	inferCoverSubject = true
+	coverFromDescription = subject
 	notes = true
 	to = Git Mailing List <git@vger.kernel.org>
 
