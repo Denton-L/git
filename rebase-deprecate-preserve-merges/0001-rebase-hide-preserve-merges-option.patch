@@ -1,0 +1,41 @@
+From 47bc4470e22c349082ae45b1e4b5c2547d30d4d2 Mon Sep 17 00:00:00 2001
+Message-Id: <47bc4470e22c349082ae45b1e4b5c2547d30d4d2.1571442786.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Fri, 18 Oct 2019 16:32:49 -0700
+Subject: [PATCH] rebase: hide --preserve-merges option
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Johannes Schindelin <Johannes.Schindelin@gmx.de>
+
+Since --preserve-merges has been deprecated in favour of
+--rebase-merges, mark this option as hidden so it no longer shows up in
+the usage and completions.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+This patch continues the deprecation effort and can be based on top of
+`js/rebase-deprecate-preserve-merges`.
+
+ builtin/rebase.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/builtin/rebase.c b/builtin/rebase.c
+index 21ac10f739..0d63651d95 100644
+--- a/builtin/rebase.c
++++ b/builtin/rebase.c
+@@ -1099,9 +1099,10 @@ int cmd_rebase(int argc, const char **argv, const char *prefix)
+ 			N_("let the user edit the list of commits to rebase"),
+ 			PARSE_OPT_NOARG | PARSE_OPT_NONEG,
+ 			parse_opt_interactive },
+-		OPT_SET_INT('p', "preserve-merges", &options.type,
+-			    N_("(DEPRECATED) try to recreate merges instead of "
+-			       "ignoring them"), REBASE_PRESERVE_MERGES),
++		OPT_SET_INT_F('p', "preserve-merges", &options.type,
++			      N_("(DEPRECATED) try to recreate merges instead of "
++				 "ignoring them"),
++			      REBASE_PRESERVE_MERGES, PARSE_OPT_HIDDEN),
+ 		OPT_BOOL(0, "rerere-autoupdate",
+ 			 &options.allow_rerere_autoupdate,
+ 			 N_("allow rerere to update index with resolved "
+-- 
+2.23.0
+
