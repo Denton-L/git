@@ -1,0 +1,54 @@
+From 6b788f92d2ef6f6cdaf6ea9f2bbe448ce19b2f58 Mon Sep 17 00:00:00 2001
+Message-Id: <6b788f92d2ef6f6cdaf6ea9f2bbe448ce19b2f58.1571737787.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 22 Oct 2019 02:43:18 -0700
+Subject: [PATCH] t7419: change test_must_fail to ! for grep
+To: Git Mailing List <git@vger.kernel.org>
+
+According to t/README, test_must_fail() should only be used to test for
+failure in Git commands. Replace the invocations of
+`test_must_fail grep` with `! grep`.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+*sigh* Here's another cleanup patch for 'dl/submodule-set-branch'. It's
+inspired by Eric Sunshine's comments on the t5520 patchset from earlier.
+It's definitely not urgent, though, and can wait for v2.25.0.
+
+ t/t7419-submodule-set-branch.sh | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/t/t7419-submodule-set-branch.sh b/t/t7419-submodule-set-branch.sh
+index c4b370ea85..fd25f786a3 100755
+--- a/t/t7419-submodule-set-branch.sh
++++ b/t/t7419-submodule-set-branch.sh
+@@ -34,7 +34,7 @@ test_expect_success 'submodule config cache setup' '
+ 
+ test_expect_success 'ensure submodule branch is unset' '
+ 	(cd super &&
+-		test_must_fail grep branch .gitmodules
++		! grep branch .gitmodules
+ 	)
+ '
+ 
+@@ -54,7 +54,7 @@ test_expect_success 'test submodule set-branch --branch' '
+ test_expect_success 'test submodule set-branch --default' '
+ 	(cd super &&
+ 		git submodule set-branch --default submodule &&
+-		test_must_fail grep branch .gitmodules &&
++		! grep branch .gitmodules &&
+ 		git submodule update --remote &&
+ 		cat <<-\EOF >expect &&
+ 		a
+@@ -80,7 +80,7 @@ test_expect_success 'test submodule set-branch -b' '
+ test_expect_success 'test submodule set-branch -d' '
+ 	(cd super &&
+ 		git submodule set-branch -d submodule &&
+-		test_must_fail grep branch .gitmodules &&
++		! grep branch .gitmodules &&
+ 		git submodule update --remote &&
+ 		cat <<-\EOF >expect &&
+ 		a
+-- 
+2.24.0.rc0.197.g0926ab8072
+
