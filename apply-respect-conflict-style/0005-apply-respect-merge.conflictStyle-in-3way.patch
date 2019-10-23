@@ -1,0 +1,52 @@
+From 56c31310db9358673af9905910e3332893d798de Mon Sep 17 00:00:00 2001
+Message-Id: <56c31310db9358673af9905910e3332893d798de.1571832177.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1571832176.git.liu.denton@gmail.com>
+References: <cover.1571832176.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 23 Oct 2019 03:40:06 -0700
+Subject: [PATCH 5/5] apply: respect merge.conflictStyle in --3way
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>
+
+Before, when doing a 3-way merge, the merge.conflictStyle option was not
+respected and the "merge" style was always used, even if "diff3" was
+specified.
+
+Call git_xmerge_config() at the end of git_apply_config() so that the
+merge.conflictStyle config is read.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ apply.c                   | 2 +-
+ t/t4108-apply-threeway.sh | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/apply.c b/apply.c
+index f8a046a6a5..b9291f5f7b 100644
+--- a/apply.c
++++ b/apply.c
+@@ -32,7 +32,7 @@ static void git_apply_config(void)
+ {
+ 	git_config_get_string_const("apply.whitespace", &apply_default_whitespace);
+ 	git_config_get_string_const("apply.ignorewhitespace", &apply_default_ignorewhitespace);
+-	git_config(git_default_config, NULL);
++	git_config(git_xmerge_config, NULL);
+ }
+ 
+ static int parse_whitespace_option(struct apply_state *state, const char *option)
+diff --git a/t/t4108-apply-threeway.sh b/t/t4108-apply-threeway.sh
+index 84347fc178..0e4eeac083 100755
+--- a/t/t4108-apply-threeway.sh
++++ b/t/t4108-apply-threeway.sh
+@@ -81,7 +81,7 @@ test_apply_with_3way () {
+ }
+ 
+ test_apply_with_3way success default true
+-test_apply_with_3way failure 'merge.conflictStyle = diff3' 'test_config merge.conflictStyle diff3'
++test_apply_with_3way success 'merge.conflictStyle = diff3' 'test_config merge.conflictStyle diff3'
+ 
+ test_expect_success 'apply with --3way with rerere enabled' '
+ 	test_config rerere.enabled true &&
+-- 
+2.24.0.rc0.197.g0926ab8072
+

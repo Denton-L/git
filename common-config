@@ -44,3 +44,5 @@
 	path = rebase-deprecate-preserve-merges/config
 [includeIf "onbranch:submitted/submodule-set-branch"]
 	path = submodule-set-branch/config
+[includeIf "onbranch:submitted/apply-respect-conflict-style"]
+	path = apply-respect-conflict-style/config
