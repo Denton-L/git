@@ -419,6 +419,10 @@ GIT_TEST_DISALLOW_ABBREVIATED_OPTIONS=<boolean>, when true (which is
 the default when running tests), errors out when an abbreviated option
 is used.
 
+GIT_TEST_PIPEFAIL=<boolean>, when true, run 'set -o pipefail' to catch
+failures in commands that aren't the last in a pipe. Defaults to true on
+Bash and false otherwise.
+
 Naming Tests
 ------------
 

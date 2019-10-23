@@ -64,6 +64,24 @@ then
 	export GIT_TEST_DISALLOW_ABBREVIATED_OPTIONS
 fi
 
+has_pipefail () (
+	set -o pipefail 2>/dev/null &&
+	! {
+		false | true
+	}
+)
+
+# Use set -o pipefail by default on platforms that support it
+GIT_TEST_PIPEFAIL_DEFAULT=false
+if has_pipefail
+then
+	GIT_TEST_PIPEFAIL_DEFAULT=true
+fi
+if git env--helper --type=bool --default="$GIT_TEST_PIPEFAIL_DEFAULT" --exit-code GIT_TEST_PIPEFAIL
+then
+	set -o pipefail
+fi
+
 ################################################################
 # It appears that people try to run tests without building...
 "${GIT_TEST_INSTALLED:-$GIT_BUILD_DIR}/git$X" >/dev/null
