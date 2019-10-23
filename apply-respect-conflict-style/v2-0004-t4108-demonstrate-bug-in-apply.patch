@@ -1,0 +1,66 @@
+From 58d32e2618420e22a5418f87cd474a9347386098 Mon Sep 17 00:00:00 2001
+Message-Id: <58d32e2618420e22a5418f87cd474a9347386098.1571873435.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1571873435.git.liu.denton@gmail.com>
+References: <cover.1571832176.git.liu.denton@gmail.com>
+	<cover.1571873435.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 23 Oct 2019 04:31:58 -0700
+Subject: [PATCH v2 4/5] t4108: demonstrate bug in apply
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>,
+    Eric Sunshine <sunshine@sunshineco.com>
+
+Currently, apply does not respect the merge.conflictStyle setting.
+Demonstrate this by making the 'apply with --3way' test case generic and
+extending it to show that the configuration of
+merge.conflictStyle = diff3 causes a breakage.
+
+Change print_sanitized_conflicted_diff() to also sanitize `|||||||`
+conflict markers.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t4108-apply-threeway.sh | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/t/t4108-apply-threeway.sh b/t/t4108-apply-threeway.sh
+index 7f96ae9101..bffe37f1ba 100755
+--- a/t/t4108-apply-threeway.sh
++++ b/t/t4108-apply-threeway.sh
+@@ -8,7 +8,7 @@ print_sanitized_conflicted_diff () {
+ 	git diff HEAD >diff.raw &&
+ 	sed -e '
+ 		/^index /d
+-		s/^\(+[<>][<>][<>][<>]*\) .*/\1/
++		s/^\(+[<>|][<>|][<>|][<>|]*\) .*/\1/
+ 	' diff.raw
+ }
+ 
+@@ -46,7 +46,7 @@ test_expect_success 'apply without --3way' '
+ 	git diff-index --exit-code --cached HEAD
+ '
+ 
+-test_expect_success 'apply with --3way' '
++test_apply_with_3way () {
+ 	# Merging side should be similar to applying this patch
+ 	git diff ...side >P.diff &&
+ 
+@@ -67,6 +67,15 @@ test_expect_success 'apply with --3way' '
+ 	# The result should resemble the corresponding merge
+ 	test_cmp expect.ls actual.ls &&
+ 	test_cmp expect.diff actual.diff
++}
++
++test_expect_success 'apply with --3way' '
++	test_apply_with_3way
++'
++
++test_expect_failure 'apply with --3way with merge.conflictStyle = diff3' '
++	test_config merge.conflictStyle diff3 &&
++	test_apply_with_3way
+ '
+ 
+ test_expect_success 'apply with --3way with rerere enabled' '
+-- 
+2.24.0.rc0.197.g0926ab8072
+

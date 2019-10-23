@@ -1,0 +1,116 @@
+From 5412dc9153d10c4f7769b24433b05c6809904655 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1571873435.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1571832176.git.liu.denton@gmail.com>
+References: <cover.1571832176.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 23 Oct 2019 16:30:35 -0700
+Subject: [PATCH v2 0/5] This fixes a bug where even if `merge.conflictStyle =
+ diff3`, running `git apply --3way` would not output the base.
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>,
+    Eric Sunshine <sunshine@sunshineco.com>
+
+Patches 1-3 are general cleanup for t4108, 4 demonstrates the bug and 5
+actually fixes it.
+
+Changes since v1:
+
+* Pretty up 4/5 using Eric's suggestion
+
+* Rename print_sanitized_diff() to print_santized_conflicted_diff()
+
+Denton Liu (5):
+  t4108: replace create_file with test_write_lines
+  t4108: remove git command upstream of pipe
+  t4108: use `test_config` instead of `git config`
+  t4108: demonstrate bug in apply
+  apply: respect merge.conflictStyle in --3way
+
+ apply.c                   |  2 +-
+ t/t4108-apply-threeway.sh | 55 +++++++++++++++++++++------------------
+ 2 files changed, 30 insertions(+), 27 deletions(-)
+
+Range-diff against v1:
+1:  9d915748c1 ! 1:  fd1b770c0c t4108: remove git command upstream of pipe
+    @@ Commit message
+     
+         Since only the command `git diff HEAD` was being piped to
+         sanitize_conflicted_diff(), move the command into the function and rename
+    -    it to print_sanitized_diff().
+    +    it to print_sanitized_conflicted_diff().
+     
+      ## t/t4108-apply-threeway.sh ##
+     @@ t/t4108-apply-threeway.sh: test_description='git apply --3way'
+    @@ t/t4108-apply-threeway.sh: test_description='git apply --3way'
+      . ./test-lib.sh
+      
+     -sanitize_conflicted_diff () {
+    -+print_sanitized_diff () {
+    ++print_sanitized_conflicted_diff () {
+     +	git diff HEAD >diff.raw &&
+      	sed -e '
+      		/^index /d
+    @@ t/t4108-apply-threeway.sh: test_expect_success 'apply with --3way' '
+      	test_must_fail git merge --no-commit side &&
+      	git ls-files -s >expect.ls &&
+     -	git diff HEAD | sanitize_conflicted_diff >expect.diff &&
+    -+	print_sanitized_diff >expect.diff &&
+    ++	print_sanitized_conflicted_diff >expect.diff &&
+      
+      	# should fail to apply
+      	git reset --hard &&
+    @@ t/t4108-apply-threeway.sh: test_expect_success 'apply with --3way' '
+      	test_must_fail git apply --index --3way P.diff &&
+      	git ls-files -s >actual.ls &&
+     -	git diff HEAD | sanitize_conflicted_diff >actual.diff &&
+    -+	print_sanitized_diff >actual.diff &&
+    ++	print_sanitized_conflicted_diff >actual.diff &&
+      
+      	# The result should resemble the corresponding merge
+      	test_cmp expect.ls actual.ls &&
+    @@ t/t4108-apply-threeway.sh: test_expect_success 'apply -3 with add/add conflict s
+      	test_must_fail git merge --no-commit another &&
+      	git ls-files -s >expect.ls &&
+     -	git diff HEAD | sanitize_conflicted_diff >expect.diff
+    -+	print_sanitized_diff >expect.diff
+    ++	print_sanitized_conflicted_diff >expect.diff
+      '
+      
+      test_expect_success 'apply -3 with add/add conflict' '
+    @@ t/t4108-apply-threeway.sh: test_expect_success 'apply -3 with add/add conflict'
+      	# ... and leave conflicts in the index and in the working tree
+      	git ls-files -s >actual.ls &&
+     -	git diff HEAD | sanitize_conflicted_diff >actual.diff &&
+    -+	print_sanitized_diff >actual.diff &&
+    ++	print_sanitized_conflicted_diff >actual.diff &&
+      
+      	# The result should resemble the corresponding merge
+      	test_cmp expect.ls actual.ls &&
+2:  d77c5f4199 = 2:  43c42b299e t4108: use `test_config` instead of `git config`
+3:  5feddf1597 < -:  ---------- t4108: demonstrate bug in apply
+-:  ---------- > 3:  58d32e2618 t4108: demonstrate bug in apply
+4:  56c31310db ! 4:  5412dc9153 apply: respect merge.conflictStyle in --3way
+    @@ apply.c: static void git_apply_config(void)
+      static int parse_whitespace_option(struct apply_state *state, const char *option)
+     
+      ## t/t4108-apply-threeway.sh ##
+    -@@ t/t4108-apply-threeway.sh: test_apply_with_3way () {
+    - }
+    +@@ t/t4108-apply-threeway.sh: test_expect_success 'apply with --3way' '
+    + 	test_apply_with_3way
+    + '
+      
+    - test_apply_with_3way success default true
+    --test_apply_with_3way failure 'merge.conflictStyle = diff3' 'test_config merge.conflictStyle diff3'
+    -+test_apply_with_3way success 'merge.conflictStyle = diff3' 'test_config merge.conflictStyle diff3'
+    - 
+    - test_expect_success 'apply with --3way with rerere enabled' '
+    - 	test_config rerere.enabled true &&
+    +-test_expect_failure 'apply with --3way with merge.conflictStyle = diff3' '
+    ++test_expect_success 'apply with --3way with merge.conflictStyle = diff3' '
+    + 	test_config merge.conflictStyle diff3 &&
+    + 	test_apply_with_3way
+    + '
+-- 
+2.24.0.rc0.197.g0926ab8072
+
