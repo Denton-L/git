@@ -285,9 +285,11 @@ void show_reflog_message(struct reflog_walk_info *reflog_info, int oneline,
 		info = &commit_reflog->reflogs->items[commit_reflog->recno+1];
 		get_reflog_selector(&selector, reflog_info, dmode, force_date, 0);
 		if (oneline) {
-			printf("%s: %s", selector.buf, info->message);
-		}
-		else {
+			int len = strlen(info->message);
+			if (len > 0)
+				len--; /* strip away trailing newline */
+			printf("%s: %.*s", selector.buf, len, info->message);
+		} else {
 			printf("Reflog: %s (%s)\nReflog message: %s",
 			       selector.buf, info->email, info->message);
 		}

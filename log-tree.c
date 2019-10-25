@@ -661,8 +661,10 @@ void show_log(struct rev_info *opt)
 					    opt->commit_format == CMIT_FMT_ONELINE,
 					    &opt->date_mode,
 					    opt->date_mode_explicit);
-			if (opt->commit_format == CMIT_FMT_ONELINE)
+			if (opt->commit_format == CMIT_FMT_ONELINE) {
+				putc('\n', opt->diffopt.file);
 				return;
+			}
 		}
 	}
 
