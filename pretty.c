@@ -1605,10 +1605,14 @@ void userformat_find_requirements(const char *fmt, struct userformat_want *w)
 	strbuf_release(&dummy);
 }
 
-void repo_format_commit_message(struct repository *r,
-				const struct commit *commit,
-				const char *format, struct strbuf *sb,
-				const struct pretty_print_context *pretty_ctx)
+static void repo_format_commit_generic(struct repository *r,
+				       const struct commit *commit,
+				       struct strbuf *sb,
+				       const struct pretty_print_context *pretty_ctx,
+				       void (*fn)(struct strbuf *,
+						  struct format_commit_context *,
+						  void *),
+				       void *data)
 {
 	struct format_commit_context context = {
 		.commit = commit,
@@ -1625,9 +1629,7 @@ void repo_format_commit_message(struct repository *r,
 					       &context.commit_encoding,
 					       utf8);
 
-	context.wrap_start = sb->len;
-	strbuf_expand(sb, format, format_commit_item, &context);
-	rewrap_message_tail(sb, &context, 0, 0, 0);
+	fn(sb, &context, data);
 
 	/* then convert a commit message to an actual output encoding */
 	if (output_enc) {
@@ -1649,6 +1651,25 @@ void repo_format_commit_message(struct repository *r,
 
 	free(context.commit_encoding);
 	repo_unuse_commit_buffer(r, commit, context.message);
+}
+
+static void do_repo_format_commit_message(struct strbuf *sb,
+					  struct format_commit_context *context,
+					  void *data)
+{
+	const char *format = data;
+	context->wrap_start = sb->len;
+	strbuf_expand(sb, format, format_commit_item, context);
+	rewrap_message_tail(sb, context, 0, 0, 0);
+}
+
+void repo_format_commit_message(struct repository *r,
+				const struct commit *commit,
+				const char *format, struct strbuf *sb,
+				const struct pretty_print_context *pretty_ctx)
+{
+	repo_format_commit_generic(r, commit, sb, pretty_ctx,
+				   do_repo_format_commit_message, (void *)format);
 }
 
 static void pp_header(struct pretty_print_context *pp,
