@@ -153,7 +153,9 @@ test_expect_success ZIPINFO 'zip archive with many entries' '
 
 	# check the number of entries in the ZIP file directory
 	expr 65536 + 256 >expect &&
-	"$ZIPINFO" many.zip | head -2 | sed -n "2s/.* //p" >actual &&
+	{
+		"$ZIPINFO" many.zip || :
+	} | head -2 | sed -n "2s/.* //p" >actual &&
 	test_cmp expect actual
 '
 
