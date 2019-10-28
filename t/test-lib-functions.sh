@@ -990,6 +990,11 @@ test_i18ngrep () {
 	return 1
 }
 
+# Calls grep but returns zero even if no matching lines are found.
+test_filter () {
+	grep "$@" || :
+}
+
 # Call any command "$@" but be more verbose about its
 # failure. This is handy for commands like "test" which do
 # not output anything when they fail.
