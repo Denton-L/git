@@ -252,7 +252,7 @@ test_expect_success 'choking "git rm" should not let it die with cruft' '
 		i=$(( $i + 1 ))
 	done | git update-index --index-info &&
 	# git command is intentionally placed upstream of pipe to induce SIGPIPE
-	git rm -n "some-file-*" | : &&
+	test_must_fail ok=success,sigpipe git rm -n "some-file-*" | : &&
 	test_path_is_missing .git/index.lock
 '
 
