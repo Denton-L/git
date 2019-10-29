@@ -7,6 +7,12 @@ test_description='test bash completion'
 
 . ./lib-bash.sh
 
+# These tests cannot run with pipefail. Since git-completion.bash is not
+# a testing script, it does not follow the same return code conventions
+# and it's expected that commands can fail within a pipeline. Ignore
+# these failures.
+set +o pipefail
+
 complete ()
 {
 	# do nothing
