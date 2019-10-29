@@ -1,4 +1,0 @@
-[format]
-	outputDirectory = patches/apply-respect-conflict-style
-	cc = Junio C Hamano <gitster@pobox.com>
-	cc = Eric Sunshine <sunshine@sunshineco.com>
