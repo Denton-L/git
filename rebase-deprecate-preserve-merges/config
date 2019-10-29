@@ -1,3 +1,0 @@
-[format]
-	outputDirectory = patches/rebase-deprecate-preserve-merges
-	cc = Johannes Schindelin <Johannes.Schindelin@gmx.de>
