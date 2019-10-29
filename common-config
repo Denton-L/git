@@ -44,3 +44,5 @@
 	path = rebase-deprecate-preserve-merges/config
 [includeIf "onbranch:submitted/apply-respect-conflict-style"]
 	path = apply-respect-conflict-style/config
+[includeIf "onbranch:submitted/diff-return-code"]
+	path = diff-return-code/config
