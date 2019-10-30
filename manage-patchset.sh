@@ -23,6 +23,10 @@ create)
 	git config --file="$outdir/config" format.outputDirectory "patches/$branch"
 	git config --file="$patchdir/common-config" includeIf."onbranch:submitted/$branch".path "$branch/config"
 	;;
+remove)
+	rm -r "$outdir"
+	git config --file="$patchdir/common-config" --remove-section includeIf."onbranch:submitted/$branch"
+	;;
 *)
 	echo Invalid subcomand: $subcommand
 	exit 1
