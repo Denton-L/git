@@ -1,0 +1,66 @@
+From 381b2ca134ffa2f370c3882631dbaf3d591530dc Mon Sep 17 00:00:00 2001
+Message-Id: <381b2ca134ffa2f370c3882631dbaf3d591530dc.1572458622.git.liu.denton@gmail.com>
+In-Reply-To: <ed9f16c30a0f3852abaf0053d8c2b4a0ecd12f01.1572367897.git.liu.denton@gmail.com>
+References: <ed9f16c30a0f3852abaf0053d8c2b4a0ecd12f01.1572367897.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 28 Oct 2019 15:25:06 -0700
+Subject: [PATCH v3] git-diff.txt: document return code of `--no-index`
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Johannes Schindelin <Johannes.Schindelin@gmx.de>,
+    Phillip Wood <phillip.wood123@gmail.com>
+
+Within diff_no_index(), we have the following:
+
+	revs->diffopt.flags.exit_with_status = 1;
+
+	...
+
+	/*
+	 * The return code for --no-index imitates diff(1):
+	 * 0 = no changes, 1 = changes, else error
+	 */
+	return diff_result_code(&revs->diffopt, 0);
+
+Which means when `git diff` is run in `--no-index` mode, `--exit-code`
+is implied. However, the documentation for this is missing in
+git-diff.txt.
+
+Add a note about how `--exit-code` is implied in the `--no-index`
+documentation to cover this documentation blindspot.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+Thanks for catching the typo, Phillip. I can't believe I missed that in
+such a simple patch.
+
+Range-diff against v2:
+1:  ed9f16c30a ! 1:  381b2ca134 git-diff.txt: document return code of `--no-index`
+    @@ Documentation/git-diff.txt: two blob objects, or changes between two files on di
+      	at least one of the paths points outside the working tree,
+      	or when running the command outside a working tree
+     -	controlled by Git.
+    -+	controlled by Git. This form implies `--no-exit`.
+    ++	controlled by Git. This form implies `--exit-code`.
+      
+      'git diff' [<options>] --cached [<commit>] [--] [<path>...]::
+      
+
+ Documentation/git-diff.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Documentation/git-diff.txt b/Documentation/git-diff.txt
+index 72179d993c..37781cf175 100644
+--- a/Documentation/git-diff.txt
++++ b/Documentation/git-diff.txt
+@@ -36,7 +36,7 @@ two blob objects, or changes between two files on disk.
+ 	running the command in a working tree controlled by Git and
+ 	at least one of the paths points outside the working tree,
+ 	or when running the command outside a working tree
+-	controlled by Git.
++	controlled by Git. This form implies `--exit-code`.
+ 
+ 'git diff' [<options>] --cached [<commit>] [--] [<path>...]::
+ 
+-- 
+2.24.0.rc1.251.gd52a1e41a1
+
