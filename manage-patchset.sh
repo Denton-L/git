@@ -5,13 +5,12 @@ branch="$2"
 if test -z "$branch"
 then
     branch="$(git branch --show-current)"
-    no_prefix="${branch##submitted/}"
-    if test "$branch" = "$no_prefix"
+    branch_part="${branch##submitted/}"
+    if test "$branch" = "$branch_part"
     then
 	echo Missing \'submitted/\' prefix
 	exit 1
     fi
-    branch="$no_prefix"
 fi
 
 patchdir="$(dirname "$0")"
@@ -20,12 +19,12 @@ outdir="$patchdir/$branch"
 case "$subcommand" in
 create)
 	mkdir "$outdir"
-	git config --file="$outdir/config" format.outputDirectory "patches/$branch"
-	git config --file="$patchdir/common-config" includeIf."onbranch:submitted/$branch".path "$branch/config"
+	git config --file="$outdir/config" format.outputDirectory "patches/$branch_part"
+	git config --file="$patchdir/common-config" includeIf."onbranch:$branch".path "$branch_part/config"
 	;;
 remove)
 	rm -r "$outdir"
-	git config --file="$patchdir/common-config" --remove-section includeIf."onbranch:submitted/$branch"
+	git config --file="$patchdir/common-config" --remove-section includeIf."onbranch:$branch"
 	;;
 *)
 	echo Invalid subcomand: $subcommand
