@@ -1,0 +1,71 @@
+From f6f6b3d6710c7375db3e92f97245f8cf20231d1d Mon Sep 17 00:00:00 2001
+Message-Id: <f6f6b3d6710c7375db3e92f97245f8cf20231d1d.1572897736.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1572897736.git.liu.denton@gmail.com>
+References: <cover.1572897736.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 23 Sep 2019 17:06:05 -0700
+Subject: [PATCH 3/8] revision: change abbrev_commit_given to
+ abbrev_commit_explicit
+To: Git Mailing List <git@vger.kernel.org>
+
+In a future patch, we want to know if `--[no-]abbrev-commit` arguments
+have been explicitly provided. Since `rev_info.abbrev_commit_given` is
+only used in one place, co-opt it to become
+`rev_info.abbrev_commit_explicit`. This information will be used in a
+future patch.
+
+With this change, the semantics of the original usage (in
+the `--pretty=raw` codepath) aren't altered.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ builtin/log.c | 2 +-
+ revision.c    | 3 ++-
+ revision.h    | 2 +-
+ 3 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/builtin/log.c b/builtin/log.c
+index 89873d2dc2..e4df16be79 100644
+--- a/builtin/log.c
++++ b/builtin/log.c
+@@ -230,7 +230,7 @@ static void cmd_log_init_finish(int argc, const char **argv, const char *prefix,
+ 		 */
+ 		if (!decoration_given)
+ 			decoration_style = 0;
+-		if (!rev->abbrev_commit_given)
++		if (!rev->abbrev_commit_explicit)
+ 			rev->abbrev_commit = 0;
+ 	}
+ 
+diff --git a/revision.c b/revision.c
+index 2151b119b7..02b49ab754 100644
+--- a/revision.c
++++ b/revision.c
+@@ -2271,9 +2271,10 @@ static int handle_revision_opt(struct rev_info *revs, int argc, const char **arg
+ 			revs->abbrev = hexsz;
+ 	} else if (!strcmp(arg, "--abbrev-commit")) {
+ 		revs->abbrev_commit = 1;
+-		revs->abbrev_commit_given = 1;
++		revs->abbrev_commit_explicit = 1;
+ 	} else if (!strcmp(arg, "--no-abbrev-commit")) {
+ 		revs->abbrev_commit = 0;
++		revs->abbrev_commit_explicit = 1;
+ 	} else if (!strcmp(arg, "--full-diff")) {
+ 		revs->diff = 1;
+ 		revs->full_diff = 1;
+diff --git a/revision.h b/revision.h
+index addd69410b..7670f29973 100644
+--- a/revision.h
++++ b/revision.h
+@@ -185,7 +185,7 @@ struct rev_info {
+ 			show_signature:1,
+ 			pretty_given:1,
+ 			abbrev_commit:1,
+-			abbrev_commit_given:1,
++			abbrev_commit_explicit:1,
+ 			zero_commit:1,
+ 			use_terminator:1,
+ 			missing_newline:1,
+-- 
+2.24.0.rc2.262.g2d07a97ef5
+

@@ -40,3 +40,7 @@
 	path = t5520-cleanup/config
 [includeIf "onbranch:submitted/diff-return-code"]
 	path = diff-return-code/config
+[includeIf "onbranch:submitted/pretty-summary"]
+	path = pretty-summary/config
+[branch "submitted/pretty-summary"]
+	description = learn the \"summary\" pretty format\n\nOn this mailing list (and many others) the standard way to reference\nother commits with the \"summary\" format, e.g. \"f86a374 (\"pack-bitmap.c:\nfix a memleak\", 2015-03-30)\". Since it's so commonly used, let's\nstandardise it as a pretty format.\\n
