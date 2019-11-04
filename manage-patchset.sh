@@ -14,7 +14,7 @@ then
 fi
 
 patchdir="$(dirname "$0")"
-outdir="$patchdir/$branch"
+outdir="$patchdir/$branch_part"
 
 case "$subcommand" in
 create)
