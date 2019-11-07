@@ -36,7 +36,7 @@ edit-description)
 	then
 	    git config --file="$patchdir/common-config" --unset branch."$branch".description
 	else
-	    git config --file="$patchdir/common-config" branch."$branch".description "${description}\n"
+	    git config --file="$patchdir/common-config" branch."$branch".description "$description"
 	fi
 	;;
 *)
