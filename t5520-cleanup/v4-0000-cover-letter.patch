@@ -1,0 +1,88 @@
+From 70698bd9020ee896def07c36981767e331d2047a Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1573152598.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1571739459.git.liu.denton@gmail.com>
+References: <cover.1571739459.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Thu, 7 Nov 2019 10:49:58 -0800
+Subject: [PATCH v4 00/14] t5520: various test cleanup
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Johannes Sixt <j6t@kdbg.org>,
+    SZEDER Gábor <szeder.dev@gmail.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+Hi all, since this is general cleanup that shouldn't be too
+controversial, I'm looking for some positive acks for this changeset.
+
+
+Like earlier patchsets, I want to implement a feature that involves
+modifications to the test suite. Since that feature will probably take a
+while to polish up, however, let's clean up the test suite in a separate
+patchset first so it's not blocked by the feature work.
+
+1/15 is a general improvement to test_rev_cmp() that will be used later
+in the series.
+
+Changes since v3:
+
+* Rebased and tested on top of v2.24.0
+
+Changes since v2:
+
+* Drop 't7408: replace `test_must_fail test_path_is_file`' since it's
+  not a rabbit hole we want to go into right now
+
+* Fix the output of `test_cmp_rev !` when revs are actually equal
+
+* Rebase against the latest master since this topic hasn't been picked
+  up yet
+
+Changes since v1:
+
+* Incorporate Eric's feedback
+
+Denton Liu (14):
+  t: teach test_cmp_rev to accept ! for not-equals
+  t5520: improve test style
+  t5520: use sq for test case names
+  t5520: let sed open its own input
+  t5520: replace test -f with test-lib functions
+  t5520: remove spaces after redirect operator
+  t5520: use test_line_count where possible
+  t5520: replace test -{n,z} with test-lib functions
+  t5520: use test_cmp_rev where possible
+  t5520: test single-line files by git with test_cmp
+  t5520: don't put git in upstream of pipe
+  t5520: replace subshell cat comparison with test_cmp
+  t5520: remove redundant lines in test cases
+  t5520: replace `! git` with `test_must_fail git`
+
+ t/t2400-worktree-add.sh             |   4 +-
+ t/t3400-rebase.sh                   |   2 +-
+ t/t3421-rebase-topology-linear.sh   |   6 +-
+ t/t3430-rebase-merges.sh            |   2 +-
+ t/t3432-rebase-fast-forward.sh      |   2 +-
+ t/t3501-revert-cherry-pick.sh       |   2 +-
+ t/t3508-cherry-pick-many-commits.sh |   2 +-
+ t/t5520-pull.sh                     | 343 +++++++++++++++++-----------
+ t/test-lib-functions.sh             |  22 +-
+ 9 files changed, 234 insertions(+), 151 deletions(-)
+
+Range-diff against v3:
+ 1:  9a96f113e7 =  1:  0d0696f310 t: teach test_cmp_rev to accept ! for not-equals
+ 2:  dfc86a8d9b =  2:  b1dbe78f5d t5520: improve test style
+ 3:  a1071038f5 =  3:  ea06a1db3d t5520: use sq for test case names
+ 4:  0af3f5027b =  4:  d09b591250 t5520: let sed open its own input
+ 5:  b696ff0a67 =  5:  2af85e3913 t5520: replace test -f with test-lib functions
+ 6:  d2e49fd990 =  6:  280cfa0adc t5520: remove spaces after redirect operator
+ 7:  fcfc3226f8 =  7:  1e8ecb80a4 t5520: use test_line_count where possible
+ 8:  86dafc7b54 =  8:  f31142c683 t5520: replace test -{n,z} with test-lib functions
+ 9:  bf9b5023a3 =  9:  fdde875363 t5520: use test_cmp_rev where possible
+10:  bfabf8ceff = 10:  6cb78bce40 t5520: test single-line files by git with test_cmp
+11:  56bcbf3047 = 11:  acbfc39cb0 t5520: don't put git in upstream of pipe
+12:  e9d50b8bb0 = 12:  bb529ad84a t5520: replace subshell cat comparison with test_cmp
+13:  9db0fc2156 = 13:  d08e34b021 t5520: remove redundant lines in test cases
+14:  a721d5f119 = 14:  70698bd902 t5520: replace `! git` with `test_must_fail git`
+-- 
+2.24.0.rc2.262.g2d07a97ef5
+
