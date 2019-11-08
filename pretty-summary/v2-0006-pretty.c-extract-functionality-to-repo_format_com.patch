@@ -1,0 +1,85 @@
+From fd2bbcd16972b9f41bff995eda3c5a1b87fe98a6 Mon Sep 17 00:00:00 2001
+Message-Id: <fd2bbcd16972b9f41bff995eda3c5a1b87fe98a6.1573241590.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1573241590.git.liu.denton@gmail.com>
+References: <cover.1572897736.git.liu.denton@gmail.com>
+	<cover.1573241590.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Fri, 25 Oct 2019 14:26:27 -0700
+Subject: [PATCH v2 06/10] pretty.c: extract functionality to
+ repo_format_commit_generic()
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+In a future commit, we will be reusing common functionality from
+repo_format_commit_message(). Extract this common functionality into
+repo_format_commit_generic() so that it can be reused in the future.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ pretty.c | 35 ++++++++++++++++++++++++++++-------
+ 1 file changed, 28 insertions(+), 7 deletions(-)
+
+diff --git a/pretty.c b/pretty.c
+index 6f2b0ad917..a6e5fc115a 100644
+--- a/pretty.c
++++ b/pretty.c
+@@ -1605,10 +1605,14 @@ void userformat_find_requirements(const char *fmt, struct userformat_want *w)
+ 	strbuf_release(&dummy);
+ }
+ 
+-void repo_format_commit_message(struct repository *r,
+-				const struct commit *commit,
+-				const char *format, struct strbuf *sb,
+-				const struct pretty_print_context *pretty_ctx)
++static void repo_format_commit_generic(struct repository *r,
++				       const struct commit *commit,
++				       struct strbuf *sb,
++				       const struct pretty_print_context *pretty_ctx,
++				       void (*fn)(struct strbuf *,
++						  struct format_commit_context *,
++						  void *),
++				       void *data)
+ {
+ 	struct format_commit_context context = {
+ 		.commit = commit,
+@@ -1625,9 +1629,7 @@ void repo_format_commit_message(struct repository *r,
+ 					       &context.commit_encoding,
+ 					       utf8);
+ 
+-	context.wrap_start = sb->len;
+-	strbuf_expand(sb, format, format_commit_item, &context);
+-	rewrap_message_tail(sb, &context, 0, 0, 0);
++	fn(sb, &context, data);
+ 
+ 	/* then convert a commit message to an actual output encoding */
+ 	if (output_enc) {
+@@ -1651,6 +1653,25 @@ void repo_format_commit_message(struct repository *r,
+ 	repo_unuse_commit_buffer(r, commit, context.message);
+ }
+ 
++static void do_repo_format_commit_message(struct strbuf *sb,
++					  struct format_commit_context *context,
++					  void *data)
++{
++	const char *format = data;
++	context->wrap_start = sb->len;
++	strbuf_expand(sb, format, format_commit_item, context);
++	rewrap_message_tail(sb, context, 0, 0, 0);
++}
++
++void repo_format_commit_message(struct repository *r,
++				const struct commit *commit,
++				const char *format, struct strbuf *sb,
++				const struct pretty_print_context *pretty_ctx)
++{
++	repo_format_commit_generic(r, commit, sb, pretty_ctx,
++				   do_repo_format_commit_message, (void *)format);
++}
++
+ static void pp_header(struct pretty_print_context *pp,
+ 		      const char *encoding,
+ 		      const struct commit *commit,
+-- 
+2.24.0.298.g3e88fbd976
+

@@ -1,0 +1,71 @@
+From b5950823ce90dd2476f002ed0370b7e0099a4d85 Mon Sep 17 00:00:00 2001
+Message-Id: <b5950823ce90dd2476f002ed0370b7e0099a4d85.1573241590.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1573241590.git.liu.denton@gmail.com>
+References: <cover.1572897736.git.liu.denton@gmail.com>
+	<cover.1573241590.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Fri, 8 Nov 2019 01:44:48 -0800
+Subject: [PATCH v2 07/10] t4205: cover `git log --reflog -z` blindspot
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+The test suite does not include any tests where `--reflog` and `-z` are
+used together in `git log`. Cover this blindspot. Note that the
+`--pretty=oneline` case is written separately because it follows a
+slightly different codepath.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t4205-log-pretty-formats.sh | 35 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
+
+diff --git a/t/t4205-log-pretty-formats.sh b/t/t4205-log-pretty-formats.sh
+index f42a69faa2..d35650cae7 100755
+--- a/t/t4205-log-pretty-formats.sh
++++ b/t/t4205-log-pretty-formats.sh
+@@ -134,6 +134,41 @@ test_expect_failure C_LOCALE_OUTPUT 'NUL termination with --stat' '
+ 	test_cmp expected actual
+ '
+ 
++emit_nul () {
++	echo | tr '\n' '\000'
++}
++
++for p in short medium full fuller email raw
++do
++	test_expect_success "NUL termination with --reflog --pretty=$p" '
++		>expect &&
++		revs="$(git rev-list --reflog)" &&
++		for r in $revs
++		do
++			git show -s "$r" --pretty='$p' >>expect || return 1
++			emit_nul >>expect
++		done &&
++		git log -z --reflog --pretty='$p' >actual &&
++		emit_nul >>actual &&
++		test_cmp expect actual
++	'
++done
++
++test_expect_success 'NUL termination with --reflog --pretty=oneline' '
++	>expect &&
++	revs="$(git rev-list --reflog)" &&
++	for r in $revs
++	do
++		# trim trailing newline
++		output="$(git show -s --pretty=oneline "$r")" || return 1
++		printf "%s" "$output" >>expect
++		emit_nul >>expect
++	done &&
++	git log -z --pretty=oneline --reflog >actual &&
++	# no trailing NUL
++	test_cmp expect actual
++'
++
+ test_expect_success 'setup more commits' '
+ 	test_commit "message one" one one message-one &&
+ 	test_commit "message two" two two message-two &&
+-- 
+2.24.0.298.g3e88fbd976
+

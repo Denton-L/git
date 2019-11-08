@@ -1,0 +1,36 @@
+From b34e9aea563454a117b2bb027da8f02fc67698eb Mon Sep 17 00:00:00 2001
+Message-Id: <b34e9aea563454a117b2bb027da8f02fc67698eb.1573241590.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1573241590.git.liu.denton@gmail.com>
+References: <cover.1572897736.git.liu.denton@gmail.com>
+	<cover.1573241590.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 23 Sep 2019 17:08:39 -0700
+Subject: [PATCH v2 01/10] SubmittingPatches: use generic terms for hash
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+Since Git is planning on upgrading from SHA-1 to be more hash-agnostic,
+replace specific references to SHA-1 with more generic terminology.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Documentation/SubmittingPatches | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Documentation/SubmittingPatches b/Documentation/SubmittingPatches
+index 1a60cc1329..bb7e33ce15 100644
+--- a/Documentation/SubmittingPatches
++++ b/Documentation/SubmittingPatches
+@@ -142,7 +142,7 @@ archive, summarize the relevant points of the discussion.
+ 
+ [[commit-reference]]
+ If you want to reference a previous commit in the history of a stable
+-branch, use the format "abbreviated sha1 (subject, date)",
++branch, use the format "abbreviated hash (subject, date)",
+ with the subject enclosed in a pair of double-quotes, like this:
+ 
+ ....
+-- 
+2.24.0.298.g3e88fbd976
+

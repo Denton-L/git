@@ -1,2 +1,4 @@
 [format]
 	outputDirectory = patches/pretty-summary
+	cc = Eric Sunshine <sunshine@sunshineco.com>
+	cc = Junio C Hamano <gitster@pobox.com>
