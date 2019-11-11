@@ -26,18 +26,14 @@ remove)
 	rm -r "$outdir"
 	git config --file="$patchdir/common-config" --remove-section includeIf."onbranch:$branch"
 	;;
-edit-description)
-	descriptionfile="$patchdir/EDIT_DESCRIPTION"
-	git config --file="$patchdir/common-config" --get branch."$branch".description >"$descriptionfile"
-	"${VISUAL:-vim}" "$descriptionfile" || exit 1
-	description="$(cat "$descriptionfile")"
-	rm "$descriptionfile"
-	if test -z "$description"
-	then
-	    git config --file="$patchdir/common-config" --unset branch."$branch".description
-	else
-	    git config --file="$patchdir/common-config" branch."$branch".description "$description"
-	fi
+sync)
+	git config --get-regexp --name-only branch\\."$branch"\\.\* |
+		while IFS='
+' read key
+		do
+			git config --file="$patchdir/common-config" "$key" "$(git config "$key")"
+		done
+	git config --remove-section branch."$branch"
 	;;
 *)
 	echo Invalid subcomand: $subcommand
