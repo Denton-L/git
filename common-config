@@ -4,8 +4,9 @@
 [remote "upstream"]
 	url = https://github.com/gitster/git.git
 	fetch = +refs/heads/*:refs/remotes/upstream/*
+[remote]
+	pushDefault = origin
 [branch "master"]
-	pushRemote = origin
 	remote = upstream
 	merge = refs/heads/master
 [branch "jch"]
