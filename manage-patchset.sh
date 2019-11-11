@@ -25,6 +25,7 @@ create)
 remove)
 	rm -r "$outdir"
 	git config --file="$patchdir/common-config" --remove-section includeIf."onbranch:$branch"
+	git config --file="$patchdir/common-config" --remove-section branch."$branch"
 	;;
 sync)
 	git config --get-regexp --name-only branch\\."$branch"\\.\* |
