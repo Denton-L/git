@@ -54,3 +54,8 @@
 [branch "submitted/complete-rebase-and-archive"]
 	remote = upstream
 	merge = refs/heads/dl/complete-rebase-and-archive
+[includeIf "onbranch:submitted/log-graph-simplify"]
+	path = log-graph-simplify/config
+[branch "submitted/log-graph-simplify"]
+	remote = upstream
+	merge = refs/heads/jc/log-graph-simplify

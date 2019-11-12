@@ -1,0 +1,5 @@
+[format]
+	outputDirectory = patches/log-graph-simplify
+	cc = James Coglan <jcoglan@gmail.com>
+	cc = Junio C Hamano <gitster@pobox.com>
+	cc = SZEDER Gábor <szeder.dev@gmail.com>
