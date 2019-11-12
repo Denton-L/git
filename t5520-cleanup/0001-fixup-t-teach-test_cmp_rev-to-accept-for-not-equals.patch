@@ -1,0 +1,60 @@
+From 018d2035e0c830d0e184ff209f3f75dd291aa30f Mon Sep 17 00:00:00 2001
+Message-Id: <018d2035e0c830d0e184ff209f3f75dd291aa30f.1573587373.git.liu.denton@gmail.com>
+In-Reply-To: <xmqq5zjpfux2.fsf@gitster-ct.c.googlers.com>
+References: <xmqq5zjpfux2.fsf@gitster-ct.c.googlers.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 12 Nov 2019 11:35:17 -0800
+Subject: [PATCH] fixup! t: teach test_cmp_rev to accept ! for not-equals
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Johannes Sixt <j6t@kdbg.org>,
+    SZEDER Gábor <szeder.dev@gmail.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+Thanks for the suggestion, Junio. Since it's just a minor cleanup,
+here's the fixup patch for it.
+
+ t/test-lib-functions.sh | 13 ++++---------
+ 1 file changed, 4 insertions(+), 9 deletions(-)
+
+diff --git a/t/test-lib-functions.sh b/t/test-lib-functions.sh
+index 01cdbb0478..15f4c96777 100644
+--- a/t/test-lib-functions.sh
++++ b/t/test-lib-functions.sh
+@@ -1016,11 +1016,13 @@ test_must_be_empty () {
+ # provided first, that its other two parameters refer to different
+ # revisions.
+ test_cmp_rev () {
+-	local op
++	local op wrong_result
+ 	op='='
++	wrong_result='different'
+ 	if test $# -ge 1 && test "x$1" = 'x!'
+ 	then
+ 	    op='!='
++	    wrong_result='the same'
+ 	    shift
+ 	fi
+ 	if test $# != 2
+@@ -1033,15 +1035,8 @@ test_cmp_rev () {
+ 
+ 		if ! test "$r1" "$op" "$r2"
+ 		then
+-			local comp_out
+-			if "x$op" = 'x='
+-			then
+-				comp_out='different'
+-			else
+-				comp_out='the same'
+-			fi
+ 			cat >&4 <<-EOF
+-			error: two revisions point to $comp_out objects:
++			error: two revisions point to $wrong_result objects:
+ 			  '$1': $r1
+ 			  '$2': $r2
+ 			EOF
+-- 
+2.24.0.300.g722ba42680
+
