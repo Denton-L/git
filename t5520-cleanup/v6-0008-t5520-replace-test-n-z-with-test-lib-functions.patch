@@ -1,0 +1,68 @@
+From 8043b230a727b253dbc14e2b9eb5c79d056da673 Mon Sep 17 00:00:00 2001
+Message-Id: <8043b230a727b253dbc14e2b9eb5c79d056da673.1573595985.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1573595985.git.liu.denton@gmail.com>
+References: <cover.1573517561.git.liu.denton@gmail.com>
+	<cover.1573595985.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 11 Nov 2019 16:13:57 -0800
+Subject: [PATCH v6 08/14] t5520: replace test -{n,z} with test-lib functions
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Johannes Sixt <j6t@kdbg.org>,
+    SZEDER Gábor <szeder.dev@gmail.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+When wrapping a git command in a command substitution within another
+command, we throw away the git command's exit code. In case the git
+command fails, we would like to know about it rather than the failure
+being silent. Extract git commands so that their exit codes are not
+lost.
+
+Instead of using `test -n` or `test -z`, replace them respectively with
+invocations of test_file_not_empty() and test_must_be_empty() so that we
+get better debugging information in the case of a failure.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t5520-pull.sh | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/t/t5520-pull.sh b/t/t5520-pull.sh
+index 0ca4867e96..18225d8430 100755
+--- a/t/t5520-pull.sh
++++ b/t/t5520-pull.sh
+@@ -206,15 +206,18 @@ test_expect_success 'fail if the index has unresolved entries' '
+ 	test_when_finished "git checkout -f copy && git branch -D third" &&
+ 	test "$(cat file)" = file &&
+ 	test_commit modified2 file &&
+-	test -z "$(git ls-files -u)" &&
++	git ls-files -u >unmerged &&
++	test_must_be_empty unmerged &&
+ 	test_must_fail git pull . second &&
+-	test -n "$(git ls-files -u)" &&
++	git ls-files -u >unmerged &&
++	test_file_not_empty unmerged &&
+ 	cp file expected &&
+ 	test_must_fail git pull . second 2>err &&
+ 	test_i18ngrep "Pulling is not possible because you have unmerged files." err &&
+ 	test_cmp expected file &&
+ 	git add file &&
+-	test -z "$(git ls-files -u)" &&
++	git ls-files -u >unmerged &&
++	test_must_be_empty unmerged &&
+ 	test_must_fail git pull . second 2>err &&
+ 	test_i18ngrep "You have not concluded your merge" err &&
+ 	test_cmp expected file
+@@ -667,7 +670,8 @@ test_expect_success 'git pull --rebase detects upstreamed changes' '
+ 	(
+ 		cd dst &&
+ 		git pull --rebase &&
+-		test -z "$(git ls-files -u)"
++		git ls-files -u >untracked &&
++		test_must_be_empty untracked
+ 	)
+ '
+ 
+-- 
+2.24.0.346.gee0de6d492
+

@@ -1,0 +1,91 @@
+From b45c088d20c75f9e58cffd500beda32399071d12 Mon Sep 17 00:00:00 2001
+Message-Id: <b45c088d20c75f9e58cffd500beda32399071d12.1573595985.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1573595985.git.liu.denton@gmail.com>
+References: <cover.1573517561.git.liu.denton@gmail.com>
+	<cover.1573595985.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 11 Nov 2019 16:14:09 -0800
+Subject: [PATCH v6 13/14] t5520: remove redundant lines in test cases
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Johannes Sixt <j6t@kdbg.org>,
+    SZEDER Gábor <szeder.dev@gmail.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+In the previous patches, the mechanical application of changes left some
+duplicate statements in the test case which were not strictly incorrect
+but were redundant and possibly misleading. Remove these duplicate
+statements so that it is clear that the intent behind the tests are that
+the content of the file stays the same throughout the whole test case.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t5520-pull.sh | 8 --------
+ 1 file changed, 8 deletions(-)
+
+diff --git a/t/t5520-pull.sh b/t/t5520-pull.sh
+index c9e4eec004..ef3dbc201a 100755
+--- a/t/t5520-pull.sh
++++ b/t/t5520-pull.sh
+@@ -147,7 +147,6 @@ test_expect_success 'fail if wildcard spec does not match any refs' '
+ 	test_cmp expect file &&
+ 	test_must_fail git pull . "refs/nonexisting1/*:refs/nonexisting2/*" 2>err &&
+ 	test_i18ngrep "no candidates for merging" err &&
+-	echo file >expect &&
+ 	test_cmp expect file
+ '
+ 
+@@ -161,7 +160,6 @@ test_expect_success 'fail if no branches specified with non-default remote' '
+ 	test_config branch.test.remote origin &&
+ 	test_must_fail git pull test_remote 2>err &&
+ 	test_i18ngrep "specify a branch on the command line" err &&
+-	echo file >expect &&
+ 	test_cmp expect file
+ '
+ 
+@@ -174,7 +172,6 @@ test_expect_success 'fail if not on a branch' '
+ 	test_cmp expect file &&
+ 	test_must_fail git pull 2>err &&
+ 	test_i18ngrep "not currently on a branch" err &&
+-	echo file >expect &&
+ 	test_cmp expect file
+ '
+ 
+@@ -188,7 +185,6 @@ test_expect_success 'fail if no configuration for current branch' '
+ 	test_cmp expect file &&
+ 	test_must_fail git pull 2>err &&
+ 	test_i18ngrep "no tracking information" err &&
+-	echo file >expect &&
+ 	test_cmp expect file
+ '
+ 
+@@ -202,7 +198,6 @@ test_expect_success 'pull --all: fail if no configuration for current branch' '
+ 	test_cmp expect file &&
+ 	test_must_fail git pull --all 2>err &&
+ 	test_i18ngrep "There is no tracking information" err &&
+-	echo file >expect &&
+ 	test_cmp expect file
+ '
+ 
+@@ -215,7 +210,6 @@ test_expect_success 'fail if upstream branch does not exist' '
+ 	test_cmp expect file &&
+ 	test_must_fail git pull 2>err &&
+ 	test_i18ngrep "no such ref was fetched" err &&
+-	echo file >expect &&
+ 	test_cmp expect file
+ '
+ 
+@@ -685,10 +679,8 @@ test_expect_success 'pull --rebase fails on unborn branch with staged changes' '
+ 		git ls-files >actual &&
+ 		test_cmp expect actual &&
+ 		test_must_fail git pull --rebase .. master 2>err &&
+-		echo staged-file >expect &&
+ 		git ls-files >actual &&
+ 		test_cmp expect actual &&
+-		echo staged-file >expect &&
+ 		git show :staged-file >actual &&
+ 		test_cmp expect actual &&
+ 		test_i18ngrep "unborn branch with changes added to the index" err
+-- 
+2.24.0.346.gee0de6d492
+
