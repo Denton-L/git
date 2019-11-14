@@ -61,3 +61,9 @@
 	merge = refs/heads/jc/log-graph-simplify
 [includeIf "onbranch:submitted/t0000-test-local-more"]
 	path = t0000-test-local-more/config
+[includeIf "onbranch:submitted/pretty-reference"]
+	path = pretty-reference/config
+[branch "submitted/pretty-reference"]
+	remote = origin
+	merge = refs/heads/submitted/pretty-reference
+	description = learn the \"reference\" pretty format\n\nOn this mailing list (and many others) the standard way to reference\nother commits with the \"reference\" format, e.g. \"f86a374 (pack-bitmap.c:\nfix a memleak, 2015-03-30)\". Since it's so commonly used, let's\nstandardise it as a pretty format.\n\nPatches 5-7 were cleanup patches that were critical in earlier\niterations of the series but no longer are critical for the rest of the\npatchset. Nonetheless, let's include them since they improve the quality\nof the codebase.\n\nChanges since v2:\n\n* Rename from \"summary\" to \"reference\"\n\n* Implement the feature as a canned userformat\n\n* Implement the %*s (short date) format string element\n\n* Remove the enclosing dqs around the subject\n\nChanges since v1:\n\n* Replace more references to \"sha1\" with \"hash\"\n\n* Clean up 8/10 by losing the allocation and making the subject less\n  misleading\n\n* Add tests in 7/10 to ensure 8/10 does not change any behaviour
