@@ -59,3 +59,5 @@
 [branch "submitted/log-graph-simplify"]
 	remote = upstream
 	merge = refs/heads/jc/log-graph-simplify
+[includeIf "onbranch:submitted/t0000-test-local-more"]
+	path = t0000-test-local-more/config

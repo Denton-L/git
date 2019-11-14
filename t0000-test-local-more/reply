@@ -1,0 +1,116 @@
+Date:   Wed, 13 Nov 2019 16:52:15 -0800
+To:     Junio C Hamano <gitster@pobox.com>
+Cc:     Git Mailing List <git@vger.kernel.org>,
+        Eric Sunshine <sunshine@sunshineco.com>,
+        Johannes Sixt <j6t@kdbg.org>,
+        SZEDER =?utf-8?B?R8OhYm9y?= <szeder.dev@gmail.com>
+Subject: Re: [PATCH v6 01/14] t: teach test_cmp_rev to accept ! for not-equals
+
+Hi Junio,
+
+On Wed, Nov 13, 2019 at 10:57:34AM +0900, Junio C Hamano wrote:
+> Denton Liu <liu.denton@gmail.com> writes:
+> 
+> > +# Tests that its two parameters refer to the same revision, or if '!' is
+> > +# provided first, that its other two parameters refer to different
+> > +# revisions.
+> >  test_cmp_rev () {
+> > +	local op wrong_result
+> > +	op='='
+> > +	wrong_result='different'
+> > +	if test $# -ge 1 && test "x$1" = 'x!'
+> > +	then
+> > +	    op='!='
+> > +	    wrong_result='the same'
+> > +	    shift
+> > +	fi
+> On the other hand, if we want to insist that the form without '!' is
+> the norm, then
+> 
+> 	local op='=' wrong_result='different'
+> 
+> 	if test $# -ge 1 && test "x$1" = 'x!'
+> 	then
+> 	    op='!='
+> 	    wrong_result='the same'
+> 	    shift
+> 	fi
+> 
+> would be shorter (yes, I made sure we already use assignment to a
+> variable on the same line where it is declared "local"; we used to
+> avoid "local" that is outside POSIX so I want to make sure our use
+> is safe).
+
+I'd prefer this form. Unless anyone else objects, you can squash it in.
+
+You bring up a good point about us _already_ using inline assignments
+with `local`, though. In fact, it looks like we already test for this in
+the very first test case of t0000 so I comfortable with this change.
+
+However, I'd feel _more_ comfortable with this change if we also queued
+the following patch. (This change can either live on a separate branch
+or become the first patch in this series.)
+
+-- >8 --
+Subject: [PATCH] t0000: test multiple local assignment
+
+According to POSIX enhancement request '0000767: Add built-in
+"local"'[1],
+
+	dash only allows one variable in a local definition; it permits
+	assignment though it doesn't document that clearly.
+
+however, this isn't true since t0000 still passes with this patch
+applied on dash 0.5.10.2. Needless to say, since `local` isn't POSIX
+standardized, it is not exactly clear what `local` entails on different
+versions of different shells.
+
+We currently already have many instances of multiple local assignments
+in our codebase. Ensure that this is actually supported by explicitly
+testing that it is sane.
+
+[1]: http://austingroupbugs.net/bug_view_page.php?bug_id=767
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t0000-basic.sh | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
+
+diff --git a/t/t0000-basic.sh b/t/t0000-basic.sh
+index 4d3f7ba295..a4af2342d1 100755
+--- a/t/t0000-basic.sh
++++ b/t/t0000-basic.sh
+@@ -20,9 +20,9 @@ modification *should* take notice and update the test vectors here.
+ 
+ . ./test-lib.sh
+ 
+-try_local_x () {
+-	local x="local" &&
+-	echo "$x"
++try_local_xy () {
++	local x="local" y="alsolocal" &&
++	echo "$x $y"
+ }
+ 
+ # Check whether the shell supports the "local" keyword. "local" is not
+@@ -35,11 +35,12 @@ try_local_x () {
+ # relying on "local".
+ test_expect_success 'verify that the running shell supports "local"' '
+ 	x="notlocal" &&
+-	echo "local" >expected1 &&
+-	try_local_x >actual1 &&
++	y="alsonotlocal" &&
++	echo "local alsolocal" >expected1 &&
++	try_local_xy >actual1 &&
+ 	test_cmp expected1 actual1 &&
+-	echo "notlocal" >expected2 &&
+-	echo "$x" >actual2 &&
++	echo "notlocal alsonotlocal" >expected2 &&
++	echo "$x $y" >actual2 &&
+ 	test_cmp expected2 actual2
+ '
+ 
+-- 
+2.24.0.346.gee0de6d492
+
+
