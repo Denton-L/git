@@ -1,0 +1,78 @@
+From bc3f226edf284d96dc7fff15c188ecfbc32162d6 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1573779465.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Thu, 14 Nov 2019 16:57:45 -0800
+Subject: [PATCH 00/27] t: general test cleanup + `set -o pipefail`
+To: Git Mailing List <git@vger.kernel.org>
+
+Patches 1-20 perform some general test cleanup to modernise the style.
+They should be relatively uncontroversial and can be merged earlier (or
+as a separate series) if desired. The reason these tests were identified
+for cleanup was because they failed under `set -o pipefail`.
+
+Patches 21-27 should be considered RFC. In an attempt to catch git
+commands failing in the upstream of a pipe, we enable `set -o pipefail`
+on Bash. This may result in some funny-looking shell script constructs
+(e.g. needing to wrap `grep` since it may "fail") but overall, I think it
+is an improvement since we catch failure in more cases.
+
+This change should be backwards compatible with shells that don't
+support pipefail since tests that pass under pipefail should be a subset
+of tests that can pass without pipefail.
+
+I've tested these patches on Linux, MacOS and Travis[1], although I skipped
+CVS, SVN, Apache2 tests (and maybe others?). I'd appreciate help testing
+these patches on that regard.
+
+[1]: https://travis-ci.org/Denton-L/git/builds/612133448
+
+Denton Liu (27):
+  lib-bash.sh: move `then` onto its own line
+  t0014: remove git command upstream of pipe
+  t0090: stop losing return codes of git commands
+  t3301: stop losing return codes of git commands
+  t3600: use test_line_count() where possible
+  t3600: stop losing return codes of git commands
+  t3600: comment on inducing SIGPIPE in `git rm`
+  t4015: stop losing return codes of git commands
+  t4015: use test_write_lines()
+  t4138: stop losing return codes of git commands
+  t5317: stop losing return codes of git commands
+  t5317: use ! grep to check for no matching lines
+  t5703: stop losing return codes of git commands
+  t7501: remove spaces after redirect operators
+  t7501: stop losing return codes of git commands
+  t7700: drop redirections to /dev/null
+  t7700: remove spaces after redirect operators
+  t7700: move keywords onto their own line
+  t7700: s/test -f/test_path_is_file/
+  t7700: stop losing return codes of git commands
+  t: define test_grep_return_success()
+  t0090: mask failing grep status
+  t3600: mark git command as failing
+  t5004: ignore SIGPIPE in zipinfo
+  t5703: mask failing grep status
+  t9902: disable pipefail
+  t: run tests with `set -o pipefail` on Bash
+
+ t/README                               |   4 +
+ t/lib-bash.sh                          |   3 +-
+ t/t0014-alias.sh                       |   4 +-
+ t/t0090-cache-tree.sh                  |   5 +-
+ t/t3301-notes.sh                       | 230 ++++++++++++++++++-------
+ t/t3600-rm.sh                          |  16 +-
+ t/t4015-diff-whitespace.sh             | 123 +++++++------
+ t/t4138-apply-ws-expansion.sh          |  16 +-
+ t/t5004-archive-corner-cases.sh        |   4 +-
+ t/t5317-pack-objects-filter-objects.sh |  34 ++--
+ t/t5703-upload-pack-ref-in-want.sh     |  52 ++++--
+ t/t7501-commit-basic-functionality.sh  |  83 +++++----
+ t/t7700-repack.sh                      | 125 ++++++++------
+ t/t9902-completion.sh                  |   6 +
+ t/test-lib-functions.sh                |   5 +
+ t/test-lib.sh                          |  12 ++
+ 16 files changed, 458 insertions(+), 264 deletions(-)
+
+-- 
+2.24.0.399.gf8350c9437
+

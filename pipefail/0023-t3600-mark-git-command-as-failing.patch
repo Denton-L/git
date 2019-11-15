@@ -1,0 +1,38 @@
+From bc4c208f7814c3362fa5949af3cb8d2d2904f386 Mon Sep 17 00:00:00 2001
+Message-Id: <bc4c208f7814c3362fa5949af3cb8d2d2904f386.1573779465.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1573779465.git.liu.denton@gmail.com>
+References: <cover.1573779465.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 28 Oct 2019 13:39:31 -0700
+Subject: [PATCH 23/27] t3600: mark git command as failing
+To: Git Mailing List <git@vger.kernel.org>
+
+In a future patch, we plan on running tests with `set -o pipefail`.
+Since we intentionally induce SIGPIPE, before the return code
+was being masked away. However, now `git rm` will cause an error code to
+be returned because of the SIGPIPE.
+
+Mark the failing command with `test_must_fail ok=sigpipe` so that
+failures induced by SIGPIPE don't propogate.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t3600-rm.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/t/t3600-rm.sh b/t/t3600-rm.sh
+index 0ea858d652..d1b3703edb 100755
+--- a/t/t3600-rm.sh
++++ b/t/t3600-rm.sh
+@@ -252,7 +252,7 @@ test_expect_success 'choking "git rm" should not let it die with cruft' '
+ 		i=$(( $i + 1 ))
+ 	done | git update-index --index-info &&
+ 	# git command is intentionally placed upstream of pipe to induce SIGPIPE
+-	git rm -n "some-file-*" | : &&
++	test_must_fail ok=sigpipe git rm -n "some-file-*" | : &&
+ 	test_path_is_missing .git/index.lock
+ '
+ 
+-- 
+2.24.0.399.gf8350c9437
+
