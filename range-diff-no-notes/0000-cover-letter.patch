@@ -1,0 +1,26 @@
+From 48e850df876eccd3c6cda49ee048565b2592e33b Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1574125554.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 18 Nov 2019 17:05:54 -0800
+Subject: [PATCH 0/3] range-diff: don't compare notes
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Johannes Schindelin <Johannes.Schindelin@gmx.de>,
+    Thomas Gummerer <t.gummerer@gmail.com>
+
+When I was using range-diff at $DAYJOB earlier, I realised that it
+includes commit notes as part of the commit message comparison. This is
+undesired behaviour so this patchset documents it and stops it from
+happening.
+
+Denton Liu (3):
+  t3206: remove spaces after redirect operators
+  t3206: demonstrate failure with notes
+  range-diff: use --no-notes to generate patches
+
+ range-diff.c          |  2 +-
+ t/t3206-range-diff.sh | 17 ++++++++++++++++-
+ 2 files changed, 17 insertions(+), 2 deletions(-)
+
+-- 
+2.24.0.420.g9ac4901264
+

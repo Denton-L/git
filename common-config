@@ -73,3 +73,9 @@
 	remote = origin
 	merge = refs/heads/submitted/pipefail
 	description = t: general test cleanup + `set -o pipefail`\n\nPatches 1-20 perform some general test cleanup to modernise the style.\nThey should be relatively uncontroversial and can be merged earlier (or\nas a separate series) if desired. The reason these tests were identified\nfor cleanup was because they failed under `set -o pipefail`.\n\nPatches 21-27 should be considered RFC. In an attempt to catch git\ncommands failing in the upstream of a pipe, we enable `set -o pipefail`\non Bash. This may result in some funny-looking shell script constructs\n(e.g. needing to wrap `grep` since it may \"fail\") but overall, I think it\nis an improvement since we catch failure in more cases.\n\nThis change should be backwards compatible with shells that don't\nsupport pipefail since tests that pass under pipefail should be a subset\nof tests that can pass without pipefail.\n\nI've tested these patches on Linux, MacOS and Travis[1], although I skipped\nCVS, SVN, Apache2 tests (and maybe others?). I'd appreciate help testing\nthese patches on that regard.\n\n[1]: https://travis-ci.org/Denton-L/git/builds/612133448
+[includeIf "onbranch:submitted/range-diff-no-notes"]
+	path = range-diff-no-notes/config
+[branch "submitted/range-diff-no-notes"]
+	description = range-diff: don't compare notes\n\nWhen I was using range-diff at $DAYJOB earlier, I realised that it\nincludes commit notes as part of the commit message comparison. This is\nundesired behaviour so this patchset documents it and stops it from\nhappening.
+	remote = origin
+	merge = refs/heads/submitted/range-diff-no-notes
