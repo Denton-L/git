@@ -1,0 +1,86 @@
+From 9d4dfcc11542a31432d19c4607eb616869e6089e Mon Sep 17 00:00:00 2001
+Message-Id: <9d4dfcc11542a31432d19c4607eb616869e6089e.1574122784.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1574122784.git.liu.denton@gmail.com>
+References: <cover.1573764280.git.liu.denton@gmail.com>
+	<cover.1574122784.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Sat, 9 Nov 2019 07:38:13 +0100
+Subject: [PATCH v4 08/11] pretty: provide short date format
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>,
+    René Scharfe <l.s.r@web.de>,
+    SZEDER Gábor <szeder.dev@gmail.com>,
+    Todd Zullinger <tmz@pobox.com>
+
+From: René Scharfe <l.s.r@web.de>
+
+Add the placeholders %as and %cs to format author date and committer
+date, respectively, without the time part, like --date=short does, i.e.
+like YYYY-MM-DD.
+
+Signed-off-by: René Scharfe <l.s.r@web.de>
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Documentation/pretty-formats.txt | 2 ++
+ pretty.c                         | 3 +++
+ t/t4205-log-pretty-formats.sh    | 6 ++++++
+ 3 files changed, 11 insertions(+)
+
+diff --git a/Documentation/pretty-formats.txt b/Documentation/pretty-formats.txt
+index 4cefa64eeb..11979301ff 100644
+--- a/Documentation/pretty-formats.txt
++++ b/Documentation/pretty-formats.txt
+@@ -172,6 +172,7 @@ The placeholders are:
+ '%at':: author date, UNIX timestamp
+ '%ai':: author date, ISO 8601-like format
+ '%aI':: author date, strict ISO 8601 format
++'%as':: author date, short format (`YYYY-MM-DD`)
+ '%cn':: committer name
+ '%cN':: committer name (respecting .mailmap, see
+ 	linkgit:git-shortlog[1] or linkgit:git-blame[1])
+@@ -187,6 +188,7 @@ The placeholders are:
+ '%ct':: committer date, UNIX timestamp
+ '%ci':: committer date, ISO 8601-like format
+ '%cI':: committer date, strict ISO 8601 format
++'%cs':: committer date, short format (`YYYY-MM-DD`)
+ '%d':: ref names, like the --decorate option of linkgit:git-log[1]
+ '%D':: ref names without the " (", ")" wrapping.
+ '%S':: ref name given on the command line by which the commit was reached
+diff --git a/pretty.c b/pretty.c
+index 4d633f14fa..4d7f5e9aab 100644
+--- a/pretty.c
++++ b/pretty.c
+@@ -738,6 +738,9 @@ static size_t format_person_part(struct strbuf *sb, char part,
+ 	case 'I':	/* date, ISO 8601 strict */
+ 		strbuf_addstr(sb, show_ident_date(&s, DATE_MODE(ISO8601_STRICT)));
+ 		return placeholder_len;
++	case 's':
++		strbuf_addstr(sb, show_ident_date(&s, DATE_MODE(SHORT)));
++		return placeholder_len;
+ 	}
+ 
+ skip:
+diff --git a/t/t4205-log-pretty-formats.sh b/t/t4205-log-pretty-formats.sh
+index 0335b428b1..da9cacffea 100755
+--- a/t/t4205-log-pretty-formats.sh
++++ b/t/t4205-log-pretty-formats.sh
+@@ -533,6 +533,12 @@ test_expect_success 'ISO and ISO-strict date formats display the same values' '
+ 	test_cmp expected actual
+ '
+ 
++test_expect_success 'short date' '
++	git log --format=%ad%n%cd --date=short >expected &&
++	git log --format=%as%n%cs >actual &&
++	test_cmp expected actual
++'
++
+ # get new digests (with no abbreviations)
+ test_expect_success 'set up log decoration tests' '
+ 	head1=$(git rev-parse --verify HEAD~0) &&
+-- 
+2.24.0.420.g9ac4901264
+

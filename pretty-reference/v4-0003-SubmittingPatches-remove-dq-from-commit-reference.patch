@@ -1,0 +1,81 @@
+From 61e1a25f93577ca755f0f8b4de6ce9ea00a7ab31 Mon Sep 17 00:00:00 2001
+Message-Id: <61e1a25f93577ca755f0f8b4de6ce9ea00a7ab31.1574122784.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1574122784.git.liu.denton@gmail.com>
+References: <cover.1573764280.git.liu.denton@gmail.com>
+	<cover.1574122784.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Thu, 14 Nov 2019 10:19:34 -0800
+Subject: [PATCH v4 03/11] SubmittingPatches: remove dq from commit reference
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>,
+    René Scharfe <l.s.r@web.de>,
+    SZEDER Gábor <szeder.dev@gmail.com>,
+    Todd Zullinger <tmz@pobox.com>
+
+Quoting SZEDER Gábor[1],
+
+	SubmittingPatches is simply wrong: our de-facto standard format for
+	referencing other commits does not enclose the subject in a pair of
+	double-quotes:
+
+	  $ git log v2.24.0 |grep -E '[0-9a-f]{7} \("' |wc -l
+	  785
+	  $ git log v2.24.0 |grep -E '[0-9a-f]{7} \([^"]' |wc -l
+	  2276
+
+	Those double-quotes don't add any value to the references, but they
+	result in weird looking references for 1083 of our commits whose
+	subject lines happen to end with double-quotes, e.g.:
+
+	  f23a465132 ("hashmap_get{,_from_hash} return "struct hashmap_entry *"", 2019-10-06)
+
+	and without those unnecessary pair of double-quotes we would have
+	~3000 more commits whose summary would fit on a single line.
+
+Remove references to the enclosing double-quotes from SubmittingPatches
+since our de-facto standard for referencing commits does not actually
+use them.
+
+[1]: cf. <20191114011048.GS4348@szeder.dev>
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Documentation/SubmittingPatches | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/Documentation/SubmittingPatches b/Documentation/SubmittingPatches
+index bb7e33ce15..7860dd2568 100644
+--- a/Documentation/SubmittingPatches
++++ b/Documentation/SubmittingPatches
+@@ -142,19 +142,19 @@ archive, summarize the relevant points of the discussion.
+ 
+ [[commit-reference]]
+ If you want to reference a previous commit in the history of a stable
+-branch, use the format "abbreviated hash (subject, date)",
+-with the subject enclosed in a pair of double-quotes, like this:
++branch, use the format "abbreviated hash (subject, date)", like this:
+ 
+ ....
+-	Commit f86a374 ("pack-bitmap.c: fix a memleak", 2015-03-30)
++	Commit f86a374 (pack-bitmap.c: fix a memleak, 2015-03-30)
+ 	noticed that ...
+ ....
+ 
+ The "Copy commit summary" command of gitk can be used to obtain this
+-format, or this invocation of `git show`:
++format (with the subject enclosed in a pair of double-quotes), or this
++invocation of `git show`:
+ 
+ ....
+-	git show -s --date=short --pretty='format:%h ("%s", %ad)' <commit>
++	git show -s --date=short --pretty='format:%h (%s, %ad)' <commit>
+ ....
+ 
+ [[git-tools]]
+-- 
+2.24.0.420.g9ac4901264
+

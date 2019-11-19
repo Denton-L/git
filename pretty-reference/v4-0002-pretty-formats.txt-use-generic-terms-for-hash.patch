@@ -1,0 +1,99 @@
+From 2cc7cc6e75cfaa4dc62f95027bc1192b973a5c69 Mon Sep 17 00:00:00 2001
+Message-Id: <2cc7cc6e75cfaa4dc62f95027bc1192b973a5c69.1574122784.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1574122784.git.liu.denton@gmail.com>
+References: <cover.1573764280.git.liu.denton@gmail.com>
+	<cover.1574122784.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 23 Sep 2019 17:08:39 -0700
+Subject: [PATCH v4 02/11] pretty-formats.txt: use generic terms for hash
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>,
+    René Scharfe <l.s.r@web.de>,
+    SZEDER Gábor <szeder.dev@gmail.com>,
+    Todd Zullinger <tmz@pobox.com>
+
+Since Git is planning on upgrading from SHA-1 to be more hash-agnostic,
+replace specific references to SHA-1 with more generic terminology.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Documentation/pretty-formats.txt | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/Documentation/pretty-formats.txt b/Documentation/pretty-formats.txt
+index 31c6e8d2b8..4cefa64eeb 100644
+--- a/Documentation/pretty-formats.txt
++++ b/Documentation/pretty-formats.txt
+@@ -4,7 +4,7 @@ PRETTY FORMATS
+ If the commit is a merge, and if the pretty-format
+ is not 'oneline', 'email' or 'raw', an additional line is
+ inserted before the 'Author:' line.  This line begins with
+-"Merge: " and the sha1s of ancestral commits are printed,
++"Merge: " and the hashes of ancestral commits are printed,
+ separated by spaces.  Note that the listed commits may not
+ necessarily be the list of the *direct* parent commits if you
+ have limited your view of history: for example, if you are
+@@ -20,20 +20,20 @@ built-in formats:
+ 
+ * 'oneline'
+ 
+-	  <sha1> <title line>
++	  <hash> <title line>
+ +
+ This is designed to be as compact as possible.
+ 
+ * 'short'
+ 
+-	  commit <sha1>
++	  commit <hash>
+ 	  Author: <author>
+ 
+ 	      <title line>
+ 
+ * 'medium'
+ 
+-	  commit <sha1>
++	  commit <hash>
+ 	  Author: <author>
+ 	  Date:   <author date>
+ 
+@@ -43,7 +43,7 @@ This is designed to be as compact as possible.
+ 
+ * 'full'
+ 
+-	  commit <sha1>
++	  commit <hash>
+ 	  Author: <author>
+ 	  Commit: <committer>
+ 
+@@ -53,7 +53,7 @@ This is designed to be as compact as possible.
+ 
+ * 'fuller'
+ 
+-	  commit <sha1>
++	  commit <hash>
+ 	  Author:     <author>
+ 	  AuthorDate: <author date>
+ 	  Commit:     <committer>
+@@ -65,7 +65,7 @@ This is designed to be as compact as possible.
+ 
+ * 'email'
+ 
+-	  From <sha1> <date>
++	  From <hash> <date>
+ 	  From: <author>
+ 	  Date: <author date>
+ 	  Subject: [PATCH] <title line>
+@@ -75,7 +75,7 @@ This is designed to be as compact as possible.
+ * 'raw'
+ +
+ The 'raw' format shows the entire commit exactly as
+-stored in the commit object.  Notably, the SHA-1s are
++stored in the commit object.  Notably, the hashes are
+ displayed in full, regardless of whether --abbrev or
+ --no-abbrev are used, and 'parents' information show the
+ true parent commits, without taking grafts or history
+-- 
+2.24.0.420.g9ac4901264
+
