@@ -1,0 +1,34 @@
+From fd78742570bbeaa4096eb0cce24fe33054aed176 Mon Sep 17 00:00:00 2001
+Message-Id: <fd78742570bbeaa4096eb0cce24fe33054aed176.1574207673.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1574207673.git.liu.denton@gmail.com>
+References: <cover.1574125554.git.liu.denton@gmail.com>
+	<cover.1574207673.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 19 Nov 2019 11:42:42 -0800
+Subject: [PATCH v2 1/8] argv-array: add space after `while`
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Johannes Schindelin <Johannes.Schindelin@gmx.de>,
+    Thomas Gummerer <t.gummerer@gmail.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ argv-array.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/argv-array.c b/argv-array.c
+index f352ea9357..61ef8c0dfd 100644
+--- a/argv-array.c
++++ b/argv-array.c
+@@ -46,7 +46,7 @@ void argv_array_pushl(struct argv_array *array, ...)
+ 	const char *arg;
+ 
+ 	va_start(ap, array);
+-	while((arg = va_arg(ap, const char *)))
++	while ((arg = va_arg(ap, const char *)))
+ 		argv_array_push(array, arg);
+ 	va_end(ap);
+ }
+-- 
+2.24.0.420.g9ac4901264
+

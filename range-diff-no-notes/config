@@ -2,3 +2,4 @@
 	outputDirectory = patches/range-diff-no-notes
 	cc = Johannes Schindelin <Johannes.Schindelin@gmx.de>
 	cc = Thomas Gummerer <t.gummerer@gmail.com>
+	cc = Junio C Hamano <gitster@pobox.com>
