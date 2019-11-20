@@ -1,0 +1,142 @@
+From 1281927cb3f03f17d71abfce7f559df8e02306be Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1574211027.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1574122784.git.liu.denton@gmail.com>
+References: <cover.1574122784.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 19 Nov 2019 16:50:27 -0800
+Subject: [PATCH v5 00/11] learn the "reference" pretty format
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>,
+    René Scharfe <l.s.r@web.de>,
+    SZEDER Gábor <szeder.dev@gmail.com>,
+    Todd Zullinger <tmz@pobox.com>
+
+On this mailing list (and many others) the standard way to reference
+other commits with the "reference" format, e.g. "f86a374 (pack-bitmap.c:
+fix a memleak, 2015-03-30)". Since it's so commonly used, let's
+standardise it as a pretty format.
+
+Patches 5-7 were cleanup patches that were critical in earlier
+iterations of the series but no longer are critical for the rest of the
+patchset. Nonetheless, let's include them since they improve the quality
+of the codebase.
+
+Changes since v4:
+
+* Add a column in `struct cmt_fmt_map` to handle the default short date
+  of `--pretty=reference`
+
+Changes since v3:
+
+* Change one reference from "summary" to "reference"
+
+* Clarify --pretty=reference documentation
+
+* Add a squashable patch at the end to implement overridable --date
+
+Changes since v2:
+
+* Rename from "summary" to "reference"
+
+* Implement the feature as a canned userformat
+
+* Implement the %*s (short date) format string element
+
+* Remove the enclosing dqs around the subject
+
+Changes since v1:
+
+* Replace more references to "sha1" with "hash"
+
+* Clean up 8/10 by losing the allocation and making the subject less
+  misleading
+
+* Add tests in 7/10 to ensure 8/10 does not change any behaviour
+
+Denton Liu (10):
+  SubmittingPatches: use generic terms for hash
+  pretty-formats.txt: use generic terms for hash
+  SubmittingPatches: remove dq from commit reference
+  completion: complete `tformat:` pretty format
+  revision: make get_revision_mark() return const pointer
+  pretty.c: inline initalize format_context
+  t4205: cover `git log --reflog -z` blindspot
+  pretty: add struct cmt_fmt_map::default_date_mode_type
+  pretty: implement 'reference' format
+  SubmittingPatches: use `--pretty=reference`
+
+René Scharfe (1):
+  pretty: provide short date format
+
+ Documentation/SubmittingPatches        | 16 ++++--
+ Documentation/pretty-formats.txt       | 29 +++++++---
+ Documentation/pretty-options.txt       |  2 +-
+ Documentation/rev-list-options.txt     |  4 +-
+ contrib/completion/git-completion.bash |  2 +-
+ pretty.c                               | 20 +++++--
+ revision.c                             |  4 +-
+ revision.h                             |  4 +-
+ t/t4205-log-pretty-formats.sh          | 79 ++++++++++++++++++++++++++
+ 9 files changed, 134 insertions(+), 26 deletions(-)
+
+Range-diff against v4:
+ 1:  616cda0b4d =  1:  616cda0b4d SubmittingPatches: use generic terms for hash
+ 2:  badd3d4275 =  2:  badd3d4275 pretty-formats.txt: use generic terms for hash
+ 3:  ff818446ad =  3:  ff818446ad SubmittingPatches: remove dq from commit reference
+ 4:  2baa7f8d3d =  4:  2baa7f8d3d completion: complete `tformat:` pretty format
+ 5:  ac23c4ec45 =  5:  ac23c4ec45 revision: make get_revision_mark() return const pointer
+ 6:  fa375f8271 =  6:  fa375f8271 pretty.c: inline initalize format_context
+ 7:  1519677b30 =  7:  1519677b30 t4205: cover `git log --reflog -z` blindspot
+ 8:  6c41491c3e =  8:  6c41491c3e pretty: provide short date format
+ -:  ---------- >  9:  ec05907b62 pretty: add struct cmt_fmt_map::default_date_mode_type
+ 9:  7b0cf7a39f ! 10:  5264c44fab pretty: implement 'reference' format
+    @@ Documentation/pretty-formats.txt: This is designed to be as compact as possible.
+     +	  <abbrev hash> (<title line>, <short author date>)
+     ++
+     +This format is used to refer to another commit in a commit message and
+    -+is the same as `--pretty='format:%C(auto)%h (%s, %as)'`.  As with any
+    -+`format:` with format placeholders, its output is not affected by other
+    -+options like `--decorate` and `--walk-reflogs`.
+    ++is the same as `--pretty='format:%C(auto)%h (%s, %ad)'`.  By default,
+    ++the date is formatted with `--date=short` unless another `--date` option
+    ++is explicitly specified.  As with any `format:` with format
+    ++placeholders, its output is not affected by other options like
+    ++`--decorate` and `--walk-reflogs`.
+     +
+      * 'email'
+      
+    @@ pretty.c: static void setup_commit_formats(void)
+     -		{ "oneline",	CMIT_FMT_ONELINE,	1,	0 }
+     +		{ "oneline",	CMIT_FMT_ONELINE,	1,	0 },
+     +		{ "reference",	CMIT_FMT_USERFORMAT,	1,	0,
+    -+			0, "%C(auto)%h (%s, %as)" },
+    ++			0, DATE_SHORT, "%C(auto)%h (%s, %ad)" },
+      		/*
+      		 * Please update $__git_log_pretty_formats in
+      		 * git-completion.bash when you add new formats.
+    @@ t/t4205-log-pretty-formats.sh: test_expect_success '%S in git log --format works
+     +	test_cmp expect actual
+     +'
+     +
+    -+test_expect_success 'log --pretty=reference always uses short date' '
+    ++test_expect_success 'log --pretty=reference with log.date is overridden by short date' '
+     +	git log --pretty="tformat:%h (%s, %as)" >expect &&
+    ++	test_config log.date rfc &&
+    ++	git log --pretty=reference >actual &&
+    ++	test_cmp expect actual
+    ++'
+    ++
+    ++test_expect_success 'log --pretty=reference with explicit date overrides short date' '
+    ++	git log --date=rfc --pretty="tformat:%h (%s, %ad)" >expect &&
+     +	git log --date=rfc --pretty=reference >actual &&
+     +	test_cmp expect actual
+     +'
+10:  746481042a = 11:  1281927cb3 SubmittingPatches: use `--pretty=reference`
+11:  9d50c069f7 <  -:  ---------- squash! pretty: implement 'reference' format
+-- 
+2.24.0.420.g9ac4901264
+

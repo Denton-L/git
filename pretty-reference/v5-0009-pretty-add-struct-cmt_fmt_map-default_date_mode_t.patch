@@ -1,0 +1,49 @@
+From ec05907b6202b07733c02ca4af55de2d01681b7e Mon Sep 17 00:00:00 2001
+Message-Id: <ec05907b6202b07733c02ca4af55de2d01681b7e.1574211027.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1574211027.git.liu.denton@gmail.com>
+References: <cover.1574122784.git.liu.denton@gmail.com>
+	<cover.1574211027.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 19 Nov 2019 16:05:53 -0800
+Subject: [PATCH v5 09/11] pretty: add struct
+ cmt_fmt_map::default_date_mode_type
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>,
+    René Scharfe <l.s.r@web.de>,
+    SZEDER Gábor <szeder.dev@gmail.com>,
+    Todd Zullinger <tmz@pobox.com>
+
+In a future commit, we plan on having a pretty format which will use a
+default date format unless otherwise overidden. Add support for this by
+adding a `default_date_mode_type` member in `struct cmt_fmt_map`.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ pretty.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/pretty.c b/pretty.c
+index 61014cc25a..63fa600276 100644
+--- a/pretty.c
++++ b/pretty.c
+@@ -20,6 +20,7 @@ static struct cmt_fmt_map {
+ 	int is_tformat;
+ 	int expand_tabs_in_log;
+ 	int is_alias;
++	enum date_mode_type default_date_mode_type;
+ 	const char *user_format;
+ } *commit_formats;
+ static size_t builtin_formats_len;
+@@ -181,6 +182,8 @@ void get_commit_format(const char *arg, struct rev_info *rev)
+ 	rev->commit_format = commit_format->format;
+ 	rev->use_terminator = commit_format->is_tformat;
+ 	rev->expand_tabs_in_log_default = commit_format->expand_tabs_in_log;
++	if (!rev->date_mode_explicit && commit_format->default_date_mode_type)
++		rev->date_mode.type = commit_format->default_date_mode_type;
+ 	if (commit_format->format == CMIT_FMT_USERFORMAT) {
+ 		save_user_format(rev, commit_format->user_format,
+ 				 commit_format->is_tformat);
+-- 
+2.24.0.420.g9ac4901264
+

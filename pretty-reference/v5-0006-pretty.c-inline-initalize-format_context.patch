@@ -1,0 +1,51 @@
+From fa375f8271fd30b0e4be5f10c4cb10deb45afee5 Mon Sep 17 00:00:00 2001
+Message-Id: <fa375f8271fd30b0e4be5f10c4cb10deb45afee5.1574211027.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1574211027.git.liu.denton@gmail.com>
+References: <cover.1574122784.git.liu.denton@gmail.com>
+	<cover.1574211027.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Thu, 14 Nov 2019 12:47:19 -0800
+Subject: [PATCH v5 06/11] pretty.c: inline initalize format_context
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>,
+    René Scharfe <l.s.r@web.de>,
+    SZEDER Gábor <szeder.dev@gmail.com>,
+    Todd Zullinger <tmz@pobox.com>
+
+Instead of memsetting and then initializing the fields in the struct,
+move the initialization of `format_context` to its assignment.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+Signed-off-by: Junio C Hamano <gitster@pobox.com>
+---
+ pretty.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/pretty.c b/pretty.c
+index e4ed14effe..da154affd4 100644
+--- a/pretty.c
++++ b/pretty.c
+@@ -1612,14 +1612,14 @@ void repo_format_commit_message(struct repository *r,
+ 				const char *format, struct strbuf *sb,
+ 				const struct pretty_print_context *pretty_ctx)
+ {
+-	struct format_commit_context context;
++	struct format_commit_context context = {
++		.commit = commit,
++		.pretty_ctx = pretty_ctx,
++		.wrap_start = sb->len
++	};
+ 	const char *output_enc = pretty_ctx->output_encoding;
+ 	const char *utf8 = "UTF-8";
+ 
+-	memset(&context, 0, sizeof(context));
+-	context.commit = commit;
+-	context.pretty_ctx = pretty_ctx;
+-	context.wrap_start = sb->len;
+ 	/*
+ 	 * convert a commit message to UTF-8 first
+ 	 * as far as 'format_commit_item' assumes it in UTF-8
+-- 
+2.24.0.420.g9ac4901264
+
