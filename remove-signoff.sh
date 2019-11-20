@@ -19,6 +19,10 @@ do
 		email="$2"
 		shift
 		;;
+	--jch)
+		name="Junio C Hamano"
+		email="gitster@pobox.com"
+		;;
 	-*)
 		usage
 		exit 1
