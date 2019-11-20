@@ -69,6 +69,6 @@
 [includeIf "onbranch:submitted/range-diff-no-notes"]
 	path = range-diff-no-notes/config
 [branch "submitted/range-diff-no-notes"]
-	description = range-diff: learn `--notes`\n\nThis patchset teaches range-diff and format-patch to pass `--notes`\noptions down to the `git log` machinery. This should make the behaviour\nmore configurable for users who either don't want notes to be displayed\nor want multiple notes refs to be displayed.\n\nChanges since v1:\n\n* Complete overhaul of approach
-	remote = origin
-	merge = refs/heads/submitted/range-diff-no-notes
+	description = range-diff: learn `--notes`\n\nThis patchset teaches range-diff and format-patch to pass `--notes`\noptions down to the `git log` machinery. This should make the behaviour\nmore configurable for users who either don't want notes to be displayed\nor want multiple notes refs to be displayed.\n\nChanges since v2:\n\n* Changed --notes=<treeish> to --notes=<ref>\n\n* Added \"t3206: disable parameter substitution in heredoc\"\n\n* Updated the commit message of \"range-diff: pass through --notes to `git log`\"\n\nChanges since v1:\n\n* Complete overhaul of approach
+	remote = upstream
+	merge = refs/heads/dl/range-diff-with-notes
