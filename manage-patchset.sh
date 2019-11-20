@@ -5,12 +5,13 @@ branch="$2"
 if test -z "$branch"
 then
 	branch="$(git branch --show-current)"
-	branch_part="${branch##submitted/}"
-	if test "$branch" = "$branch_part"
-	then
-		echo Missing \'submitted/\' prefix
-		exit 1
-	fi
+fi
+
+branch_part="${branch##submitted/}"
+if test "$branch" = "$branch_part"
+then
+	echo Missing \'submitted/\' prefix
+	exit 1
 fi
 
 patchdir="$(dirname "$0")"
