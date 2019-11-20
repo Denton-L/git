@@ -47,11 +47,6 @@
 	description = t5520: various test cleanup\n\nLike earlier patchsets, I want to implement a feature that involves\nmodifications to the test suite. Since that feature will probably take a\nwhile to polish up, however, let's clean up the test suite in a separate\npatchset first so it's not blocked by the feature work.\n\n1/15 is a general improvement to test_rev_cmp() that will be used later\nin the series.\n\nChanges since v4:\n\n* Cleaned up test_cmp_rev() logic with suggestions from Junio\n\nChanges since v3:\n\n* Rebased and tested on top of v2.24.0\n\nChanges since v2:\n\n* Drop 't7408: replace `test_must_fail test_path_is_file`' since it's\n  not a rabbit hole we want to go into right now\n\n* Fix the output of `test_cmp_rev !` when revs are actually equal\n\n* Rebase against the latest master since this topic hasn't been picked\n  up yet\n\nChanges since v1:\n\n* Incorporate Eric's feedback
 	remote = upstream
 	merge = refs/heads/dl/t5520-cleanup
-[includeIf "onbranch:submitted/complete-rebase-and-archive"]
-	path = complete-rebase-and-archive/config
-[branch "submitted/complete-rebase-and-archive"]
-	remote = upstream
-	merge = refs/heads/dl/complete-rebase-and-archive
 [includeIf "onbranch:submitted/log-graph-simplify"]
 	path = log-graph-simplify/config
 [branch "submitted/log-graph-simplify"]

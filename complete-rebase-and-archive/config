@@ -1,3 +1,0 @@
-[format]
-	outputDirectory = patches/complete-rebase-and-archive
-	cc = Paul Jolly <paul@myitcv.io>
