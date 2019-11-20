@@ -39,8 +39,6 @@
 	path = merge-autostash/config
 [includeIf "onbranch:submitted/t5520-cleanup"]
 	path = t5520-cleanup/config
-[includeIf "onbranch:submitted/diff-return-code"]
-	path = diff-return-code/config
 [includeIf "onbranch:submitted/pretty-summary"]
 	path = pretty-summary/config
 [branch "submitted/pretty-summary"]
