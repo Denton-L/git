@@ -1,2 +1,5 @@
 [format]
 	outputDirectory = patches/pipefail
+	cc = Eric Sunshine <sunshine@sunshineco.com>
+	cc = Junio C Hamano <gitster@pobox.com>
+	cc = Jeff King <peff@peff.net>

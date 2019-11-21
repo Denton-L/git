@@ -1,0 +1,40 @@
+From 9fb33ea04eb291ea8de3968fef998435d2fd1cc9 Mon Sep 17 00:00:00 2001
+Message-Id: <9fb33ea04eb291ea8de3968fef998435d2fd1cc9.1574296987.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1574296987.git.liu.denton@gmail.com>
+References: <cover.1573779465.git.liu.denton@gmail.com>
+	<cover.1574296987.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 28 Oct 2019 13:54:38 -0700
+Subject: [PATCH v2 09/21] t4015: use test_write_lines()
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>,
+    Jeff King <peff@peff.net>
+
+Instead of rolling our own method to write out some lines into a file,
+use the existing test_write_lines().
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t4015-diff-whitespace.sh | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/t/t4015-diff-whitespace.sh b/t/t4015-diff-whitespace.sh
+index 7fb83c8eff..4c540b1d70 100755
+--- a/t/t4015-diff-whitespace.sh
++++ b/t/t4015-diff-whitespace.sh
+@@ -771,9 +771,9 @@ test_expect_success 'checkdiff detects new trailing blank lines (1)' '
+ '
+ 
+ test_expect_success 'checkdiff detects new trailing blank lines (2)' '
+-	{ echo a; echo b; echo; echo; } >x &&
++	test_write_lines a b "" "" >x &&
+ 	git add x &&
+-	{ echo a; echo; echo; echo; echo; } >x &&
++	test_write_lines a "" "" "" "" >x &&
+ 	test_must_fail git diff --check >check &&
+ 	grep "new blank line" check
+ '
+-- 
+2.24.0.450.g7a9a4598a9
+

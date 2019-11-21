@@ -1,0 +1,59 @@
+From 3cc6e4455cd55ff5d03595f6c348ae80268497a6 Mon Sep 17 00:00:00 2001
+Message-Id: <3cc6e4455cd55ff5d03595f6c348ae80268497a6.1574296987.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1574296987.git.liu.denton@gmail.com>
+References: <cover.1573779465.git.liu.denton@gmail.com>
+	<cover.1574296987.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 27 Aug 2019 00:05:05 -0400
+Subject: [PATCH v2 17/21] t7700: drop redirections to /dev/null
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>,
+    Jeff King <peff@peff.net>
+
+Since output is silenced when running without `-v` and debugging output
+is useful with `-v`, remove redirections to /dev/null as it is not
+useful.
+
+In one case where the output of stdout is consumed, redirect the output
+of test_commit to stderr.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t7700-repack.sh | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/t/t7700-repack.sh b/t/t7700-repack.sh
+index 4e855bc21b..e1a689d6a9 100755
+--- a/t/t7700-repack.sh
++++ b/t/t7700-repack.sh
+@@ -5,7 +5,7 @@ test_description='git repack works correctly'
+ . ./test-lib.sh
+ 
+ commit_and_pack() {
+-	test_commit "$@" >/dev/null &&
++	test_commit "$@" 1>&2 &&
+ 	SHA1=$(git pack-objects --all --unpacked --incremental .git/objects/pack/pack </dev/null) &&
+ 	echo pack-${SHA1}.pack
+ }
+@@ -19,7 +19,7 @@ test_expect_success 'objects in packs marked .keep are not repacked' '
+ 	# Create two packs
+ 	# The first pack will contain all of the objects except one
+ 	git rev-list --objects --all | grep -v file2 |
+-		git pack-objects pack > /dev/null &&
++		git pack-objects pack &&
+ 	# The second pack will contain the excluded object
+ 	packsha1=$(git rev-list --objects --all | grep file2 |
+ 		git pack-objects pack) &&
+@@ -235,7 +235,7 @@ test_expect_success 'incremental repack does not complain' '
+ 
+ test_expect_success 'bitmaps can be disabled on bare repos' '
+ 	git -c repack.writeBitmaps=false -C bare.git repack -ad &&
+-	bitmap=$(ls bare.git/objects/pack/*.bitmap 2>/dev/null || :) &&
++	bitmap=$(ls bare.git/objects/pack/*.bitmap || :) &&
+ 	test -z "$bitmap"
+ '
+ 
+-- 
+2.24.0.450.g7a9a4598a9
+
