@@ -31,12 +31,8 @@
 	path = branch-specific-format-patch/config
 [includeIf "onbranch:submitted/submodule-set-url"]
 	path = submodule-set-url/config
-[includeIf "onbranch:submitted/experimental/demonstrate-graph-bug"]
-	path = experimental/demonstrate-graph-bug/config
 [includeIf "onbranch:submitted/better-apply-error"]
 	path = better-apply-error/config
-[includeIf "onbranch:submitted/rev-list-prune-synopsis"]
-	path = rev-list-prune-synopsis/config
 [includeIf "onbranch:submitted/merge-autostash"]
 	path = merge-autostash/config
 [includeIf "onbranch:submitted/t5520-cleanup"]
