@@ -1,0 +1,3 @@
+I run this target periodically to ensure that no new instances of extern
+function definitions are introduced. Is this something that we want to
+consider adding for real?
