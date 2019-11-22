@@ -2876,6 +2876,9 @@ COCCI_SOURCES = $(filter-out $(THIRD_PARTY_SOURCES),$(FOUND_C_SOURCES))
 	fi
 coccicheck: $(addsuffix .patch,$(filter-out %.pending.cocci,$(wildcard contrib/coccinelle/*.cocci)))
 
+externcheck: $(filter-out $(THIRD_PARTY_SOURCES),$(filter %.c %.h,$(shell $(FIND_SOURCE_FILES))))
+	sed -i'' -e 's/^\(\s*\)extern \([^(]*([^*]\)/\1\2/' $^
+
 # See contrib/coccinelle/README
 coccicheck-pending: $(addsuffix .patch,$(wildcard contrib/coccinelle/*.pending.cocci))
 
