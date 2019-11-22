@@ -1,0 +1,141 @@
+From e9835b85427a3486e2dba136bbf34506e521d355 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1574449072.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1574296987.git.liu.denton@gmail.com>
+References: <cover.1574296987.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Fri, 22 Nov 2019 10:57:52 -0800
+Subject: [PATCH v3 00/22] t: test cleanup stemming from experimentally
+ enabling pipefail
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>,
+    Jeff King <peff@peff.net>
+
+These patches perform some general test cleanup to modernise the style.
+They should be relatively uncontroversial. The reason these tests were
+identified for cleanup was because they failed under `set -o pipefail`.
+
+I've gotten rid of the RFC part that actually enables `set -o pipefail`
+on supported platforms. As Peff pointed out, there are a lot of
+opportunities for racy SIGPIPE failures so that part still needs a lot
+of work to be ironed out.
+
+Those changes shouldn't hold back the first part of the series, however.
+Let's try to get this test cleanup merged in sooner than later so that
+any new test cases done by copy-paste will have their changes
+represented.
+
+Changes since v1:
+
+* Removed the `set -o pipefail` changes
+
+* Addressed Junio and Eric's comments on the first part of the series
+
+Denton Liu (22):
+  lib-bash.sh: move `then` onto its own line
+  apply-one-time-sed.sh: modernize style
+  t0014: remove git command upstream of pipe
+  t0090: stop losing return codes of git commands
+  t3301: stop losing return codes of git commands
+  t3600: use test_line_count() where possible
+  t3600: stop losing return codes of git commands
+  t3600: comment on inducing SIGPIPE in `git rm`
+  t4015: stop losing return codes of git commands
+  t4015: use test_write_lines()
+  t4138: stop losing return codes of git commands
+  t5317: stop losing return codes of git commands
+  t5317: use ! grep to check for no matching lines
+  t5703: simplify one-time-sed generation logic
+  t5703: stop losing return codes of git commands
+  t7501: remove spaces after redirect operators
+  t7501: stop losing return codes of git commands
+  t7700: drop redirections to /dev/null
+  t7700: remove spaces after redirect operators
+  t7700: move keywords onto their own line
+  t7700: s/test -f/test_path_is_file/
+  t7700: stop losing return codes of git commands
+
+ t/lib-bash.sh                          |   6 +-
+ t/lib-httpd/apply-one-time-sed.sh      |   8 +-
+ t/t0014-alias.sh                       |   4 +-
+ t/t0090-cache-tree.sh                  |   5 +-
+ t/t3301-notes.sh                       | 230 ++++++++++++++++++-------
+ t/t3600-rm.sh                          |  14 +-
+ t/t4015-diff-whitespace.sh             | 123 +++++++------
+ t/t4138-apply-ws-expansion.sh          |  16 +-
+ t/t5317-pack-objects-filter-objects.sh |  34 ++--
+ t/t5703-upload-pack-ref-in-want.sh     |  53 +++---
+ t/t7501-commit-basic-functionality.sh  |  83 +++++----
+ t/t7700-repack.sh                      | 125 ++++++++------
+ 12 files changed, 433 insertions(+), 268 deletions(-)
+
+Range-diff against v2:
+ 1:  9085cc00af =  1:  9085cc00af lib-bash.sh: move `then` onto its own line
+ -:  ---------- >  2:  1fddaab701 apply-one-time-sed.sh: modernize style
+ 2:  9ec5244905 =  3:  f69e5345ba t0014: remove git command upstream of pipe
+ 3:  613a58491a =  4:  28ddc6c79d t0090: stop losing return codes of git commands
+ 4:  ee40bc972f =  5:  4d5f868e50 t3301: stop losing return codes of git commands
+ 5:  702a25f328 =  6:  658db8866e t3600: use test_line_count() where possible
+ 6:  6ebfed9234 =  7:  a7d76f9cb9 t3600: stop losing return codes of git commands
+ 7:  7ca9099fa7 =  8:  d35c054344 t3600: comment on inducing SIGPIPE in `git rm`
+ 8:  64ecf82b94 =  9:  bd6f6487b9 t4015: stop losing return codes of git commands
+ 9:  8d1f457d19 = 10:  6993316839 t4015: use test_write_lines()
+10:  0a843a25c8 = 11:  5e88c755ed t4138: stop losing return codes of git commands
+11:  4ace91a8b9 = 12:  56eebcc249 t5317: stop losing return codes of git commands
+12:  7a15dd95f8 ! 13:  85c2f8ca27 t5317: use ! grep to check for no matching lines
+    @@ Commit message
+         return code! Use `! grep` in the cases where we are ensuring that there
+         are no matching lines.
+     
+    -    It turns out that these tests were simply born this way[1], doing all
+    -    this unnecessary work for no reason, probably due to copy/paste
+    -    programming, and it seems no reviewer caught it. Likewise, the
+    -    unnecessary work wasn't noticed even when the code was later touched
+    -    for various cleanups[2,3].
+    +    While at it, drop unnecessary invocations of 'awk' and 'sort' in each
+    +    affected test since those commands do not influence the outcome. It's
+    +    not clear why that extra work was being done in the first place, and the
+    +    code's history doesn't shed any light on the matter since these tests
+    +    were simply born this way[1], doing all the unnecessary work for no
+    +    reason, probably due to copy/paste programming...
+     
+         [1]: 9535ce7337 (pack-objects: add list-objects filtering, 2017-11-21)
+    -    [2]: bdbc17e86a (tests: standardize pipe placement, 2018-10-05)
+    -    [3]: 61de0ff695 (tests: don't swallow Git errors upstream of pipes, 2018-10-05)
+     
+         Helped-by: Eric Sunshine <sunshine@sunshineco.com>
+     
+13:  439994027d ! 14:  f7e8ae79fa t5703: simplify one-time-sed generation logic
+    @@ Commit message
+         Pull the command substitutions out into variable assignments so that
+         their return codes are not lost.
+     
+    -    Drop the pipe into tr because command substitutions should already strip
+    -    leading and trailing whitespace, including newlines.
+    +    Drop the pipe into `tr` because the $(...) substitution already takes
+    +    care of stripping out newlines, so the `tr` invocations in the code are
+    +    superfluous.
+     
+    -    Finally, convert the printf into an echo because it isn't necessary
+    -    anymore.
+    +    Finally, given the way the tests actually employ "one-time-sed" via
+    +    $(cat one-time-sed) in t/lib-httpd/apply-one-time-sed.sh, convert the
+    +    `printf` into an `echo`. This makes it consistent with the final "server
+    +    loses a ref - ref in want" test, which does use `echo` rather than
+    +    `printf`.
+    +
+    +    Helped-by: Eric Sunshine <sunshine@sunshineco.com>
+     
+      ## t/t5703-upload-pack-ref-in-want.sh ##
+     @@ t/t5703-upload-pack-ref-in-want.sh: inconsistency () {
+14:  859328b168 = 15:  28ef8f3a59 t5703: stop losing return codes of git commands
+15:  d5e5be76c2 = 16:  0824965707 t7501: remove spaces after redirect operators
+16:  d4154e621d = 17:  5058d21880 t7501: stop losing return codes of git commands
+17:  2045c6e30e = 18:  297f383897 t7700: drop redirections to /dev/null
+18:  20563779ee = 19:  2521ade74d t7700: remove spaces after redirect operators
+19:  37a6d826bc = 20:  560f618334 t7700: move keywords onto their own line
+20:  ea4338a43a = 21:  bd27805e4b t7700: s/test -f/test_path_is_file/
+21:  98aec252fc = 22:  e9835b8542 t7700: stop losing return codes of git commands
+-- 
+2.24.0.497.g17aadd8971
+

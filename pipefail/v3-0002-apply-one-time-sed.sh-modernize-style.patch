@@ -1,0 +1,49 @@
+From 1fddaab7011dae7cdd15dee83a94b021085f6703 Mon Sep 17 00:00:00 2001
+Message-Id: <1fddaab7011dae7cdd15dee83a94b021085f6703.1574449072.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1574449072.git.liu.denton@gmail.com>
+References: <cover.1574296987.git.liu.denton@gmail.com>
+	<cover.1574449072.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Thu, 21 Nov 2019 17:36:33 -0800
+Subject: [PATCH v3 02/22] apply-one-time-sed.sh: modernize style
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>,
+    Jeff King <peff@peff.net>
+
+Convert `[ ... ]` to use `test`.
+
+Move the `then`s onto their own lines so that it conforms with the
+general test style.
+
+Instead of redirecting input into sed, allow it to open its own input.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/lib-httpd/apply-one-time-sed.sh | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/t/lib-httpd/apply-one-time-sed.sh b/t/lib-httpd/apply-one-time-sed.sh
+index fcef728925..3e9a615311 100644
+--- a/t/lib-httpd/apply-one-time-sed.sh
++++ b/t/lib-httpd/apply-one-time-sed.sh
+@@ -7,11 +7,13 @@
+ #
+ # This can be used to simulate the effects of the repository changing in
+ # between HTTP request-response pairs.
+-if [ -e one-time-sed ]; then
++if test -e one-time-sed
++then
+ 	"$GIT_EXEC_PATH/git-http-backend" >out
+-	sed "$(cat one-time-sed)" <out >out_modified
++	sed "$(cat one-time-sed)" out >out_modified
+ 
+-	if diff out out_modified >/dev/null; then
++	if diff out out_modified >/dev/null
++	then
+ 		cat out
+ 	else
+ 		cat out_modified
+-- 
+2.24.0.497.g17aadd8971
+

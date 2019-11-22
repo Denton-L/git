@@ -1,0 +1,41 @@
+From f69e5345ba1c1d7c3cc58fb14864b51e9db53030 Mon Sep 17 00:00:00 2001
+Message-Id: <f69e5345ba1c1d7c3cc58fb14864b51e9db53030.1574449072.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1574449072.git.liu.denton@gmail.com>
+References: <cover.1574296987.git.liu.denton@gmail.com>
+	<cover.1574449072.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 20 Nov 2019 16:45:50 -0800
+Subject: [PATCH v3 03/22] t0014: remove git command upstream of pipe
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>,
+    Jeff King <peff@peff.net>
+
+Before, the `git frotz` command would fail but its return code was
+hidden since it was in the upstream of a pipe. Break the pipeline into
+two commands so that the return code is no longer lost. Also, mark
+`git frotz` with test_must_fail since it's supposed to fail.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t0014-alias.sh | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/t/t0014-alias.sh b/t/t0014-alias.sh
+index 2694c81afd..8d3d9144c0 100755
+--- a/t/t0014-alias.sh
++++ b/t/t0014-alias.sh
+@@ -38,8 +38,8 @@ test_expect_success 'looping aliases - internal execution' '
+ #'
+ 
+ test_expect_success 'run-command formats empty args properly' '
+-    GIT_TRACE=1 git frotz a "" b " " c 2>&1 |
+-    sed -ne "/run_command:/s/.*trace: run_command: //p" >actual &&
++    test_must_fail env GIT_TRACE=1 git frotz a "" b " " c 2>actual.raw &&
++    sed -ne "/run_command:/s/.*trace: run_command: //p" actual.raw >actual &&
+     echo "git-frotz a '\'''\'' b '\'' '\'' c" >expect &&
+     test_cmp expect actual
+ '
+-- 
+2.24.0.497.g17aadd8971
+

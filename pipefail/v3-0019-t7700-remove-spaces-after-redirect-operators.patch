@@ -1,0 +1,93 @@
+From 2521ade74df0a0aebbb70abeff64d67ef8b00201 Mon Sep 17 00:00:00 2001
+Message-Id: <2521ade74df0a0aebbb70abeff64d67ef8b00201.1574449072.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1574449072.git.liu.denton@gmail.com>
+References: <cover.1574296987.git.liu.denton@gmail.com>
+	<cover.1574449072.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 20 Nov 2019 16:46:29 -0800
+Subject: [PATCH v3 19/22] t7700: remove spaces after redirect operators
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>,
+    Jeff King <peff@peff.net>
+
+For shell scripts, the usual convention is for there to be no space
+after redirection operators, (e.g. `>file`, not `> file`). Remove these
+spaces wherever they appear.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t7700-repack.sh | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/t/t7700-repack.sh b/t/t7700-repack.sh
+index e1a689d6a9..8936928387 100755
+--- a/t/t7700-repack.sh
++++ b/t/t7700-repack.sh
+@@ -11,8 +11,8 @@ commit_and_pack() {
+ }
+ 
+ test_expect_success 'objects in packs marked .keep are not repacked' '
+-	echo content1 > file1 &&
+-	echo content2 > file2 &&
++	echo content1 >file1 &&
++	echo content2 >file2 &&
+ 	git add . &&
+ 	test_tick &&
+ 	git commit -m initial_commit &&
+@@ -75,8 +75,8 @@ test_expect_success 'writing bitmaps via config can duplicate .keep objects' '
+ 
+ test_expect_success 'loose objects in alternate ODB are not repacked' '
+ 	mkdir alt_objects &&
+-	echo $(pwd)/alt_objects > .git/objects/info/alternates &&
+-	echo content3 > file3 &&
++	echo $(pwd)/alt_objects >.git/objects/info/alternates &&
++	echo content3 >file3 &&
+ 	objsha1=$(GIT_OBJECT_DIRECTORY=alt_objects git hash-object -w file3) &&
+ 	git add file3 &&
+ 	test_tick &&
+@@ -111,7 +111,7 @@ test_expect_success 'packed obs in alt ODB are repacked even when local repo is
+ 
+ test_expect_success 'packed obs in alt ODB are repacked when local repo has packs' '
+ 	rm -f .git/objects/pack/* &&
+-	echo new_content >> file1 &&
++	echo new_content >>file1 &&
+ 	git add file1 &&
+ 	test_tick &&
+ 	git commit -m more_content &&
+@@ -169,12 +169,12 @@ test_expect_success 'packed unreachable obs in alternate ODB are not loosened' '
+ 	mv pack-* .git/objects/pack/ &&
+ 	test 0 = $(git verify-pack -v -- .git/objects/pack/*.idx |
+ 		egrep "^$csha1 " | sort | uniq | wc -l) &&
+-	echo > .git/objects/info/alternates &&
++	echo >.git/objects/info/alternates &&
+ 	test_must_fail git show $csha1
+ '
+ 
+ test_expect_success 'local packed unreachable obs that exist in alternate ODB are not loosened' '
+-	echo $(pwd)/alt_objects > .git/objects/info/alternates &&
++	echo $(pwd)/alt_objects >.git/objects/info/alternates &&
+ 	echo "$csha1" | git pack-objects --non-empty --all --reflog pack &&
+ 	rm -f .git/objects/pack/* &&
+ 	mv pack-* .git/objects/pack/ &&
+@@ -186,7 +186,7 @@ test_expect_success 'local packed unreachable obs that exist in alternate ODB ar
+ 	mv pack-* .git/objects/pack/ &&
+ 	test 0 = $(git verify-pack -v -- .git/objects/pack/*.idx |
+ 		egrep "^$csha1 " | sort | uniq | wc -l) &&
+-	echo > .git/objects/info/alternates &&
++	echo >.git/objects/info/alternates &&
+ 	test_must_fail git show $csha1
+ '
+ 
+@@ -196,7 +196,7 @@ test_expect_success 'objects made unreachable by grafts only are kept' '
+ 	H0=$(git rev-parse HEAD) &&
+ 	H1=$(git rev-parse HEAD^) &&
+ 	H2=$(git rev-parse HEAD^^) &&
+-	echo "$H0 $H2" > .git/info/grafts &&
++	echo "$H0 $H2" >.git/info/grafts &&
+ 	git reflog expire --expire=$test_tick --expire-unreachable=$test_tick --all &&
+ 	git repack -a -d &&
+ 	git cat-file -t $H1
+-- 
+2.24.0.497.g17aadd8971
+
