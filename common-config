@@ -59,9 +59,3 @@
 	remote = upstream
 	merge = refs/heads/dl/test-cleanup
 	description = t: test cleanup stemming from experimentally enabling pipefail\n\nThese patches perform some general test cleanup to modernise the style.\nThey should be relatively uncontroversial. The reason these tests were\nidentified for cleanup was because they failed under `set -o pipefail`.\n\nI've gotten rid of the RFC part that actually enables `set -o pipefail`\non supported platforms. As Peff pointed out, there are a lot of\nopportunities for racy SIGPIPE failures so that part still needs a lot\nof work to be ironed out.\n\nThose changes shouldn't hold back the first part of the series, however.\nLet's try to get this test cleanup merged in sooner than later so that\nany new test cases done by copy-paste will have their changes\nrepresented.\n\nChanges since v1:\n\n* Removed the `set -o pipefail` changes\n\n* Addressed Junio and Eric's comments on the first part of the series
-[includeIf "onbranch:submitted/range-diff-no-notes"]
-	path = range-diff-no-notes/config
-[branch "submitted/range-diff-no-notes"]
-	description = range-diff: learn `--notes`\n\nThis patchset teaches range-diff and format-patch to pass `--notes`\noptions down to the `git log` machinery. This should make the behaviour\nmore configurable for users who either don't want notes to be displayed\nor want multiple notes refs to be displayed.\n\nChanges since v2:\n\n* Changed --notes=<treeish> to --notes=<ref>\n\n* Added \"t3206: disable parameter substitution in heredoc\"\n\n* Updated the commit message of \"range-diff: pass through --notes to `git log`\"\n\nChanges since v1:\n\n* Complete overhaul of approach
-	remote = upstream
-	merge = refs/heads/dl/range-diff-with-notes
