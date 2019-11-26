@@ -13,12 +13,8 @@ commit_and_pack () {
 test_no_missing_in_packs () {
 	myidx=$(ls -1 .git/objects/pack/*.idx) &&
 	test_path_is_file "$myidx" &&
-	for p in alt_objects/pack/*.idx
-	do
-		git verify-pack -v $p >packlist || return $?
-		grep "^[0-9a-f]\{40\}" packlist
-	done >orig.raw &&
-	cut -d" " -f1 orig.raw | sort >orig &&
+	git verify-pack -v alt_objects/pack/*.idx >orig.raw &&
+	grep "^[0-9a-f]\{40\}" orig.raw | cut -d" " -f1 | sort >orig &&
 	git verify-pack -v $myidx >dest.raw &&
 	cut -d" " -f1 dest.raw | sort >dest &&
 	comm -23 orig dest >missing &&
