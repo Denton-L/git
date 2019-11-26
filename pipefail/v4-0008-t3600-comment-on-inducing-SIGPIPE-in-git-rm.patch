@@ -1,0 +1,39 @@
+From e3db06578df23ee6e2036c18a25e79ae6c4d46e3 Mon Sep 17 00:00:00 2001
+Message-Id: <e3db06578df23ee6e2036c18a25e79ae6c4d46e3.1574731022.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1574731022.git.liu.denton@gmail.com>
+References: <cover.1574449072.git.liu.denton@gmail.com>
+	<cover.1574731022.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 20 Nov 2019 16:46:03 -0800
+Subject: [PATCH v4 08/27] t3600: comment on inducing SIGPIPE in `git rm`
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>,
+    Jeff King <peff@peff.net>
+
+Add a comment about intentionally inducing SIGPIPE since this is unusual
+and future developers should be aware. Also, even though we are trying
+to refactor git commands out of the upstream of pipes, we cannot do it
+here since we rely on it being upstream to induce SIGPIPE. Comment on
+that as well so that future developers do not try to change it.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t3600-rm.sh | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/t/t3600-rm.sh b/t/t3600-rm.sh
+index 0c3bf10edd..0ea858d652 100755
+--- a/t/t3600-rm.sh
++++ b/t/t3600-rm.sh
+@@ -251,6 +251,7 @@ test_expect_success 'choking "git rm" should not let it die with cruft' '
+ 		echo "100644 $hash 0	some-file-$i"
+ 		i=$(( $i + 1 ))
+ 	done | git update-index --index-info &&
++	# git command is intentionally placed upstream of pipe to induce SIGPIPE
+ 	git rm -n "some-file-*" | : &&
+ 	test_path_is_missing .git/index.lock
+ '
+-- 
+2.24.0.504.g3cd56eb17d
+
