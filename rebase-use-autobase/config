@@ -1,3 +1,4 @@
 [format]
 	outputDirectory = patches/rebase-use-autobase
 	cc = Christian Biesinger <cbiesinger@google.com>
+	cc = Eric Sunshine <sunshine@sunshineco.com>

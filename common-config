@@ -62,6 +62,6 @@
 [includeIf "onbranch:submitted/rebase-use-autobase"]
 	path = rebase-use-autobase/config
 [branch "submitted/rebase-use-autobase"]
-	description = rebase: fix breakage with `format.useAutoBase`\n\nThanks for reporting the breakage, Christian.\n\nApparently, this use case has been broken for a long time... Since\nbb52995f3e (format-patch: introduce format.useAutoBase configuration,\n2016-04-26). I'm surprised it's only been reported now.\n\nThis patchset fixes the breakage by teaching\n`git format-patch --no-base` and making rebase use it.
+	description = rebase: fix breakage with `format.useAutoBase`\n\nApparently, this use case has been broken for a long time... Since\nbb52995f3e (format-patch: introduce format.useAutoBase configuration,\n2016-04-26). I'm surprised it's only been reported now.\n\nThis patchset fixes the breakage by teaching\n`git format-patch --no-base` and making rebase use it.\n\nChanges since v1:\n\n* Update some log messages
 	remote = origin
 	merge = refs/heads/submitted/rebase-use-autobase
