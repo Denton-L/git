@@ -65,3 +65,9 @@
 	description = rebase: fix breakage with `format.useAutoBase`\n\nApparently, this use case has been broken for a long time... Since\nbb52995f3e (format-patch: introduce format.useAutoBase configuration,\n2016-04-26). I'm surprised it's only been reported now.\n\nThis patchset fixes the breakage by teaching\n`git format-patch --no-base` and making rebase use it.\n\nChanges since v1:\n\n* Update some log messages
 	remote = origin
 	merge = refs/heads/submitted/rebase-use-autobase
+[includeIf "onbranch:submitted/use-lkml"]
+	path = use-lkml/config
+[branch "submitted/use-lkml"]
+	remote = origin
+	merge = refs/heads/submitted/use-lkml
+	description = Hi Peff,\n\nThanks for doing this. Perhaps while we're at it, we want to change all\nof the MARC and Gmane links as well? The series below does this.\n\nI've based my series on top of yours so if you need to do a reroll, feel\nfree to pick my changes in.
