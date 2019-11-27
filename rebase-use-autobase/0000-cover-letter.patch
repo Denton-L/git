@@ -1,0 +1,36 @@
+From 15e6ccb2037d1e27b461d2344a13ebf1d5e10136 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1574820308.git.liu.denton@gmail.com>
+In-Reply-To: <CAPTJ0XEcMJEwPBEL4akncJ_A5XwyQyKL95fpf2tC0rNXJK65Og@mail.gmail.com>
+References: <CAPTJ0XEcMJEwPBEL4akncJ_A5XwyQyKL95fpf2tC0rNXJK65Og@mail.gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 26 Nov 2019 18:05:08 -0800
+Subject: [PATCH 0/5] rebase: fix breakage with `format.useAutoBase`
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Christian Biesinger <cbiesinger@google.com>
+
+Thanks for reporting the breakage, Christian.
+
+Apparently, this use case has been broken for a long time... Since
+bb52995f3e (format-patch: introduce format.useAutoBase configuration,
+2016-04-26). I'm surprised it's only been reported now.
+
+This patchset fixes the breakage by teaching
+`git format-patch --no-base` and making rebase use it.
+
+Denton Liu (5):
+  t3400: demonstrate failure with format.useAutoBase
+  format-patch: fix indentation
+  t4014: use `test_config`
+  format-patch: teach --no-base
+  rebase: fix `format.useAutoBase` breakage
+
+ Documentation/git-format-patch.txt |  5 +++--
+ builtin/log.c                      | 26 ++++++++++++++++++++++----
+ builtin/rebase.c                   |  3 ++-
+ t/t3400-rebase.sh                  |  6 ++++++
+ t/t4014-format-patch.sh            | 14 +++++++++-----
+ 5 files changed, 42 insertions(+), 12 deletions(-)
+
+-- 
+2.24.0.504.g3cd56eb17d
+

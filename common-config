@@ -59,3 +59,9 @@
 	remote = upstream
 	merge = refs/heads/dl/test-cleanup
 	description = t: test cleanup stemming from experimentally enabling pipefail\n\nThese patches perform some general test cleanup to modernise the style.\nThey should be relatively uncontroversial. The reason these tests were\nidentified for cleanup was because they failed under `set -o pipefail`.\n\nI've gotten rid of the RFC part that actually enables `set -o pipefail`\non supported platforms. As Peff pointed out, there are a lot of\nopportunities for racy SIGPIPE failures so that part still needs a lot\nof work to be ironed out.\n\nThose changes shouldn't hold back the first part of the series, however.\nLet's try to get this test cleanup merged in sooner than later so that\nany new test cases done by copy-paste will have their changes\nrepresented.\n\nChanges since v3:\n\n* More commit message update\n\n* Clean up \"apply-one-time-sed.sh: modernize style\" more according to\n  Junio's suggestions\n\n* Clean up the t7700 leftover bits\n\nChanges since v2:\n\n* Update commit messages according to Eric's suggestions\n\n* Add \"apply-one-time-sed.sh: modernize style\"\n\nChanges since v1:\n\n* Removed the `set -o pipefail` changes\n\n* Addressed Junio and Eric's comments on the first part of the series
+[includeIf "onbranch:submitted/rebase-use-autobase"]
+	path = rebase-use-autobase/config
+[branch "submitted/rebase-use-autobase"]
+	description = rebase: fix breakage with `format.useAutoBase`\n\nThanks for reporting the breakage, Christian.\n\nApparently, this use case has been broken for a long time... Since\nbb52995f3e (format-patch: introduce format.useAutoBase configuration,\n2016-04-26). I'm surprised it's only been reported now.\n\nThis patchset fixes the breakage by teaching\n`git format-patch --no-base` and making rebase use it.
+	remote = origin
+	merge = refs/heads/submitted/rebase-use-autobase
