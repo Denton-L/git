@@ -1,0 +1,58 @@
+From 291caf9bc11574b8f2ce8dcbaeb5d369c597a8c8 Mon Sep 17 00:00:00 2001
+Message-Id: <291caf9bc11574b8f2ce8dcbaeb5d369c597a8c8.1574884302.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1574884302.git.liu.denton@gmail.com>
+References: <cover.1574731022.git.liu.denton@gmail.com>
+	<cover.1574884302.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 20 Nov 2019 16:46:17 -0800
+Subject: [PATCH v5 14/26] t5703: simplify one-time-sed generation logic
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>,
+    Jeff King <peff@peff.net>
+
+In inconsistency(), we had two `git rev-parse` invocations in the
+upstream of a pipe within a command substitution. In case this
+invocation ever failed, its exit code would be swallowed up and we would
+not know about it.
+
+Pull the command substitutions out into variable assignments so that
+their return codes are not lost.
+
+Drop the pipe into `tr` because the $(...) substitution already takes
+care of stripping out newlines, so the `tr` invocations in the code are
+superfluous.
+
+Finally, given the way the tests actually employ "one-time-sed" via
+$(cat one-time-sed) in t/lib-httpd/apply-one-time-sed.sh, convert the
+`printf` into an `echo`. This makes it consistent with the final "server
+loses a ref - ref in want" test, which does use `echo` rather than
+`printf`.
+
+Helped-by: Eric Sunshine <sunshine@sunshineco.com>
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t5703-upload-pack-ref-in-want.sh | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/t/t5703-upload-pack-ref-in-want.sh b/t/t5703-upload-pack-ref-in-want.sh
+index 3a2c143c6d..88338c4e09 100755
+--- a/t/t5703-upload-pack-ref-in-want.sh
++++ b/t/t5703-upload-pack-ref-in-want.sh
+@@ -312,10 +312,9 @@ inconsistency () {
+ 	# repository appears to change during negotiation, for example, when
+ 	# different servers in a load-balancing arrangement serve (stateless)
+ 	# RPCs during a single negotiation.
+-	printf "s/%s/%s/" \
+-	       $(git -C "$REPO" rev-parse $1 | tr -d "\n") \
+-	       $(git -C "$REPO" rev-parse $2 | tr -d "\n") \
+-	       >"$HTTPD_ROOT_PATH/one-time-sed"
++	oid1=$(git -C "$REPO" rev-parse $1) &&
++	oid2=$(git -C "$REPO" rev-parse $2) &&
++	echo "s/$oid1/$oid2/" >"$HTTPD_ROOT_PATH/one-time-sed"
+ }
+ 
+ test_expect_success 'server is initially ahead - no ref in want' '
+-- 
+2.24.0.504.g3cd56eb17d
+

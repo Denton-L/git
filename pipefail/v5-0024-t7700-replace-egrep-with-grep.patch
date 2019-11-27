@@ -1,0 +1,57 @@
+From 632a62f6e9cdd58bebe7203ded8bbb9aea7c4c62 Mon Sep 17 00:00:00 2001
+Message-Id: <632a62f6e9cdd58bebe7203ded8bbb9aea7c4c62.1574884302.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1574884302.git.liu.denton@gmail.com>
+References: <cover.1574731022.git.liu.denton@gmail.com>
+	<cover.1574884302.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 25 Nov 2019 14:04:16 -0800
+Subject: [PATCH v5 24/26] t7700: replace egrep with grep
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>,
+    Jeff King <peff@peff.net>
+
+The egrep expressions in this test suite were of the form `^$variable`.
+Although egrep works just fine, it's overkill since we're not using any
+extended regex. Replace egrep invocations with grep so that we aren't
+swatting flies with a sledgehammer.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t7700-repack.sh | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/t/t7700-repack.sh b/t/t7700-repack.sh
+index 5bbed02fe5..2493cc4e9b 100755
+--- a/t/t7700-repack.sh
++++ b/t/t7700-repack.sh
+@@ -30,7 +30,7 @@ test_has_duplicate_object () {
+ 		idx=$(basename $p)
+ 		test "pack-$packsha1.idx" = "$idx" && continue
+ 		git verify-pack -v $p >packlist || return $?
+-		if egrep "^$objsha1" packlist
++		if grep "^$objsha1" packlist
+ 		then
+ 			found_duplicate_object=true
+ 			echo "DUPLICATE OBJECT FOUND"
+@@ -135,7 +135,7 @@ test_expect_success 'packed unreachable obs in alternate ODB are not loosened' '
+ 	rm -f .git/objects/pack/* &&
+ 	mv pack-* .git/objects/pack/ &&
+ 	test 0 = $(git verify-pack -v -- .git/objects/pack/*.idx |
+-		egrep "^$csha1 " | sort | uniq | wc -l) &&
++		grep "^$csha1 " | sort | uniq | wc -l) &&
+ 	echo >.git/objects/info/alternates &&
+ 	test_must_fail git show $csha1
+ '
+@@ -152,7 +152,7 @@ test_expect_success 'local packed unreachable obs that exist in alternate ODB ar
+ 	rm -f .git/objects/pack/* &&
+ 	mv pack-* .git/objects/pack/ &&
+ 	test 0 = $(git verify-pack -v -- .git/objects/pack/*.idx |
+-		egrep "^$csha1 " | sort | uniq | wc -l) &&
++		grep "^$csha1 " | sort | uniq | wc -l) &&
+ 	echo >.git/objects/info/alternates &&
+ 	test_must_fail git show $csha1
+ '
+-- 
+2.24.0.504.g3cd56eb17d
+

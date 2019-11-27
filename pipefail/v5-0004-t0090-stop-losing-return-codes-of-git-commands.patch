@@ -1,0 +1,44 @@
+From 7d33586b214f8dfd8e027b3bc618ca908799b560 Mon Sep 17 00:00:00 2001
+Message-Id: <7d33586b214f8dfd8e027b3bc618ca908799b560.1574884302.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1574884302.git.liu.denton@gmail.com>
+References: <cover.1574731022.git.liu.denton@gmail.com>
+	<cover.1574884302.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 20 Nov 2019 16:45:53 -0800
+Subject: [PATCH v5 04/26] t0090: stop losing return codes of git commands
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>,
+    Jeff King <peff@peff.net>
+
+In generate_expected_cache_tree_rec(), there are currently two instances
+of `git ls-files` in the upstream of a pipe. In the case where the
+upstream git command fails, its return code will be lost. Extract the
+`git ls-files` into its own call so that if it ever fails, its return
+code is not lost.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t0090-cache-tree.sh | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/t/t0090-cache-tree.sh b/t/t0090-cache-tree.sh
+index ce9a4a5f32..5a633690bf 100755
+--- a/t/t0090-cache-tree.sh
++++ b/t/t0090-cache-tree.sh
+@@ -21,9 +21,10 @@ generate_expected_cache_tree_rec () {
+ 	parent="$2" &&
+ 	# ls-files might have foo/bar, foo/bar/baz, and foo/bar/quux
+ 	# We want to count only foo because it's the only direct child
+-	subtrees=$(git ls-files|grep /|cut -d / -f 1|uniq) &&
++	git ls-files >files &&
++	subtrees=$(grep / files|cut -d / -f 1|uniq) &&
+ 	subtree_count=$(echo "$subtrees"|awk -v c=0 '$1 != "" {++c} END {print c}') &&
+-	entries=$(git ls-files|wc -l) &&
++	entries=$(wc -l <files) &&
+ 	printf "SHA $dir (%d entries, %d subtrees)\n" "$entries" "$subtree_count" &&
+ 	for subtree in $subtrees
+ 	do
+-- 
+2.24.0.504.g3cd56eb17d
+
