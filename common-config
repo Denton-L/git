@@ -68,6 +68,6 @@
 [includeIf "onbranch:submitted/use-lkml"]
 	path = use-lkml/config
 [branch "submitted/use-lkml"]
-	remote = origin
-	merge = refs/heads/submitted/use-lkml
-	description = Hi Peff,\n\nThanks for doing this. Perhaps while we're at it, we want to change all\nof the MARC and Gmane links as well? The series below does this.\n\nI've based my series on top of yours so if you need to do a reroll, feel\nfree to pick my changes in.
+	remote = upstream
+	merge = refs/heads/jk/lore-is-the-archive
+	description = Doc: replace opaque mail archive links with lore.kernel.org\n\nWe reference many mail archives that use opaque links. Even though many\nhave been around for a long time, they may still be liable to go down\n(see Gmane) leaving us with dead links that we cannot reference in the\nfuture. Replace these links with links to lore.kernel.org which use\nMessage-IDs so that if lore.kernel.org ever goes down, it will be much\neasier to find these messages in the future.\n\nMy series is based on top of 'jk/lore-is-the-archive'.
