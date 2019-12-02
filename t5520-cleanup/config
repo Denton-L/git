@@ -1,6 +1,0 @@
-[format]
-	outputDirectory = patches/t5520-cleanup
-	cc = Eric Sunshine <sunshine@sunshineco.com>
-	cc = Johannes Sixt <j6t@kdbg.org>
-	cc = SZEDER Gábor <szeder.dev@gmail.com>
-	cc = Junio C Hamano <gitster@pobox.com>
