@@ -15,14 +15,18 @@ git_revert () {
 	git status -su >expect &&
 	ls -1pR * >>expect &&
 	tar cf "$TRASH_DIRECTORY/tmp.tar" * &&
-	git checkout "$1" &&
-	git revert HEAD &&
-	rm -rf * &&
-	tar xf "$TRASH_DIRECTORY/tmp.tar" &&
-	git status -su >actual &&
-	ls -1pR * >>actual &&
-	test_cmp expect actual &&
-	git revert HEAD
+	eval "$OVERWRITING_FAIL" git checkout "$1" &&
+	if test -z "$OVERWRITING_FAIL"
+	then
+		git checkout "$1" &&
+		git revert HEAD &&
+		rm -rf * &&
+		tar xf "$TRASH_DIRECTORY/tmp.tar" &&
+		git status -su >actual &&
+		ls -1pR * >>actual &&
+		test_cmp expect actual &&
+		git revert HEAD
+	fi
 }
 
 KNOWN_FAILURE_NOFF_MERGE_DOESNT_CREATE_EMPTY_SUBMODULE_DIR=1

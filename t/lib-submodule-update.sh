@@ -304,13 +304,15 @@ test_submodule_content () {
 # a removed submodule.
 #
 # Removing a submodule containing a .git directory must fail even when forced
-# to protect the history!
+# to protect the history! If we are testing this case,
+# OVERWRITING_FAIL=test_must_fail, otherwise OVERWRITING_FAIL will be the empty
+# string.
 #
 
 # Internal function; use test_submodule_switch_func(), test_submodule_switch_func(),
 # or test_submodule_forced_switch() instead.
 test_submodule_switch_common () {
-	SHOULD_FAIL=
+	OVERWRITING_FAIL=
 	command="$1"
 	######################### Appearing submodule #########################
 	# Switching to a commit letting a submodule appear creates empty dir ...
@@ -444,7 +446,7 @@ test_submodule_switch_common () {
 		(
 			cd submodule_update &&
 			git branch -t replace_sub1_with_directory origin/replace_sub1_with_directory &&
-			test_must_fail $command replace_sub1_with_directory &&
+			OVERWRITING_FAIL=test_must_fail $command replace_sub1_with_directory &&
 			test_superproject_content origin/add_sub1 &&
 			test_submodule_content sub1 origin/add_sub1
 		)
@@ -457,7 +459,7 @@ test_submodule_switch_common () {
 			cd submodule_update &&
 			git branch -t replace_sub1_with_directory origin/replace_sub1_with_directory &&
 			replace_gitfile_with_git_dir sub1 &&
-			test_must_fail $command replace_sub1_with_directory &&
+			OVERWRITING_FAIL=test_must_fail $command replace_sub1_with_directory &&
 			test_superproject_content origin/add_sub1 &&
 			test_git_directory_is_unchanged sub1 &&
 			test_submodule_content sub1 origin/add_sub1
@@ -471,7 +473,7 @@ test_submodule_switch_common () {
 		(
 			cd submodule_update &&
 			git branch -t replace_sub1_with_file origin/replace_sub1_with_file &&
-			test_must_fail $command replace_sub1_with_file &&
+			OVERWRITING_FAIL=test_must_fail $command replace_sub1_with_file &&
 			test_superproject_content origin/add_sub1 &&
 			test_submodule_content sub1 origin/add_sub1
 		)
@@ -485,7 +487,7 @@ test_submodule_switch_common () {
 			cd submodule_update &&
 			git branch -t replace_sub1_with_file origin/replace_sub1_with_file &&
 			replace_gitfile_with_git_dir sub1 &&
-			test_must_fail $command replace_sub1_with_file &&
+			OVERWRITING_FAIL=test_must_fail $command replace_sub1_with_file &&
 			test_superproject_content origin/add_sub1 &&
 			test_git_directory_is_unchanged sub1 &&
 			test_submodule_content sub1 origin/add_sub1
@@ -560,6 +562,11 @@ test_submodule_switch_common () {
 # conditions, set the appropriate KNOWN_FAILURE_* variable used in the tests
 # below to 1.
 #
+# Removing a submodule containing a .git directory must fail even when forced
+# to protect the history! If we are testing this case,
+# OVERWRITING_FAIL=test_must_fail, otherwise OVERWRITING_FAIL will be the empty
+# string.
+#
 # Use as follows:
 #
 # my_func () {
@@ -569,6 +576,7 @@ test_submodule_switch_common () {
 # }
 # test_submodule_switch_func "my_func"
 test_submodule_switch_func () {
+	OVERWRITING_FAIL=
 	command="$1"
 	test_submodule_switch_common "$command"
 
@@ -581,7 +589,7 @@ test_submodule_switch_func () {
 			cd submodule_update &&
 			git branch -t add_sub1 origin/add_sub1 &&
 			>sub1 &&
-			test_must_fail $command add_sub1 &&
+			OVERWRITING_FAIL=test_must_fail $command add_sub1 &&
 			test_superproject_content origin/no_submodule &&
 			test_must_be_empty sub1
 		)
@@ -589,7 +597,7 @@ test_submodule_switch_func () {
 }
 
 test_submodule_switch () {
-	test_submodule_switch_func "git $*"
+	test_submodule_switch_func "eval \$OVERWRITING_FAIL git $*"
 }
 
 # Same as test_submodule_switch(), except that throwing away local changes in
@@ -597,7 +605,7 @@ test_submodule_switch () {
 test_submodule_forced_switch () {
 	command="$1"
 	KNOWN_FAILURE_FORCED_SWITCH_TESTS=1
-	test_submodule_switch_common "git $command"
+	test_submodule_switch_common "eval \$OVERWRITING_FAIL git $command"
 
 	# When forced, a file in the superproject does not prevent creating a
 	# submodule of the same name.
