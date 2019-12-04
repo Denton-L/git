@@ -294,7 +294,7 @@ test_expect_success '__git_find_repo_path - "git -C" while .git directory in par
 test_expect_success '__git_find_repo_path - non-existing path in "git -C"' '
 	(
 		__git_C_args=(-C non-existing) &&
-		test_must_fail __git_find_repo_path &&
+		! __git_find_repo_path &&
 		printf "$__git_repo_path" >"$actual"
 	) &&
 	test_must_be_empty "$actual"
@@ -303,7 +303,7 @@ test_expect_success '__git_find_repo_path - non-existing path in "git -C"' '
 test_expect_success '__git_find_repo_path - non-existing path in $__git_dir' '
 	(
 		__git_dir="non-existing" &&
-		test_must_fail __git_find_repo_path &&
+		! __git_find_repo_path &&
 		printf "$__git_repo_path" >"$actual"
 	) &&
 	test_must_be_empty "$actual"
@@ -313,7 +313,7 @@ test_expect_success '__git_find_repo_path - non-existing $GIT_DIR' '
 	(
 		GIT_DIR="$ROOT/non-existing" &&
 		export GIT_DIR &&
-		test_must_fail __git_find_repo_path &&
+		! __git_find_repo_path &&
 		printf "$__git_repo_path" >"$actual"
 	) &&
 	test_must_be_empty "$actual"
@@ -362,7 +362,7 @@ test_expect_success '__git_find_repo_path - not a git repository' '
 		cd non-repo &&
 		GIT_CEILING_DIRECTORIES="$ROOT" &&
 		export GIT_CEILING_DIRECTORIES &&
-		test_must_fail __git_find_repo_path &&
+		! __git_find_repo_path &&
 		printf "$__git_repo_path" >"$actual"
 	) &&
 	test_must_be_empty "$actual"
@@ -381,7 +381,7 @@ test_expect_success '__gitdir - finds repo' '
 test_expect_success '__gitdir - returns error when cannot find repo' '
 	(
 		__git_dir="non-existing" &&
-		test_must_fail __gitdir >"$actual"
+		! __gitdir >"$actual"
 	) &&
 	test_must_be_empty "$actual"
 '
@@ -608,7 +608,7 @@ test_expect_success '__git_is_configured_remote' '
 	git remote add remote_2 git://remote_2 &&
 	(
 		verbose __git_is_configured_remote remote_2 &&
-		test_must_fail __git_is_configured_remote non-existent
+		! __git_is_configured_remote non-existent
 	)
 '
 
