@@ -1,0 +1,100 @@
+From eb35de8f4917a406d886a6da4180d2d90e95e633 Mon Sep 17 00:00:00 2001
+Message-Id: <eb35de8f4917a406d886a6da4180d2d90e95e633.1575494618.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1575494617.git.liu.denton@gmail.com>
+References: <cover.1575445582.git.liu.denton@gmail.com>
+	<cover.1575494617.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 26 Nov 2019 17:38:32 -0800
+Subject: [PATCH v4 4/5] format-patch: teach --no-base
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Christian Biesinger <cbiesinger@google.com>,
+    Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>,
+    René Scharfe <l.s.r@web.de>
+
+If `format.useAutoBase = true`, there was no way to override this from
+the command-line. Teach the `--no-base` option in format-patch to
+override `format.useAutoBase`.
+
+Helped-by: René Scharfe <l.s.r@web.de>
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Documentation/git-format-patch.txt | 5 +++--
+ builtin/log.c                      | 7 +++++--
+ t/t4014-format-patch.sh            | 6 ++++++
+ 3 files changed, 14 insertions(+), 4 deletions(-)
+
+diff --git a/Documentation/git-format-patch.txt b/Documentation/git-format-patch.txt
+index 00bdf9b125..0d4f8951bb 100644
+--- a/Documentation/git-format-patch.txt
++++ b/Documentation/git-format-patch.txt
+@@ -333,11 +333,12 @@ you can use `--suffix=-patch` to get `0001-description-of-my-change-patch`.
+   Output an all-zero hash in each patch's From header instead
+   of the hash of the commit.
+ 
+---base=<commit>::
++--[no-]base[=<commit>]::
+ 	Record the base tree information to identify the state the
+ 	patch series applies to.  See the BASE TREE INFORMATION section
+ 	below for details. If <commit> is "auto", a base commit is
+-	automatically chosen.
++	automatically chosen. The `--no-base` option overrides a
++	`format.useAutoBase` configuration.
+ 
+ --root::
+ 	Treat the revision argument as a <revision range>, even if it
+diff --git a/builtin/log.c b/builtin/log.c
+index 9c44682f61..bf904e887f 100644
+--- a/builtin/log.c
++++ b/builtin/log.c
+@@ -1406,7 +1406,7 @@ static struct commit *get_base_commit(const char *base_commit,
+ 		base = lookup_commit_reference_by_name(base_commit);
+ 		if (!base)
+ 			die(_("unknown commit %s"), base_commit);
+-	} else if ((base_commit && !strcmp(base_commit, "auto")) || base_auto) {
++	} else if ((base_commit && !strcmp(base_commit, "auto"))) {
+ 		struct branch *curr_branch = branch_get(NULL);
+ 		const char *upstream = branch_get_upstream(curr_branch, NULL);
+ 		if (upstream) {
+@@ -1710,6 +1710,9 @@ int cmd_format_patch(int argc, const char **argv, const char *prefix)
+ 	s_r_opt.def = "HEAD";
+ 	s_r_opt.revarg_opt = REVARG_COMMITTISH;
+ 
++	if (base_auto)
++		base_commit = "auto";
++
+ 	if (default_attach) {
+ 		rev.mime_boundary = default_attach;
+ 		rev.no_inline = 1;
+@@ -1973,7 +1976,7 @@ int cmd_format_patch(int argc, const char **argv, const char *prefix)
+ 	}
+ 
+ 	memset(&bases, 0, sizeof(bases));
+-	if (base_commit || base_auto) {
++	if (base_commit) {
+ 		struct commit *base = get_base_commit(base_commit, list, nr);
+ 		reset_revision_walk();
+ 		clear_object_flags(UNINTERESTING);
+diff --git a/t/t4014-format-patch.sh b/t/t4014-format-patch.sh
+index c7cc643adf..a5b6302a1c 100755
+--- a/t/t4014-format-patch.sh
++++ b/t/t4014-format-patch.sh
+@@ -1958,6 +1958,12 @@ test_expect_success 'format-patch --base overrides format.useAutoBase' '
+ 	test_cmp expect actual
+ '
+ 
++test_expect_success 'format-patch --no-base overrides format.useAutoBase' '
++	test_config format.useAutoBase true &&
++	git format-patch --stdout --no-base -1 >patch &&
++	! grep "^base-commit:" patch
++'
++
+ test_expect_success 'format-patch --base with --attach' '
+ 	git format-patch --attach=mimemime --stdout --base=HEAD~ -1 >patch &&
+ 	sed -n -e "/^base-commit:/s/.*/1/p" -e "/^---*mimemime--$/s/.*/2/p" \
+-- 
+2.24.0.578.g4820254054
+
