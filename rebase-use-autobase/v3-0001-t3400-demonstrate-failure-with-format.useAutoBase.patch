@@ -1,0 +1,57 @@
+From 8d67bbe5bfb7b09dff9687a06acb92fbf8202699 Mon Sep 17 00:00:00 2001
+Message-Id: <8d67bbe5bfb7b09dff9687a06acb92fbf8202699.1575445583.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1575445582.git.liu.denton@gmail.com>
+References: <cover.1574878089.git.liu.denton@gmail.com>
+	<cover.1575445582.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 26 Nov 2019 17:14:40 -0800
+Subject: [PATCH v3 1/5] t3400: demonstrate failure with format.useAutoBase
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Christian Biesinger <cbiesinger@google.com>,
+    Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+Ever since bb52995f3e (format-patch: introduce format.useAutoBase
+configuration, 2016-04-26), `git rebase` has been broken when
+`format.useAutoBase = true`. It fails when rebasing a branch that
+doesn't have an upstream set:
+
+	fatal: failed to get upstream, if you want to record base commit automatically,
+	please use git branch --set-upstream-to to track a remote branch.
+	Or you could specify base commit by --base=<base-commit-id> manually
+	error:
+	git encountered an error while preparing the patches to replay
+	these revisions:
+
+	    ede2467cdedc63784887b587a61c36b7850ebfac..d8f581194799ae29bf5fa72a98cbae98a1198b12
+
+	As a result, git cannot rebase them.
+
+Demonstrate that failure here.
+
+Reported-by: Christian Biesinger <cbiesinger@google.com>
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t3400-rebase.sh | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/t/t3400-rebase.sh b/t/t3400-rebase.sh
+index ab18ac5f28..ca99e8c6c4 100755
+--- a/t/t3400-rebase.sh
++++ b/t/t3400-rebase.sh
+@@ -159,6 +159,12 @@ test_expect_success 'fail when upstream arg is missing and not configured' '
+ 	test_must_fail git rebase
+ '
+ 
++test_expect_failure 'rebase works with format.useAutoBase' '
++	test_config format.useAutoBase true &&
++	git checkout topic &&
++	git rebase master
++'
++
+ test_expect_success 'default to common base in @{upstream}s reflog if no upstream arg' '
+ 	git checkout -b default-base master &&
+ 	git checkout -b default topic &&
+-- 
+2.24.0.578.g4820254054
+

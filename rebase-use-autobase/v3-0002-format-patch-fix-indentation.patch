@@ -1,0 +1,34 @@
+From 8cfde9f98e416aa44bc27e71d200990fd4d83ae6 Mon Sep 17 00:00:00 2001
+Message-Id: <8cfde9f98e416aa44bc27e71d200990fd4d83ae6.1575445583.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1575445582.git.liu.denton@gmail.com>
+References: <cover.1574878089.git.liu.denton@gmail.com>
+	<cover.1575445582.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 26 Nov 2019 17:28:23 -0800
+Subject: [PATCH v3 2/5] format-patch: fix indentation
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Christian Biesinger <cbiesinger@google.com>,
+    Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ builtin/log.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/builtin/log.c b/builtin/log.c
+index a26f223ab4..9c44682f61 100644
+--- a/builtin/log.c
++++ b/builtin/log.c
+@@ -1350,7 +1350,7 @@ static int header_callback(const struct option *opt, const char *arg, int unset)
+ 		string_list_clear(&extra_to, 0);
+ 		string_list_clear(&extra_cc, 0);
+ 	} else {
+-	    add_header(arg);
++		add_header(arg);
+ 	}
+ 	return 0;
+ }
+-- 
+2.24.0.578.g4820254054
+
