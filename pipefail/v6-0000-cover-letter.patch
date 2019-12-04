@@ -1,0 +1,83 @@
+From ab653bd76fd3a20c2831ed8af6aa69c6d3abb47d Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1575496683.git.liu.denton@gmail.com>
+In-Reply-To: <xmqq1rtk557e.fsf@gitster-ct.c.googlers.com>
+References: <xmqq1rtk557e.fsf@gitster-ct.c.googlers.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 4 Dec 2019 13:58:03 -0800
+Subject: [PATCH v6 0/5] t: test cleanup stemming from experimentally enabling
+ pipefail
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>,
+    Jeff King <peff@peff.net>
+
+Hi Junio,
+
+Sorry for the confusion. Looking it over, I see that the sed expression
+you proposed indeed makes the intent a lot clearer. Here's a replacement
+series for the last five commits of the branch.
+
+I would've opted to send out a single replacement patch but this change
+causes some minor textual conflicts in 4/5 so this should make your life
+a little easier ;)
+
+Denton Liu (5):
+  t7700: consolidate code into test_no_missing_in_packs()
+  t7700: consolidate code into test_has_duplicate_object()
+  t7700: replace egrep with grep
+  t7700: make references to SHA-1 generic
+  t7700: stop losing return codes of git commands
+
+ t/t7700-repack.sh | 165 ++++++++++++++++------------------------------
+ 1 file changed, 57 insertions(+), 108 deletions(-)
+
+Range-diff against v5:
+1:  a99a45cb6f ! 1:  3008ce8deb t7700: consolidate code into test_no_missing_in_packs()
+    @@ Commit message
+         Refactor the resulting extraction so that if any git commands fail,
+         their return codes are not silently lost.
+     
+    -    We were using sed to filter lines. Although not incorrect, this is
+    -    exactly what grep is built for. Replace this invocation of sed with grep
+    -    so that we use the correct tool for the job.
+    -
+         Instead of verifying each file of `alt_objects/pack/*.idx` individually
+         in a for-loop, batch them together into one verification step.
+     
+         The original testing construct was O(n^2): it used a grep in a loop to
+         test whether any objects were missing in the packfile. Rewrite this to
+    -    sort the files then use `comm -23` so that finding missing lines from
+    -    the original file is done more efficiently.
+    +    extract the hash using sed or cut, sort the files, then use `comm -23`
+    +    so that finding missing lines from the original file is done more
+    +    efficiently.
+     
+         While we're at it, add a space to `commit_and_pack ()` for style.
+     
+    @@ t/t7700-repack.sh: test_description='git repack works correctly'
+     +	myidx=$(ls -1 .git/objects/pack/*.idx) &&
+     +	test_path_is_file "$myidx" &&
+     +	git verify-pack -v alt_objects/pack/*.idx >orig.raw &&
+    -+	grep "^[0-9a-f]\{40\}" orig.raw | cut -d" " -f1 | sort >orig &&
+    ++	sed -n -e "s/^\([0-9a-f]\{40\}\).*/\1/p" orig.raw | sort >orig &&
+     +	git verify-pack -v $myidx >dest.raw &&
+     +	cut -d" " -f1 dest.raw | sort >dest &&
+     +	comm -23 orig dest >missing &&
+2:  f79240e937 = 2:  f3a0470edc t7700: consolidate code into test_has_duplicate_object()
+3:  632a62f6e9 = 3:  c34477a5a9 t7700: replace egrep with grep
+4:  bf70cc5a0d ! 4:  113f375192 t7700: make references to SHA-1 generic
+    @@ t/t7700-repack.sh: test_description='git repack works correctly'
+      	myidx=$(ls -1 .git/objects/pack/*.idx) &&
+      	test_path_is_file "$myidx" &&
+      	git verify-pack -v alt_objects/pack/*.idx >orig.raw &&
+    --	grep "^[0-9a-f]\{40\}" orig.raw | cut -d" " -f1 | sort >orig &&
+    -+	grep "^$OID_REGEX" orig.raw | cut -d" " -f1 | sort >orig &&
+    +-	sed -n -e "s/^\([0-9a-f]\{40\}\).*/\1/p" orig.raw | sort >orig &&
+    ++	sed -n -e "s/^\($OID_REGEX\).*/\1/p" orig.raw | sort >orig &&
+      	git verify-pack -v $myidx >dest.raw &&
+      	cut -d" " -f1 dest.raw | sort >dest &&
+      	comm -23 orig dest >missing &&
+5:  1f6d9a80ad = 5:  ab653bd76f t7700: stop losing return codes of git commands
+-- 
+2.24.0.578.g4820254054
+
