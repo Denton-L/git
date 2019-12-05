@@ -1,6 +1,0 @@
-[format]
-	outputDirectory = patches/use-lkml
-	cc = Jeff King <peff@peff.net>
-	cc = Konstantin Ryabitsev <konstantin@linuxfoundation.org>
-	cc = Eric Wong <e@80x24.org>
-	cc = Junio C Hamano <gitster@pobox.com>

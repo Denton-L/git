@@ -49,9 +49,3 @@
 	description = rebase: fix breakage with `format.useAutoBase`\n\nApparently, this use case has been broken for a long time... Since\nbb52995f3e (format-patch: introduce format.useAutoBase configuration,\n2016-04-26). I'm surprised it's only been reported now.\n\nThis patchset fixes the breakage by teaching\n`git format-patch --no-base` and making rebase use it.\n\nThis patch is based on the latest master since it's such an old bug that\nonly got noticed recently, I'm not sure if it's worth fixing in 'maint'.\nThe series does not apply cleanly on top of 'maint' because it relies on\nc1a6f21cd4 (Doc: add more detail for git-format-patch, 2019-08-27) but\nthe conflicts are relatively minor.\n\nChanges since v3:\n\n* Correct error in log messages more precise by saying that rebases fail\n  in general (even if an upstream is set)\n\n* Change ugly use of OPT_CALLBACK into a more elegant form\n\nChanges since v2:\n\n* Remove spurious indentation change\n\n* Rebase onto the latest master\n\nChanges since v1:\n\n* Update some log messages
 	remote = origin
 	merge = refs/heads/submitted/rebase-use-autobase
-[includeIf "onbranch:submitted/use-lkml"]
-	path = use-lkml/config
-[branch "submitted/use-lkml"]
-	remote = upstream
-	merge = refs/heads/jk/lore-is-the-archive
-	description = Doc: replace opaque mail archive links with lore.kernel.org\n\nWe reference many mail archives that use opaque links. Even though many\nhave been around for a long time, they may still be liable to go down\n(see Gmane) leaving us with dead links that we cannot reference in the\nfuture. Replace these links with links to lore.kernel.org which use\nMessage-IDs so that if lore.kernel.org ever goes down, it will be much\neasier to find these messages in the future.\n\nMy series is based on top of 'jk/lore-is-the-archive'.
