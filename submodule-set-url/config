@@ -1,3 +1,0 @@
-[format]
-	outputDirectory = patches/submodule-set-url
-	cc = Danh Doan <congdanhqx@gmail.com>

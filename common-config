@@ -29,8 +29,6 @@
 
 [includeIf "onbranch:submitted/branch-specific-format-patch"]
 	path = branch-specific-format-patch/config
-[includeIf "onbranch:submitted/submodule-set-url"]
-	path = submodule-set-url/config
 [includeIf "onbranch:submitted/better-apply-error"]
 	path = better-apply-error/config
 [includeIf "onbranch:submitted/merge-autostash"]
