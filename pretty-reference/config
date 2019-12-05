@@ -1,7 +1,0 @@
-[format]
-	outputDirectory = patches/pretty-reference
-	cc = Eric Sunshine <sunshine@sunshineco.com>
-	cc = Junio C Hamano <gitster@pobox.com>
-	cc = René Scharfe <l.s.r@web.de>
-	cc = SZEDER Gábor <szeder.dev@gmail.com>
-	cc = Todd Zullinger <tmz@pobox.com>
