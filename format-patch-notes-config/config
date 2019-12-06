@@ -1,0 +1,6 @@
+[format]
+	outputDirectory = patches/format-patch-notes-config
+	cc = Elijah Newren <newren@gmail.com>
+	cc = Junio C Hamano <gitster@pobox.com>
+	cc = Beat Bolli <dev+git@drbeat.li>
+	cc = Pavel Roskin <plroskin@gmail.com>

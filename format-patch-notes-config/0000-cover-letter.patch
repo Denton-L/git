@@ -1,0 +1,50 @@
+From 709565e734820fcb6d5db027dcf644f53ce2d4c9 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1575896661.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 9 Dec 2019 05:04:21 -0800
+Subject: [PATCH 0/5] format-patch: improve handling of `format.notes`
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Elijah Newren <newren@gmail.com>,
+    Junio C Hamano <gitster@pobox.com>,
+    Beat Bolli <dev+git@drbeat.li>,
+    Pavel Roskin <plroskin@gmail.com>
+
+In this email[1], Elijah pointed out that the handling of multiple
+`format.notes` configurations could be buggy. If we had
+`format.notes = <ref1>`, `format.notes = false` and
+`format.notes = <ref2>`, the behaviour is ambiguous. This series uses
+the way `--notes=<ref1> --no-notes --notes=<ref2>` is handled as a model
+and structures the handling of `format.notes` in a similar manner,
+allowing one `format.notes = false` to override previous configs.
+
+Also, in the same email, it was pointed out that git_config() should be
+called before repo_init_revisions(). In 13cdf78094 (format-patch: teach
+format.notes config option, 2019-05-16), the order was reversed. This
+series changes it back such that git_config() is called before
+repo_init_revisions().
+
+This series is based on top of 'dl/format-patch-notes-config'.
+
+It has minor textual conflicts with 'pu'. The merge resolution can be found at
+https://github.com/Denton-L/git.git on branch
+'published/published/pu-format-patch-notes-config'.
+
+[1]: https://lore.kernel.org/git/CABPp-BF44+6gvZVNimKf-k7AWbOjw3OK-cJeFunNR96wvZGkcw@mail.gmail.com/
+
+Denton Liu (5):
+  notes: rename to load_display_notes()
+  notes: create init_display_notes() helper
+  notes: extract logic into set_display_notes()
+  format-patch: use --notes behavior for format.notes
+  format-patch: move git_config() before repo_init_revisions()
+
+ builtin/log.c           | 26 +++++++++-----------------
+ notes.c                 | 30 ++++++++++++++++++++++++++++++
+ notes.h                 | 21 ++++++++++++++++++---
+ revision.c              | 22 +++++-----------------
+ t/t4014-format-patch.sh | 32 ++++++++++++++++++++++++++++++++
+ 5 files changed, 94 insertions(+), 37 deletions(-)
+
+-- 
+2.24.0.627.geba02921db
+
