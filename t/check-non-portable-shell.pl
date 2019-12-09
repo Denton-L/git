@@ -48,8 +48,9 @@ while (<>) {
 	/\bexport\s+[A-Za-z0-9_]*=/ and err '"export FOO=bar" is not portable (use FOO=bar && export FOO)';
 	/^\s*([A-Z0-9_]+=(\w+|(["']).*?\3)\s+)+(\w+)/ and exists($func{$4}) and
 		err '"FOO=bar shell_func" assignment extends beyond "shell_func"';
-	/^\s*(if|while|until)?\s+\[\s/ and err 'use test instead of \'[ ]\'';
-	/(git|test-tool)[^|]*\|[^|]/ and err 'git command in the upstream of a pipe';
+	/^\s*(if|while|until)?\s+\[\s/ and err 'use test instead of \'[ ]\''; # TODO: fix message
+	/\b(git|test-tool)[^|]*\|[^|]/ and err 'git command in the upstream of a pipe'; # TODO: fix message
+	/[^=]"?\$\(git/ and err 'git in non-assignment command substitution'; # TODO: fix message
 	$line = '';
 	# this resets our $. for each file
 	close ARGV if eof;
