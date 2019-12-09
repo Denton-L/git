@@ -49,6 +49,7 @@ while (<>) {
 	/^\s*([A-Z0-9_]+=(\w+|(["']).*?\3)\s+)+(\w+)/ and exists($func{$4}) and
 		err '"FOO=bar shell_func" assignment extends beyond "shell_func"';
 	/^\s*(if|while|until)?\s+\[\s/ and err 'use test instead of \'[ ]\'';
+	/(git|test-tool)[^|]*\|[^|]/ and err 'git command in the upstream of a pipe';
 	$line = '';
 	# this resets our $. for each file
 	close ARGV if eof;
