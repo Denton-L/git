@@ -1,6 +1,0 @@
-[format]
-	outputDirectory = patches/rebase-use-autobase
-	cc = Christian Biesinger <cbiesinger@google.com>
-	cc = Eric Sunshine <sunshine@sunshineco.com>
-	cc = Junio C Hamano <gitster@pobox.com>
-	cc = René Scharfe <l.s.r@web.de>
