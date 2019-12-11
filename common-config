@@ -33,10 +33,6 @@
 	path = better-apply-error/config
 [includeIf "onbranch:submitted/merge-autostash"]
 	path = merge-autostash/config
-[includeIf "onbranch:submitted/pretty-summary"]
-	path = pretty-summary/config
-[branch "submitted/pretty-summary"]
-	description = learn the \"summary\" pretty format\n\nOn this mailing list (and many others) the standard way to reference\nother commits with the \"summary\" format, e.g. \"f86a374 (\"pack-bitmap.c:\nfix a memleak\", 2015-03-30)\". Since it's so commonly used, let's\nstandardise it as a pretty format.\n\nChanges since v1:\n\n* Replace more references to \"sha1\" with \"hash\"\n\n* Clean up 8/10 by losing the allocation and making the subject less\n  misleading\n\n* Add tests in 7/10 to ensure 8/10 does not change any behaviour
 [includeIf "onbranch:submitted/pipefail"]
 	path = pipefail/config
 [branch "submitted/pipefail"]
