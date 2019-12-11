@@ -33,12 +33,6 @@
 	path = better-apply-error/config
 [includeIf "onbranch:submitted/merge-autostash"]
 	path = merge-autostash/config
-[includeIf "onbranch:submitted/range-diff-with-notes"]
-	path = range-diff-with-notes/config
-[branch "submitted/range-diff-with-notes"]
-	remote = upstream
-	merge = refs/heads/dl/range-diff-with-notes
-	description = cleanup for 'dl/range-diff-with-notes'\n\nThis series performs some small polishing touches for the\n'dl/range-diff-with-notes' topic. Notably, we fix an incorrect test case\nname but we also perform some nit-picky cleanup for the range-diff code.
 [includeIf "onbranch:submitted/format-patch-notes-config"]
 	path = format-patch-notes-config/config
 [branch "submitted/format-patch-notes-config"]
