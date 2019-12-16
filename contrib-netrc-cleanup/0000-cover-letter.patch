@@ -1,0 +1,32 @@
+From d22eb1f9e2431199f1b6bea2aefe8473284e966e Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1576531851.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 16 Dec 2019 13:30:51 -0800
+Subject: [PATCH 0/2] contrib/credential/netrc: Makefile + script cleanup
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Luis Marsano <luis.marsano@gmail.com>,
+    Ted Zlatanov <tzz@lifelogs.com>
+
+I recently switched my workflow to use this credential helper and I
+noticed a couple of problems:
+
+1. The interpreter path was hardcoded to #!/usr/bin/perl
+
+2. The script refuses to run outside of a Git repository
+
+This patch series should fix these problems.
+
+Denton Liu (2):
+  contrib/credential/netrc: make PERL_PATH configurable
+  contrib/credential/netrc: work outside a repo
+
+ contrib/credential/netrc/.gitignore           |  1 +
+ contrib/credential/netrc/Makefile             | 26 +++++++++++++++++--
+ ...ential-netrc => git-credential-netrc.perl} |  2 +-
+ 3 files changed, 26 insertions(+), 3 deletions(-)
+ create mode 100644 contrib/credential/netrc/.gitignore
+ rename contrib/credential/netrc/{git-credential-netrc => git-credential-netrc.perl} (99%)
+
+-- 
+2.24.1.664.g198078bb5a
+

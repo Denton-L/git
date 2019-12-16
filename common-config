@@ -41,3 +41,5 @@
 	remote = origin
 	merge = refs/heads/submitted/gitk-use-pretty-reference
 	description = gitk: match Git's 'reference' pretty format\n\nRecently, the 'reference' pretty format was implemented in Git, which\nhas the same function as the 'Copy commit summary' feature in gitk.\nSince Git now has a canonical way of doing this, update gitk to match\nthis.
+[includeIf "onbranch:submitted/contrib-netrc-cleanup"]
+	path = contrib-netrc-cleanup/config

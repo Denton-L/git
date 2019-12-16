@@ -1,0 +1,4 @@
+[format]
+	outputDirectory = patches/contrib-netrc-cleanup
+	cc = Luis Marsano <luis.marsano@gmail.com>
+	cc = Ted Zlatanov <tzz@lifelogs.com>
