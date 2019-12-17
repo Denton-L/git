@@ -1,0 +1,35 @@
+From 2dd91c5568835f8263d18db62c787deb1eeb1650 Mon Sep 17 00:00:00 2001
+Message-Id: <2dd91c5568835f8263d18db62c787deb1eeb1650.1576583819.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1576583819.git.liu.denton@gmail.com>
+References: <cover.1576583819.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 2 Dec 2019 23:51:56 -0800
+Subject: [PATCH 11/15] t1307: reorder `nongit test_must_fail`
+To: Git Mailing List <git@vger.kernel.org>
+
+In the future, we plan on only allowing `test_must_fail` to work on a
+restricted subset of commands, including `git`. Reorder the commands so
+that `nongit` comes before `test_must_fail`. This way, `test_must_fail`
+operates on a git command.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t1307-config-blob.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/t/t1307-config-blob.sh b/t/t1307-config-blob.sh
+index 37dc689d8c..002e6d3388 100755
+--- a/t/t1307-config-blob.sh
++++ b/t/t1307-config-blob.sh
+@@ -74,7 +74,7 @@ test_expect_success 'can parse blob ending with CR' '
+ '
+ 
+ test_expect_success 'config --blob outside of a repository is an error' '
+-	test_must_fail nongit git config --blob=foo --list
++	nongit test_must_fail git config --blob=foo --list
+ '
+ 
+ test_done
+-- 
+2.24.0.627.geba02921db
+

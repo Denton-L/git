@@ -1,0 +1,50 @@
+From 85cee927656cebed34bc93280d0b2d89e0caa570 Mon Sep 17 00:00:00 2001
+Message-Id: <85cee927656cebed34bc93280d0b2d89e0caa570.1576583819.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1576583819.git.liu.denton@gmail.com>
+References: <cover.1576583819.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 4 Dec 2019 12:25:53 -0800
+Subject: [PATCH 01/15] test-lib-functions: introduce test_non_git_might_fail()
+To: Git Mailing List <git@vger.kernel.org>
+
+In a future commit, we will be preventing the use of the
+test_must_fail()-family of functions (including test_might_fail()) on
+non-git comands. To prep for this, introduce the
+test_non_git_might_fail() function which is used to replace non-git
+invocations of test_might_fail().
+
+The test_non_git_might_fail() function is a lightweight replacement,
+always masking the return status of the command and returning a
+non-error exit code. Unlike test_might_fail(), it does not check for
+abnormal exit conditions such as a segv. This is because we are not in
+the business of checking the sanity of the external environment and we
+can assume that it works properly.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/test-lib-functions.sh | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/t/test-lib-functions.sh b/t/test-lib-functions.sh
+index 284c52d076..61d27f1ec6 100644
+--- a/t/test-lib-functions.sh
++++ b/t/test-lib-functions.sh
+@@ -891,6 +891,15 @@ test_expect_code () {
+ 	return 1
+ } 7>&2 2>&4
+ 
++# Similar to test_might_fail, but much simpler. This is intended for use
++# with non-git commands that we can assume will work sanely so we don't
++# need to check for conditions such as a segv.
++
++test_non_git_might_fail () {
++	"$@" 2>&7
++	return 0
++}
++
+ # test_cmp is a helper function to compare actual and expected output.
+ # You can use it like:
+ #
+-- 
+2.24.0.627.geba02921db
+

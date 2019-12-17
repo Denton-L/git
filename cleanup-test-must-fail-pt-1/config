@@ -1,0 +1,2 @@
+[format]
+	outputDirectory = patches/cleanup-test-must-fail-pt-1

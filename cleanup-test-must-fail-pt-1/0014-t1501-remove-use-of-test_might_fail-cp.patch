@@ -1,0 +1,34 @@
+From 3d36511d5d95d2a2713b3cc8e2138b689d381c79 Mon Sep 17 00:00:00 2001
+Message-Id: <3d36511d5d95d2a2713b3cc8e2138b689d381c79.1576583819.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1576583819.git.liu.denton@gmail.com>
+References: <cover.1576583819.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 3 Dec 2019 00:01:50 -0800
+Subject: [PATCH 14/15] t1501: remove use of `test_might_fail cp`
+To: Git Mailing List <git@vger.kernel.org>
+
+The test_must_fail() family of functions (including test_might_fail())
+should only be used on git commands. Replace test_might_fail() with
+test_non_git_might_fail().
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t1501-work-tree.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/t/t1501-work-tree.sh b/t/t1501-work-tree.sh
+index 3498d3d55e..067301a5ab 100755
+--- a/t/t1501-work-tree.sh
++++ b/t/t1501-work-tree.sh
+@@ -350,7 +350,7 @@ test_expect_success 'Multi-worktree setup' '
+ 	mkdir work &&
+ 	mkdir -p repo.git/repos/foo &&
+ 	cp repo.git/HEAD repo.git/index repo.git/repos/foo &&
+-	test_might_fail cp repo.git/sharedindex.* repo.git/repos/foo &&
++	test_non_git_might_fail cp repo.git/sharedindex.* repo.git/repos/foo &&
+ 	sane_unset GIT_DIR GIT_CONFIG GIT_WORK_TREE
+ '
+ 
+-- 
+2.24.0.627.geba02921db
+

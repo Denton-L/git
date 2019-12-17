@@ -1,0 +1,52 @@
+From 055caa5c08d9a53e5e1415d540024d54d0916252 Mon Sep 17 00:00:00 2001
+Message-Id: <055caa5c08d9a53e5e1415d540024d54d0916252.1576583819.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1576583819.git.liu.denton@gmail.com>
+References: <cover.1576583819.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 2 Dec 2019 15:10:35 -0800
+Subject: [PATCH 05/15] t0003: use test_must_be_empty()
+To: Git Mailing List <git@vger.kernel.org>
+
+In several places, we used `test_line_count = 0` to check for an empty
+file. Although this is correct, it's overkill. Use test_must_be_empty()
+instead because it's more suited for this purpose.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t0003-attributes.sh | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/t/t0003-attributes.sh b/t/t0003-attributes.sh
+index c47d4cfbcd..53a730e2ee 100755
+--- a/t/t0003-attributes.sh
++++ b/t/t0003-attributes.sh
+@@ -12,7 +12,7 @@ attr_check () {
+ 	git $git_opts check-attr test -- "$path" >actual 2>err &&
+ 	echo "$path: test: $expect" >expect &&
+ 	test_cmp expect actual &&
+-	test_line_count = 0 err
++	test_must_be_empty err
+ }
+ 
+ attr_check_quote () {
+@@ -245,7 +245,7 @@ EOF
+ 	git check-attr foo -- "a/b/f" >>actual 2>>err &&
+ 	git check-attr foo -- "a/b/c/f" >>actual 2>>err &&
+ 	test_cmp expect actual &&
+-	test_line_count = 0 err
++	test_must_be_empty err
+ '
+ 
+ test_expect_success '"**" with no slashes test' '
+@@ -266,7 +266,7 @@ EOF
+ 	git check-attr foo -- "a/b/f" >>actual 2>>err &&
+ 	git check-attr foo -- "a/b/c/f" >>actual 2>>err &&
+ 	test_cmp expect actual &&
+-	test_line_count = 0 err
++	test_must_be_empty err
+ '
+ 
+ test_expect_success 'using --git-dir and --work-tree' '
+-- 
+2.24.0.627.geba02921db
+
