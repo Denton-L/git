@@ -21,8 +21,14 @@ restore_checkpoint () {
 }
 
 verify_expect () {
+	fail= &&
+	if test "x$1" = 'x!'
+	then
+		fail='!' &&
+		shift
+	fi &&
 	git status --porcelain -- fileA.t fileB.t fileC.t fileD.t >actual &&
-	test_cmp expect actual
+	eval $fail test_cmp expect actual
 }
 
 test_expect_success '--pathspec-from-file from stdin' '
@@ -131,7 +137,7 @@ test_expect_success 'quotes not compatible with --pathspec-file-nul' '
 	cat >expect <<-\EOF &&
 	 D fileA.t
 	EOF
-	test_must_fail verify_expect
+	verify_expect !
 '
 
 test_expect_success 'only touches what was listed' '
