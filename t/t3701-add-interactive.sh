@@ -31,7 +31,13 @@ diff_cmp () {
 # indicates a dumb terminal, so we set that variable, too.
 
 force_color () {
-	env GIT_PAGER_IN_USE=true TERM=vt100 "$@"
+	prefix=
+	if test "x$1" != "xgit"
+	then
+		prefix="$1" &&
+		shift
+	fi
+	$prefix env GIT_PAGER_IN_USE=true TERM=vt100 "$@"
 }
 
 test_expect_success 'setup (initial)' '
@@ -585,7 +591,7 @@ test_expect_success 'detect bogus diffFilter output' '
 	echo content >test &&
 	test_config interactive.diffFilter "sed 1d" &&
 	printf y >y &&
-	test_must_fail force_color git add -p <y
+	force_color test_must_fail git add -p <y
 '
 
 test_expect_success 'diff.algorithm is passed to `git diff-files`' '
