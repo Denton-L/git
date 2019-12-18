@@ -35,8 +35,6 @@
 	path = merge-autostash/config
 [includeIf "onbranch:submitted/gitk-use-pretty-reference"]
 	path = gitk-use-pretty-reference/config
-[includeIf "onbranch:submitted/format-patch-notes-config-fixup"]
-	path = format-patch-notes-config-fixup/config
 [branch "submitted/gitk-use-pretty-reference"]
 	remote = origin
 	merge = refs/heads/submitted/gitk-use-pretty-reference
