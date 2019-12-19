@@ -1,0 +1,244 @@
+From d09370455ffc9de30c0ca7ecce100754f725728a Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1576794144.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1576583819.git.liu.denton@gmail.com>
+References: <cover.1576583819.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Thu, 19 Dec 2019 14:22:24 -0800
+Subject: [PATCH v2 00/16] t: replace incorrect test_must_fail usage (part 1)
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Johannes Sixt <j6t@kdbg.org>,
+    Junio C Hamano <gitster@pobox.com>
+
+The overall scope of these patches is to replace inappropriate uses of
+test_must_fail. IOW, we should only allow test_must_fail to run on `git`
+and `test-tool`. Ultimately, we will conclude by making test_must_fail
+error out on non-git commands. An advance view of the final series can
+be found here[1].
+
+This is the first part. It focuses on t[01]*.sh and also t/lib-git-p4.
+
+Changes since v1:
+
+* Incorporate review comments by Junio, Eric and J6t
+
+* Further cleanup of t1507 before inlining full_name() (since we didn't
+  want to inline full_name() into a bad command substitution)
+
+[1]: (may be rebased at any time) https://github.com/Denton-L/git/tree/ready/cleanup-test-must-fail2
+
+Denton Liu (16):
+  test-lib-functions: introduce test_non_git_might_fail()
+  t/lib-git-p4: use test_path_is_missing()
+  t0000: replace test_must_fail with run_sub_test_lib_test_err()
+  t0003: use named parameters in attr_check()
+  t0003: use test_must_be_empty()
+  t0003: don't use `test_must_fail attr_check`
+  t0020: don't use `test_must_fail has_cr`
+  t0020: use ! check_packed_refs_marked
+  t1306: convert `test_might_fail rm` to `rm -f`
+  t1307: reorder `nongit test_must_fail`
+  t1409: let sed open its own input file
+  t1409: use test_path_is_missing()
+  t1501: remove use of `test_might_fail cp`
+  t1507: stop losing return codes of git commands
+  t1507: run commands within test_expect_success
+  t1507: inline full_name()
+
+ t/lib-git-p4.sh               |   2 +-
+ t/t0000-basic.sh              |  14 ++---
+ t/t0003-attributes.sh         |  47 +++++++--------
+ t/t0020-crlf.sh               |  18 +++---
+ t/t1306-xdg-files.sh          |   8 +--
+ t/t1307-config-blob.sh        |   2 +-
+ t/t1409-avoid-packing-refs.sh |  16 +++---
+ t/t1501-work-tree.sh          |   2 +-
+ t/t1507-rev-parse-upstream.sh | 104 +++++++++++++++++++---------------
+ t/test-lib-functions.sh       |   9 +++
+ 10 files changed, 121 insertions(+), 101 deletions(-)
+
+Range-diff against v1:
+ 1:  fcfccebd7a !  1:  778ae9052b t0000: replace test_must_fail with ! for run_sub_test_lib_test()
+    @@ Metadata
+     Author: Denton Liu <liu.denton@gmail.com>
+     
+      ## Commit message ##
+    -    t0000: replace test_must_fail with ! for run_sub_test_lib_test()
+    +    t0000: replace test_must_fail with run_sub_test_lib_test_err()
+     
+         The test_must_fail function should only be used for git commands since
+         we should assume that external commands work sanely. We use
+         test_must_fail to test run_sub_test_lib_test() but that function does
+    -    not invoke any git commands internally. Replace these instances of
+    -    `test_must_fail` with `!`.
+    +    not invoke any git commands internally. Even better, we have a function
+    +    that's exactly meant to be used when we expect to have a failing test
+    +    suite: run_sub_test_lib_test_err()!
+    +
+    +    Replace `test_must_fail run_sub_test_lib_test` with
+    +    `run_sub_test_lib_test_err`.
+     
+      ## t/t0000-basic.sh ##
+     @@ t/t0000-basic.sh: test_expect_success 'pretend we have a fully passing test suite' "
+    @@ t/t0000-basic.sh: test_expect_success 'pretend we have a fully passing test suit
+      
+      test_expect_success 'pretend we have a partially passing test suite' "
+     -	test_must_fail run_sub_test_lib_test \
+    -+	! run_sub_test_lib_test \
+    ++	run_sub_test_lib_test_err \
+      		partial-pass '2/3 tests passing' <<-\\EOF &&
+      	test_expect_success 'passing test #1' 'true'
+      	test_expect_success 'failing test #2' 'false'
+    @@ t/t0000-basic.sh: test_expect_success 'pretend we have fixed one of two known br
+      
+      test_expect_success 'pretend we have a pass, fail, and known breakage' "
+     -	test_must_fail run_sub_test_lib_test \
+    -+	! run_sub_test_lib_test \
+    ++	run_sub_test_lib_test_err \
+      		mixed-results1 'mixed results #1' <<-\\EOF &&
+      	test_expect_success 'passing test' 'true'
+      	test_expect_success 'failing test' 'false'
+    @@ t/t0000-basic.sh: test_expect_success 'pretend we have a pass, fail, and known b
+      
+      test_expect_success 'pretend we have a mix of all possible results' "
+     -	test_must_fail run_sub_test_lib_test \
+    -+	! run_sub_test_lib_test \
+    ++	run_sub_test_lib_test_err \
+      		mixed-results2 'mixed results #2' <<-\\EOF &&
+      	test_expect_success 'passing test' 'true'
+      	test_expect_success 'passing test' 'true'
+    @@ t/t0000-basic.sh: test_expect_success 'pretend we have a mix of all possible res
+      
+      test_expect_success C_LOCALE_OUTPUT 'test --verbose' '
+     -	test_must_fail run_sub_test_lib_test \
+    -+	! run_sub_test_lib_test \
+    ++	run_sub_test_lib_test_err \
+      		t1234-verbose "test verbose" --verbose <<-\EOF &&
+      	test_expect_success "passing test" true
+      	test_expect_success "test with output" "echo foo"
+    @@ t/t0000-basic.sh: test_expect_success C_LOCALE_OUTPUT 'test --verbose' '
+      
+      test_expect_success 'test --verbose-only' '
+     -	test_must_fail run_sub_test_lib_test \
+    -+	! run_sub_test_lib_test \
+    ++	run_sub_test_lib_test_err \
+      		t2345-verbose-only-2 "test verbose-only=2" \
+      		--verbose-only=2 <<-\EOF &&
+      	test_expect_success "passing test" true
+    @@ t/t0000-basic.sh: then
+      
+      test_expect_success 'tests clean up even on failures' "
+     -	test_must_fail run_sub_test_lib_test \
+    -+	! run_sub_test_lib_test \
+    ++	run_sub_test_lib_test_err \
+      		failing-cleanup 'Failing tests with cleanup commands' <<-\\EOF &&
+      	test_expect_success 'tests clean up even after a failure' '
+      		touch clean-after-failure &&
+    @@ t/t0000-basic.sh: test_expect_success 'tests clean up even on failures' "
+      
+      test_expect_success 'test_atexit is run' "
+     -	test_must_fail run_sub_test_lib_test \
+    -+	! run_sub_test_lib_test \
+    ++	run_sub_test_lib_test_err \
+      		atexit-cleanup 'Run atexit commands' -i <<-\\EOF &&
+      	test_expect_success 'tests clean up even after a failure' '
+      		> ../../clean-atexit &&
+ 2:  f1acb2a0df !  2:  dbc82d45c6 t0003: use named parameters in attr_check()
+    @@ Commit message
+         variables instead of numbered arguments for clarity.
+     
+         While we're at it, add variable assignments to the &&-chain. These
+    -    aren't ever expected to fail but for stylistic purposes, include them
+    -    anyway for stylistic purposes.
+    +    aren't ever expected to fail but if a future developer ever adds some
+    +    code above the assignments and they could fail in some way, the intact
+    +    &&-chain will ensure that the failure is caught.
+     
+      ## t/t0003-attributes.sh ##
+     @@ t/t0003-attributes.sh: test_description=gitattributes
+    @@ t/t0003-attributes.sh: test_description=gitattributes
+      
+      attr_check () {
+     -	path="$1" expect="$2"
+    -+	path="$1" &&
+    -+	expect="$2" &&
+    -+	git_opts="$3" &&
+    ++	path="$1" expect="$2" git_opts="$3" &&
+      
+     -	git $3 check-attr test -- "$path" >actual 2>err &&
+     -	echo "$path: test: $2" >expect &&
+    @@ t/t0003-attributes.sh: test_description=gitattributes
+     -	path="$1"
+     -	quoted_path="$2"
+     -	expect="$3"
+    -+	path="$1" &&
+    -+	quoted_path="$2" &&
+    -+	expect="$3" &&
+    ++	path="$1" quoted_path="$2" expect="$3" &&
+      
+      	git check-attr test -- "$path" >actual &&
+      	echo "\"$quoted_path\": test: $expect" >expect &&
+ 3:  055caa5c08 =  3:  e06a06cff5 t0003: use test_must_be_empty()
+ 4:  3afa3a16ca =  4:  219011f983 t0003: don't use `test_must_fail attr_check`
+ 5:  d228dcfdc7 <  -:  ---------- t0020: drop redirections to /dev/null
+ 6:  8adc5cd5aa !  5:  8da6c96b39 t0020: s/test_must_fail has_cr/! has_cr/
+    @@ Metadata
+     Author: Denton Liu <liu.denton@gmail.com>
+     
+      ## Commit message ##
+    -    t0020: s/test_must_fail has_cr/! has_cr/
+    +    t0020: don't use `test_must_fail has_cr`
+     
+         The test_must_fail function should only be used for git commands since
+         we should assume that external commands work sanely. Since has_cr() just
+ 7:  b77b474422 =  6:  27550eaae6 t0020: use ! check_packed_refs_marked
+ 8:  d39422505f =  7:  c19f6344a4 t1306: convert `test_might_fail rm` to `rm -f`
+ 9:  2dd91c5568 =  8:  d6ea8a6df0 t1307: reorder `nongit test_must_fail`
+10:  0b7d19a7e1 !  9:  d57dfe95e2 t1409: let sed open its own files
+    @@ Metadata
+     Author: Denton Liu <liu.denton@gmail.com>
+     
+      ## Commit message ##
+    -    t1409: let sed open its own files
+    +    t1409: let sed open its own input file
+     
+         In one case, we were using a redirection operator to feed input into
+    -    sed. However, since sed is capable of opening its own files, make sed
+    -    open its own files instead of redirecting input into it.
+    +    sed. However, since sed is capable of opening its own input file, make
+    +    sed do that instead of redirecting input into it.
+     
+      ## t/t1409-avoid-packing-refs.sh ##
+     @@ t/t1409-avoid-packing-refs.sh: test_description='avoid rewriting packed-refs unnecessarily'
+11:  27b3296242 ! 10:  eacf4e0fb4 t1409: use test_path_is_missing()
+    @@ Commit message
+         The test_must_fail() function should only be used for git commands since
+         we should assume that external commands work sanely. Replace
+         `test_must_fail test -f` with `test_path_is_missing` since we expect
+    -    these files to not exist.
+    +    these paths to not exist.
+     
+      ## t/t1409-avoid-packing-refs.sh ##
+     @@ t/t1409-avoid-packing-refs.sh: test_expect_success 'setup' '
+12:  3d36511d5d ! 11:  83e47748bc t1501: remove use of `test_might_fail cp`
+    @@ Commit message
+         should only be used on git commands. Replace test_might_fail() with
+         test_non_git_might_fail().
+     
+    +    The `test_might_fail cp` line was introduced in 466e8d5d66 (t1501: fix
+    +    test with split index, 2015-03-24). It is necessary because there might
+    +    exist some index files in `repo.git/sharedindex.*` and, if they exist,
+    +    we want to copy them over. However, if they don't exist, we don't want
+    +    to error out because we expect that possibility. As a result, we want to
+    +    keep the "might fail" semantics so we use test_non_git_might_fail().
+    +
+      ## t/t1501-work-tree.sh ##
+     @@ t/t1501-work-tree.sh: test_expect_success 'Multi-worktree setup' '
+      	mkdir work &&
+13:  cd392a74ac <  -:  ---------- t1507: teach full_name() to accept `!` arg
+ -:  ---------- > 12:  9e20865f94 t1507: stop losing return codes of git commands
+ -:  ---------- > 13:  7c61ac6b67 t1507: run commands within test_expect_success
+ -:  ---------- > 14:  d09370455f t1507: inline full_name()
+-- 
+2.24.1.703.g2f499f1283
+
