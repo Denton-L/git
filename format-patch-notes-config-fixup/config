@@ -1,5 +1,0 @@
-[format]
-	outputDirectory = patches/format-patch-notes-config-fixup
-	cc = Eric Sunshine <sunshine@sunshineco.com>
-	cc = Elijah Newren <newren@gmail.com>
-	cc = Philip Oakley <philipoakley@iee.email>

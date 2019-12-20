@@ -47,8 +47,3 @@
 	description = t: replace incorrect test_must_fail usage (part 1)\n\nThe overall scope of these patches is to replace inappropriate uses of\ntest_must_fail. IOW, we should only allow test_must_fail to run on `git`\nand `test-tool`. Ultimately, we will conclude by making test_must_fail\nerror out on non-git commands. An advance view of the final series can\nbe found here[1].\n\nThis is the first part. It focuses on t[01]*.sh and also t/lib-git-p4.\n\nChanges since v2:\n\n* Drop the inclusion of test_non_git_must_fail() and open code it\n  instead\n\nChanges since v1:\n\n* Incorporate review comments by Junio, Eric and J6t\n\n* Further cleanup of t1507 before inlining full_name() (since we didn't\n  want to inline full_name() into a bad command substitution)\n\n[1]: (may be rebased at any time) https://github.com/Denton-L/git/tree/ready/cleanup-test-must-fail2
 	remote = origin
 	merge = refs/heads/submitted/cleanup-test-must-fail-pt-1
-[includeIf "onbranch:submitted/format-patch-notes-config-fixup"]
-	path = format-patch-notes-config-fixup/config
-[branch "submitted/format-patch-notes-config-fixup"]
-	remote = upstream
-	merge = refs/heads/dl/format-patch-notes-config-fixup
