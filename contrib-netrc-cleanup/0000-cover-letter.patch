@@ -1,11 +1,15 @@
 From d22eb1f9e2431199f1b6bea2aefe8473284e966e Mon Sep 17 00:00:00 2001
-Message-Id: <cover.1576531851.git.liu.denton@gmail.com>
+Message-Id: <cover.1576867467.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1576531851.git.liu.denton@gmail.com>
+References: <cover.1576531851.git.liu.denton@gmail.com>
 From: Denton Liu <liu.denton@gmail.com>
-Date: Mon, 16 Dec 2019 13:30:51 -0800
-Subject: [PATCH 0/2] contrib/credential/netrc: Makefile + script cleanup
+Date: Fri, 20 Dec 2019 10:44:27 -0800
+Subject: [RESEND PATCH 0/2] contrib/credential/netrc: Makefile + script
+ cleanup
 To: Git Mailing List <git@vger.kernel.org>
 Cc: Luis Marsano <luis.marsano@gmail.com>,
-    Ted Zlatanov <tzz@lifelogs.com>
+    Ted Zlatanov <tzz@lifelogs.com>,
+    Jeff King <peff@peff.net>
 
 I recently switched my workflow to use this credential helper and I
 noticed a couple of problems:
@@ -28,5 +32,5 @@ Denton Liu (2):
  rename contrib/credential/netrc/{git-credential-netrc => git-credential-netrc.perl} (99%)
 
 -- 
-2.24.1.664.g198078bb5a
+2.24.1.703.g2f499f1283
 

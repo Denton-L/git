@@ -2,3 +2,4 @@
 	outputDirectory = patches/contrib-netrc-cleanup
 	cc = Luis Marsano <luis.marsano@gmail.com>
 	cc = Ted Zlatanov <tzz@lifelogs.com>
+	cc = Jeff King <peff@peff.net>
