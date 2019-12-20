@@ -1,0 +1,49 @@
+From fc32b8d5847f57e7ea64e3be339cf7451ecd919e Mon Sep 17 00:00:00 2001
+Message-Id: <fc32b8d5847f57e7ea64e3be339cf7451ecd919e.1576865664.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1576865663.git.liu.denton@gmail.com>
+References: <cover.1576794144.git.liu.denton@gmail.com>
+	<cover.1576865663.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 10 Sep 2019 01:00:03 -0700
+Subject: [PATCH v3 07/15] t0020: use ! check_packed_refs_marked
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Johannes Sixt <j6t@kdbg.org>,
+    Junio C Hamano <gitster@pobox.com>
+
+The test_must_fail function should only be used for git commands since
+we should assume that external commands work sanely. Since
+check_packed_refs_marked() just wraps a grep invocation, replace
+`test_must_fail check_packed_refs_marked` with
+`! check_packed_refs_marked`.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t1409-avoid-packing-refs.sh | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/t/t1409-avoid-packing-refs.sh b/t/t1409-avoid-packing-refs.sh
+index e5cb8a252d..c46848eb8e 100755
+--- a/t/t1409-avoid-packing-refs.sh
++++ b/t/t1409-avoid-packing-refs.sh
+@@ -46,7 +46,7 @@ test_expect_success 'check that marking the packed-refs file works' '
+ 	git for-each-ref >actual &&
+ 	test_cmp expected actual &&
+ 	git pack-refs --all &&
+-	test_must_fail check_packed_refs_marked &&
++	! check_packed_refs_marked &&
+ 	git for-each-ref >actual2 &&
+ 	test_cmp expected actual2
+ '
+@@ -80,7 +80,7 @@ test_expect_success 'touch packed-refs on delete of packed' '
+ 	git pack-refs --all &&
+ 	mark_packed_refs &&
+ 	git update-ref -d refs/heads/packed-delete &&
+-	test_must_fail check_packed_refs_marked
++	! check_packed_refs_marked
+ '
+ 
+ test_expect_success 'leave packed-refs untouched on update of loose' '
+-- 
+2.24.1.703.g2f499f1283
+

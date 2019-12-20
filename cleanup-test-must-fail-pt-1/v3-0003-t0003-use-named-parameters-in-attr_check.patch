@@ -1,0 +1,58 @@
+From 9374fcd8db831b411c1485c204cf8d029426e966 Mon Sep 17 00:00:00 2001
+Message-Id: <9374fcd8db831b411c1485c204cf8d029426e966.1576865664.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1576865663.git.liu.denton@gmail.com>
+References: <cover.1576794144.git.liu.denton@gmail.com>
+	<cover.1576865663.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 2 Dec 2019 14:10:35 -0800
+Subject: [PATCH v3 03/15] t0003: use named parameters in attr_check()
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Johannes Sixt <j6t@kdbg.org>,
+    Junio C Hamano <gitster@pobox.com>
+
+We had named the parameters in attr_check() but $2 was being used
+instead of $expect. Make all variable accesses in attr_check() use named
+variables instead of numbered arguments for clarity.
+
+While we're at it, add variable assignments to the &&-chain. These
+aren't ever expected to fail but if a future developer ever adds some
+code above the assignments and they could fail in some way, the intact
+&&-chain will ensure that the failure is caught.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t0003-attributes.sh | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
+
+diff --git a/t/t0003-attributes.sh b/t/t0003-attributes.sh
+index 71e63d8b50..3569bef75d 100755
+--- a/t/t0003-attributes.sh
++++ b/t/t0003-attributes.sh
+@@ -5,19 +5,16 @@ test_description=gitattributes
+ . ./test-lib.sh
+ 
+ attr_check () {
+-	path="$1" expect="$2"
++	path="$1" expect="$2" git_opts="$3" &&
+ 
+-	git $3 check-attr test -- "$path" >actual 2>err &&
+-	echo "$path: test: $2" >expect &&
++	git $git_opts check-attr test -- "$path" >actual 2>err &&
++	echo "$path: test: $expect" >expect &&
+ 	test_cmp expect actual &&
+ 	test_line_count = 0 err
+ }
+ 
+ attr_check_quote () {
+-
+-	path="$1"
+-	quoted_path="$2"
+-	expect="$3"
++	path="$1" quoted_path="$2" expect="$3" &&
+ 
+ 	git check-attr test -- "$path" >actual &&
+ 	echo "\"$quoted_path\": test: $expect" >expect &&
+-- 
+2.24.1.703.g2f499f1283
+
