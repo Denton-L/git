@@ -2,17 +2,37 @@
 
 subcommand="$1"
 branch="$2"
+
+infer_branch=
+
 if test -z "$branch"
 then
 	branch="$(git branch --show-current)"
+	infer_branch=true
 fi
 
+case "$branch" in
+submitted/*)
+	;;
+*/)
+	if test -n "$infer_branch"
+	then
+		echo BUG: inferred branch with trailing slash
+		exit 1
+	fi
+	branch="submitted/${branch%/}"
+	;;
+*)
+	if test -n "$infer_branch"
+	then
+		echo Missing \'submitted/\' prefix
+		exit 1
+	else
+		branch="submitted/$branch"
+	fi
+	;;
+esac
 branch_part="${branch##submitted/}"
-if test "$branch" = "$branch_part"
-then
-	echo Missing \'submitted/\' prefix
-	exit 1
-fi
 
 patchdir="$(dirname "$0")"
 outdir="$patchdir/$branch_part"
