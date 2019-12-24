@@ -1,0 +1,77 @@
+From de79e27c17af27395401e0c2280d90a7d8bdef14 Mon Sep 17 00:00:00 2001
+Message-Id: <de79e27c17af27395401e0c2280d90a7d8bdef14.1577185374.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1577185374.git.liu.denton@gmail.com>
+References: <cover.1571246693.git.liu.denton@gmail.com>
+	<cover.1577185374.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Fri, 1 Nov 2019 01:51:30 -0700
+Subject: [PATCH v2 03/17] sequencer: use file strbuf for read_oneliner()
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Alban Gruin <alban.gruin@gmail.com>,
+    Johannes Schindelin <johannes.schindelin@gmx.de>,
+    Junio C Hamano <gitster@pobox.com>,
+    Phillip Wood <phillip.wood123@gmail.com>
+
+In the original read_oneliner logic, we duplicated the logic for
+strbuf_trim_trailing_newline() with one exception: instead of preventing
+buffer accesses below index 0, it would prevent buffer accesses below
+index `orig_len`. Although this is correct, it isn't worth having the
+duplicated logic around.
+
+Add a second strbuf to which files are read and run
+strbuf_trim_trailing_newline() directly on this strbuf then concatenate
+this strbuf with the argument strbuf at the end of the function. The
+function's external behaviour is unchanged.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ sequencer.c | 24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
+
+diff --git a/sequencer.c b/sequencer.c
+index 763ccbbc45..5ba8b4383f 100644
+--- a/sequencer.c
++++ b/sequencer.c
+@@ -429,26 +429,28 @@ static int write_message(const void *buf, size_t len, const char *filename,
+ static int read_oneliner(struct strbuf *buf,
+ 	const char *path, int skip_if_empty)
+ {
+-	int orig_len = buf->len;
++	int ret = 0;
++	struct strbuf file_buf = STRBUF_INIT;
+ 
+ 	if (!file_exists(path))
+ 		return 0;
+ 
+-	if (strbuf_read_file(buf, path, 0) < 0) {
++	if (strbuf_read_file(&file_buf, path, 0) < 0) {
+ 		warning_errno(_("could not read '%s'"), path);
+-		return 0;
++		goto done;
+ 	}
+ 
+-	if (buf->len > orig_len && buf->buf[buf->len - 1] == '\n') {
+-		if (--buf->len > orig_len && buf->buf[buf->len - 1] == '\r')
+-			--buf->len;
+-		buf->buf[buf->len] = '\0';
+-	}
++	strbuf_trim_trailing_newline(&file_buf);
+ 
+-	if (skip_if_empty && buf->len == orig_len)
+-		return 0;
++	if (skip_if_empty && !file_buf.len)
++		goto done;
+ 
+-	return 1;
++	strbuf_addbuf(buf, &file_buf);
++	ret = 1;
++
++done:
++	strbuf_release(&file_buf);
++	return ret;
+ }
+ 
+ static struct tree *empty_tree(struct repository *r)
+-- 
+2.24.1.810.g65a2f617f4
+

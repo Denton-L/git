@@ -1,0 +1,167 @@
+From 6ebae1d7588acbba5dd11d6a0d6dcdb78e266b17 Mon Sep 17 00:00:00 2001
+Message-Id: <6ebae1d7588acbba5dd11d6a0d6dcdb78e266b17.1577185374.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1577185374.git.liu.denton@gmail.com>
+References: <cover.1571246693.git.liu.denton@gmail.com>
+	<cover.1577185374.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 24 Dec 2019 05:45:56 -0500
+Subject: [PATCH v2 17/17] pull: pass --autostash to merge
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Alban Gruin <alban.gruin@gmail.com>,
+    Johannes Schindelin <johannes.schindelin@gmx.de>,
+    Junio C Hamano <gitster@pobox.com>,
+    Phillip Wood <phillip.wood123@gmail.com>
+
+Before, `--autostash` only worked with `git pull --rebase`. However, in
+the last patch, merge learned `--autostash` as well so there's no reason
+why we should have this restriction anymore. Teach pull to pass
+`--autostash` to merge, just like it did for rebase.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Documentation/git-pull.txt      |  9 -------
+ Documentation/merge-options.txt |  4 +--
+ builtin/pull.c                  |  9 ++++---
+ t/t5520-pull.sh                 | 43 +++++++++++++++++++++++++++------
+ 4 files changed, 42 insertions(+), 23 deletions(-)
+
+diff --git a/Documentation/git-pull.txt b/Documentation/git-pull.txt
+index dfb901f8b8..ba3772de9f 100644
+--- a/Documentation/git-pull.txt
++++ b/Documentation/git-pull.txt
+@@ -133,15 +133,6 @@ unless you have read linkgit:git-rebase[1] carefully.
+ --no-rebase::
+ 	Override earlier --rebase.
+ 
+---autostash::
+---no-autostash::
+-	Before starting rebase, stash local modifications away (see
+-	linkgit:git-stash[1]) if needed, and apply the stash entry when
+-	done. `--no-autostash` is useful to override the `rebase.autoStash`
+-	configuration variable (see linkgit:git-config[1]).
+-+
+-This option is only valid when "--rebase" is used.
+-
+ Options related to fetching
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+diff --git a/Documentation/merge-options.txt b/Documentation/merge-options.txt
+index 34493eb58b..ae56cca826 100644
+--- a/Documentation/merge-options.txt
++++ b/Documentation/merge-options.txt
+@@ -155,6 +155,8 @@ ifndef::git-pull[]
+ 	Note that not all merge strategies may support progress
+ 	reporting.
+ 
++endif::git-pull[]
++
+ --autostash::
+ --no-autostash::
+ 	Automatically create a temporary stash entry before the operation
+@@ -163,8 +165,6 @@ ifndef::git-pull[]
+ 	with care: the final stash application after a successful
+ 	rebase might result in non-trivial conflicts.
+ 
+-endif::git-pull[]
+-
+ --allow-unrelated-histories::
+ 	By default, `git merge` command refuses to merge histories
+ 	that do not share a common ancestor.  This option can be
+diff --git a/builtin/pull.c b/builtin/pull.c
+index d25ff13a60..ee186781ae 100644
+--- a/builtin/pull.c
++++ b/builtin/pull.c
+@@ -183,7 +183,7 @@ static struct option pull_options[] = {
+ 		N_("verify that the named commit has a valid GPG signature"),
+ 		PARSE_OPT_NOARG),
+ 	OPT_BOOL(0, "autostash", &opt_autostash,
+-		N_("automatically stash/stash pop before and after rebase")),
++		N_("automatically stash/stash pop before and after")),
+ 	OPT_PASSTHRU_ARGV('s', "strategy", &opt_strategies, N_("strategy"),
+ 		N_("merge strategy to use"),
+ 		0),
+@@ -671,6 +671,10 @@ static int run_merge(void)
+ 	argv_array_pushv(&args, opt_strategy_opts.argv);
+ 	if (opt_gpg_sign)
+ 		argv_array_push(&args, opt_gpg_sign);
++	if (opt_autostash == 0)
++		argv_array_push(&args, "--no-autostash");
++	else if (opt_autostash == 1)
++		argv_array_push(&args, "--autostash");
+ 	if (opt_allow_unrelated_histories > 0)
+ 		argv_array_push(&args, "--allow-unrelated-histories");
+ 
+@@ -918,9 +922,6 @@ int cmd_pull(int argc, const char **argv, const char *prefix)
+ 	if (get_oid("HEAD", &orig_head))
+ 		oidclr(&orig_head);
+ 
+-	if (!opt_rebase && opt_autostash != -1)
+-		die(_("--[no-]autostash option is only valid with --rebase."));
+-
+ 	autostash = config_autostash;
+ 	if (opt_rebase) {
+ 		if (opt_autostash != -1)
+diff --git a/t/t5520-pull.sh b/t/t5520-pull.sh
+index 218f469d0a..2919ad4f81 100755
+--- a/t/t5520-pull.sh
++++ b/t/t5520-pull.sh
+@@ -28,7 +28,7 @@ test_pull_autostash_fail () {
+ 	echo dirty >new_file &&
+ 	git add new_file &&
+ 	test_must_fail git pull "$@" . copy 2>err &&
+-	test_i18ngrep "uncommitted changes." err
++	test_i18ngrep "\(uncommitted changes.\)\|\(overwritten by merge:\)" err
+ }
+ 
+ test_expect_success setup '
+@@ -391,13 +391,40 @@ test_expect_success 'pull --rebase --no-autostash & rebase.autostash unset' '
+ 	test_pull_autostash_fail --rebase --no-autostash
+ '
+ 
+-for i in --autostash --no-autostash
+-do
+-	test_expect_success "pull $i (without --rebase) is illegal" '
+-		test_must_fail git pull $i . copy 2>err &&
+-		test_i18ngrep "only valid with --rebase" err
+-	'
+-done
++test_expect_success 'pull succeeds with dirty working directory and merge.autostash set' '
++	test_config merge.autostash true &&
++	test_pull_autostash 2
++'
++
++test_expect_success 'pull --autostash & merge.autostash=true' '
++	test_config merge.autostash true &&
++	test_pull_autostash 2 --autostash
++'
++
++test_expect_success 'pull --autostash & merge.autostash=false' '
++	test_config merge.autostash false &&
++	test_pull_autostash 2 --autostash
++'
++
++test_expect_success 'pull --autostash & merge.autostash unset' '
++	test_unconfig merge.autostash &&
++	test_pull_autostash 2 --autostash
++'
++
++test_expect_success 'pull --no-autostash & merge.autostash=true' '
++	test_config merge.autostash true &&
++	test_pull_autostash_fail --no-autostash
++'
++
++test_expect_success 'pull --no-autostash & merge.autostash=false' '
++	test_config merge.autostash false &&
++	test_pull_autostash_fail --no-autostash
++'
++
++test_expect_success 'pull --no-autostash & merge.autostash unset' '
++	test_unconfig merge.autostash &&
++	test_pull_autostash_fail --no-autostash
++'
+ 
+ test_expect_success 'pull.rebase' '
+ 	git reset --hard before-rebase &&
+-- 
+2.24.1.810.g65a2f617f4
+

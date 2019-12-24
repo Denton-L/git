@@ -1,0 +1,73 @@
+From 819fb2203ba59df1fc446167d5648c6aae46ad17 Mon Sep 17 00:00:00 2001
+Message-Id: <819fb2203ba59df1fc446167d5648c6aae46ad17.1577185374.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1577185374.git.liu.denton@gmail.com>
+References: <cover.1571246693.git.liu.denton@gmail.com>
+	<cover.1577185374.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Fri, 1 Nov 2019 02:03:18 -0700
+Subject: [PATCH v2 05/17] sequencer: make read_oneliner() extern
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Alban Gruin <alban.gruin@gmail.com>,
+    Johannes Schindelin <johannes.schindelin@gmx.de>,
+    Junio C Hamano <gitster@pobox.com>,
+    Phillip Wood <phillip.wood123@gmail.com>
+
+The function read_oneliner() is a generally useful util function.
+Instead of hiding it as a static function within sequencer.c, extern it
+so that it can be reused by others.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ sequencer.c | 13 ++-----------
+ sequencer.h | 11 +++++++++++
+ 2 files changed, 13 insertions(+), 11 deletions(-)
+
+diff --git a/sequencer.c b/sequencer.c
+index 103cea1460..9ef9424f88 100644
+--- a/sequencer.c
++++ b/sequencer.c
+@@ -417,17 +417,8 @@ static int write_message(const void *buf, size_t len, const char *filename,
+ 	return 0;
+ }
+ 
+-/*
+- * Reads a file that was presumably written by a shell script, i.e. with an
+- * end-of-line marker that needs to be stripped.
+- *
+- * Note that only the last end-of-line marker is stripped, consistent with the
+- * behavior of "$(cat path)" in a shell script.
+- *
+- * Returns 1 if the file was read, 0 if it could not be read or does not exist.
+- */
+-static int read_oneliner(struct strbuf *buf, const char *path,
+-			 int skip_if_empty, int warn_nonexistence)
++int read_oneliner(struct strbuf *buf, const char *path,
++		  int skip_if_empty, int warn_nonexistence)
+ {
+ 	int ret = 0;
+ 	struct strbuf file_buf = STRBUF_INIT;
+diff --git a/sequencer.h b/sequencer.h
+index e9a0e03ea2..56cea80dd8 100644
+--- a/sequencer.h
++++ b/sequencer.h
+@@ -202,6 +202,17 @@ void print_commit_summary(struct repository *repo,
+ 			  const struct object_id *oid,
+ 			  unsigned int flags);
+ 
++/*
++ * Reads a file that was presumably written by a shell script, i.e. with an
++ * end-of-line marker that needs to be stripped.
++ *
++ * Note that only the last end-of-line marker is stripped, consistent with the
++ * behavior of "$(cat path)" in a shell script.
++ *
++ * Returns 1 if the file was read, 0 if it could not be read.
++ */
++int read_oneliner(struct strbuf *buf, const char *path,
++		  int skip_if_empty, int warn_nonexistence);
+ int read_author_script(const char *path, char **name, char **email, char **date,
+ 		       int allow_missing);
+ void parse_strategy_opts(struct replay_opts *opts, char *raw_opts);
+-- 
+2.24.1.810.g65a2f617f4
+
