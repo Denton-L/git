@@ -1,0 +1,133 @@
+From 9422e4225143b2b908bd1fed9a510b9333bf34a2 Mon Sep 17 00:00:00 2001
+Message-Id: <9422e4225143b2b908bd1fed9a510b9333bf34a2.1577191015.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 20 Aug 2019 15:09:54 -0400
+Subject: [PATCH] format-patch: make format.outputDirectory relative to
+ worktree
+To: Git Mailing List <git@vger.kernel.org>
+
+Currently, when format-patch outputs patches to the path specified by
+the `format.outputDirectory` configuration variable, it is relative to
+the current working directory. However, it would make more sense for the
+path to be relative to the worktree if it exists so that patches will be
+placed in one location even if a user were to change directories.
+
+Rewrite the output directory logic for format-patch so that it will be
+relative to the worktree of the directory. An escape hatch is provided
+for if the previous behaviour is desired by prepending "./" to the
+variable.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Documentation/config/format.txt |  3 +++
+ builtin/log.c                   | 20 ++++++++++++-----
+ t/t4014-format-patch.sh         | 39 +++++++++++++++++++++++++++++++++
+ 3 files changed, 56 insertions(+), 6 deletions(-)
+
+diff --git a/Documentation/config/format.txt b/Documentation/config/format.txt
+index 513fcd88d5..fc9d110d88 100644
+--- a/Documentation/config/format.txt
++++ b/Documentation/config/format.txt
+@@ -88,6 +88,9 @@ format.coverLetter::
+ format.outputDirectory::
+ 	Set a custom directory to store the resulting files instead of the
+ 	current working directory. All directory components will be created.
++	The path specified will be relative to the worktree of the repository
++	unless the path begins with "./" or there is no worktree in which case
++	the path will be relative to current working directory.
+ 
+ format.useAutoBase::
+ 	A boolean value which lets you enable the `--base=auto` option of
+diff --git a/builtin/log.c b/builtin/log.c
+index 8c664067ca..fe072c7309 100644
+--- a/builtin/log.c
++++ b/builtin/log.c
+@@ -885,7 +885,7 @@ static int git_format_config(const char *var, const char *value, void *cb)
+ 		return 0;
+ 	}
+ 	if (!strcmp(var, "format.outputdirectory"))
+-		return git_config_string(&config_output_directory, var, value);
++		return git_config_pathname(&config_output_directory, var, value);
+ 	if (!strcmp(var, "format.useautobase")) {
+ 		base_auto = git_config_bool(var, value);
+ 		return 0;
+@@ -1841,13 +1841,21 @@ int cmd_format_patch(int argc, const char **argv, const char *prefix)
+ 	if (rev.show_notes)
+ 		init_display_notes(&rev.notes_opt);
+ 
+-	if (!output_directory && !use_stdout)
+-		output_directory = config_output_directory;
++	if (!use_stdout) {
++		const char *outdir_prefix = NULL;
++		const char *outdir = config_output_directory;
+ 
+-	if (!use_stdout)
+-		output_directory = set_outdir(prefix, output_directory);
+-	else
++		if (output_directory)
++			outdir = output_directory;
++
++		if (output_directory ||
++		    (config_output_directory && starts_with(config_output_directory, "./")))
++			outdir_prefix = prefix;
++
++		output_directory = set_outdir(outdir_prefix, outdir);
++	} else {
+ 		setup_pager();
++	}
+ 
+ 	if (output_directory) {
+ 		int saved;
+diff --git a/t/t4014-format-patch.sh b/t/t4014-format-patch.sh
+index a5b6302a1c..cc13cc4699 100755
+--- a/t/t4014-format-patch.sh
++++ b/t/t4014-format-patch.sh
+@@ -1813,6 +1813,45 @@ test_expect_success 'format-patch format.outputDirectory option' '
+ 	test_line_count = $count list
+ '
+ 
++test_expect_success 'format-patch format.outputDirectory option relative to git dir' '
++	test_config format.outputDirectory patches &&
++	rm -fr patches &&
++	mkdir -p sub &&
++	(
++		cd sub &&
++		git format-patch master..side
++	) &&
++	count=$(git rev-list --count master..side) &&
++	ls patches >list &&
++	test_line_count = $count list
++'
++
++test_expect_success 'format-patch format.outputDirectory option with relative path' '
++	test_config format.outputDirectory ./patches &&
++	mkdir -p sub &&
++	(
++		cd sub &&
++		rm -fr patches &&
++		git format-patch master..side &&
++		count=$(git rev-list --count master..side) &&
++		ls patches >list &&
++		test_line_count = $count list
++	)
++'
++
++test_expect_success 'format-patch format.outputDirectory option absolute path' '
++	test_config format.outputDirectory "$PWD/patches" &&
++	rm -fr patches &&
++	mkdir -p sub &&
++	(
++		cd sub &&
++		git format-patch master..side
++	) &&
++	count=$(git rev-list --count master..side) &&
++	ls patches >list &&
++	test_line_count = $count list
++'
++
+ test_expect_success 'format-patch -o overrides format.outputDirectory' '
+ 	test_config format.outputDirectory patches &&
+ 	rm -fr patches patchset &&
+-- 
+2.24.1.810.g65a2f617f4
+
