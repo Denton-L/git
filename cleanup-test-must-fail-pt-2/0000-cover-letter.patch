@@ -1,0 +1,50 @@
+From 54315fecfe373d8020f2172b9b43e02c0dae137d Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1577454401.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Fri, 27 Dec 2019 08:46:41 -0500
+Subject: [PATCH 00/16] t: replace incorrect test_must_fail usage (part 2)
+To: Git Mailing List <git@vger.kernel.org>
+
+The overall scope of these patches is to replace inappropriate uses of
+test_must_fail. IOW, we should only allow test_must_fail to run on `git`
+and `test-tool`. Ultimately, we will conclude by making test_must_fail
+error out on non-git commands. An advance view of the final series can
+be found here[1].
+
+This is the second part. It focuses on t[234]*.sh. The first part can be
+found here[2].
+
+[1]: (may be rebased at any time) https://github.com/Denton-L/git/tree/ready/cleanup-test-must-fail2
+[2]: https://lore.kernel.org/git/cover.1576583819.git.liu.denton@gmail.com/
+
+Denton Liu (16):
+  t2018: remove trailing space from test description
+  t2018: add space between function name and ()
+  t2018: use test_must_fail for failing git commands
+  t2018: teach do_checkout() to accept `!` arg
+  t2018: don't lose return code of git commands
+  t2018: replace "sha" with "oid"
+  t3030: use test_path_is_missing()
+  t3310: extract common no_notes_merge_left()
+  t3415: stop losing return codes of git commands
+  t3415: increase granularity of test_auto_{fixup,squash}()
+  t3419: stop losing return code of git command
+  t3504: don't use `test_must_fail test_cmp`
+  t3507: fix indentation
+  t3507: use test_path_is_missing()
+  t4124: only mark git command with test_must_fail
+  t4124: let sed open its own files
+
+ t/t2018-checkout-branch.sh            |  71 ++++++++----
+ t/t3030-merge-recursive.sh            |   2 +-
+ t/t3310-notes-merge-manual-resolve.sh |  21 ++--
+ t/t3415-rebase-autosquash.sh          | 153 +++++++++++++++++++-------
+ t/t3419-rebase-patch-id.sh            |   3 +-
+ t/t3504-cherry-pick-rerere.sh         |   2 +-
+ t/t3507-cherry-pick-conflict.sh       |  28 ++---
+ t/t4124-apply-ws-rule.sh              |  12 +-
+ 8 files changed, 198 insertions(+), 94 deletions(-)
+
+-- 
+2.24.1.810.g65a2f617f4
+

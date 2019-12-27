@@ -45,3 +45,9 @@
 	description = merge: learn --autostash\n\nAlban reported[1] that he expected merge to have an --autostash option,\njust like rebase. Since there's not really any reason why merge can't\nhave it, let's implement it in this patchset.\n\nThe majority of this patchset is spent refactoring. This is so that the\nactual implementation in merge is done as simply as possible.\n\nChanges since v1:\n\n* Completely changed how the refactoring was done\n\n* More tests and documentation\n\n[1]: https://github.com/gitgitgadget/git/issues/394
 [includeIf "onbranch:submitted/format-output-relative-gitdir"]
 	path = format-output-relative-gitdir/config
+[includeIf "onbranch:submitted/cleanup-test-must-fail-pt-2"]
+	path = cleanup-test-must-fail-pt-2/config
+[branch "submitted/cleanup-test-must-fail-pt-2"]
+	remote = upstream
+	merge = refs/heads/dl/test-must-fail-fixes
+	description = t: replace incorrect test_must_fail usage (part 2)\n\nThe overall scope of these patches is to replace inappropriate uses of\ntest_must_fail. IOW, we should only allow test_must_fail to run on `git`\nand `test-tool`. Ultimately, we will conclude by making test_must_fail\nerror out on non-git commands. An advance view of the final series can\nbe found here[1].\n\nThis is the second part. It focuses on t[234]*.sh. The first part can be\nfound here[2].\n\n[1]: (may be rebased at any time) https://github.com/Denton-L/git/tree/ready/cleanup-test-must-fail2\n[2]: https://lore.kernel.org/git/cover.1576583819.git.liu.denton@gmail.com/

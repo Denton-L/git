@@ -1,0 +1,138 @@
+From a991117b36e8a765e3323065e90fbfe2d63b710c Mon Sep 17 00:00:00 2001
+Message-Id: <a991117b36e8a765e3323065e90fbfe2d63b710c.1577454401.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1577454401.git.liu.denton@gmail.com>
+References: <cover.1577454401.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 3 Dec 2019 00:40:50 -0800
+Subject: [PATCH 10/16] t3415: increase granularity of
+ test_auto_{fixup,squash}()
+To: Git Mailing List <git@vger.kernel.org>
+
+We used to use `test_must_fail test_auto_{fixup,squash}` which would
+ensure that the function failed. However, this is a little ham-fisted as
+there is no way of ensuring that the expected part of the function
+actually fails.
+
+Increase the granularity by accepting an optional `!` first argument
+which will check that the rebase does not squash in any commits by
+ensuring that there are still 4 commits. If `!` is not provided, the old
+logic is run.
+
+This patch may be better reviewed with `--ignore-all-space`.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t3415-rebase-autosquash.sh | 64 +++++++++++++++++++++++++-----------
+ 1 file changed, 44 insertions(+), 20 deletions(-)
+
+diff --git a/t/t3415-rebase-autosquash.sh b/t/t3415-rebase-autosquash.sh
+index b0add36f82..093de9005b 100755
+--- a/t/t3415-rebase-autosquash.sh
++++ b/t/t3415-rebase-autosquash.sh
+@@ -25,6 +25,13 @@ test_expect_success setup '
+ '
+ 
+ test_auto_fixup () {
++	no_squash= &&
++	if test "x$1" = 'x!'
++	then
++		no_squash=true
++		shift
++	fi &&
++
+ 	git reset --hard base &&
+ 	echo 1 >file1 &&
+ 	git add -u &&
+@@ -35,14 +42,19 @@ test_auto_fixup () {
+ 	test_tick &&
+ 	git rebase $2 -i HEAD^^^ &&
+ 	git log --oneline >actual &&
+-	test_line_count = 3 actual &&
+-	git diff --exit-code $1 &&
+-	echo 1 >expect &&
+-	git cat-file blob HEAD^:file1 >actual &&
+-	test_cmp expect actual &&
+-	git cat-file commit HEAD^ >commit &&
+-	grep first commit >actual &&
+-	test_line_count = 1 actual
++	if test -n "$no_squash"
++	then
++		test_line_count = 4 actual
++	else
++		test_line_count = 3 actual &&
++		git diff --exit-code $1 &&
++		echo 1 >expect &&
++		git cat-file blob HEAD^:file1 >actual &&
++		test_cmp expect actual &&
++		git cat-file commit HEAD^ >commit &&
++		grep first commit >actual &&
++		test_line_count = 1 actual
++	fi
+ }
+ 
+ test_expect_success 'auto fixup (option)' '
+@@ -52,12 +64,19 @@ test_expect_success 'auto fixup (option)' '
+ test_expect_success 'auto fixup (config)' '
+ 	git config rebase.autosquash true &&
+ 	test_auto_fixup final-fixup-config-true &&
+-	test_must_fail test_auto_fixup fixup-config-true-no --no-autosquash &&
++	test_auto_fixup ! fixup-config-true-no --no-autosquash &&
+ 	git config rebase.autosquash false &&
+-	test_must_fail test_auto_fixup final-fixup-config-false
++	test_auto_fixup ! final-fixup-config-false
+ '
+ 
+ test_auto_squash () {
++	no_squash= &&
++	if test "x$1" = 'x!'
++	then
++		no_squash=true
++		shift
++	fi &&
++
+ 	git reset --hard base &&
+ 	echo 1 >file1 &&
+ 	git add -u &&
+@@ -68,14 +87,19 @@ test_auto_squash () {
+ 	test_tick &&
+ 	git rebase $2 -i HEAD^^^ &&
+ 	git log --oneline >actual &&
+-	test_line_count = 3 actual &&
+-	git diff --exit-code $1 &&
+-	echo 1 >expect &&
+-	git cat-file blob HEAD^:file1 >actual &&
+-	test_cmp expect actual &&
+-	git cat-file commit HEAD^ >commit &&
+-	grep first commit >actual &&
+-	test_line_count = 2 actual
++	if test -n "$no_squash"
++	then
++		test_line_count = 4 actual
++	else
++		test_line_count = 3 actual &&
++		git diff --exit-code $1 &&
++		echo 1 >expect &&
++		git cat-file blob HEAD^:file1 >actual &&
++		test_cmp expect actual &&
++		git cat-file commit HEAD^ >commit &&
++		grep first commit >actual &&
++		test_line_count = 2 actual
++	fi
+ }
+ 
+ test_expect_success 'auto squash (option)' '
+@@ -85,9 +109,9 @@ test_expect_success 'auto squash (option)' '
+ test_expect_success 'auto squash (config)' '
+ 	git config rebase.autosquash true &&
+ 	test_auto_squash final-squash-config-true &&
+-	test_must_fail test_auto_squash squash-config-true-no --no-autosquash &&
++	test_auto_squash ! squash-config-true-no --no-autosquash &&
+ 	git config rebase.autosquash false &&
+-	test_must_fail test_auto_squash final-squash-config-false
++	test_auto_squash ! final-squash-config-false
+ '
+ 
+ test_expect_success 'misspelled auto squash' '
+-- 
+2.24.1.810.g65a2f617f4
+

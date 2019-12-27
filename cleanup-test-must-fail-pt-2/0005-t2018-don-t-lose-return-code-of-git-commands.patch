@@ -1,0 +1,60 @@
+From 4fe247c09df89ebe908f366ee7c2a4ec1c209d86 Mon Sep 17 00:00:00 2001
+Message-Id: <4fe247c09df89ebe908f366ee7c2a4ec1c209d86.1577454401.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1577454401.git.liu.denton@gmail.com>
+References: <cover.1577454401.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 4 Dec 2019 03:34:19 -0800
+Subject: [PATCH 05/16] t2018: don't lose return code of git commands
+To: Git Mailing List <git@vger.kernel.org>
+
+We had some git commands wrapped in non-assignment command substitutions
+which would result in their return codes to be lost. Rewrite these
+instances so that their return codes are now checked.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t2018-checkout-branch.sh | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/t/t2018-checkout-branch.sh b/t/t2018-checkout-branch.sh
+index 43551332ed..69758041f4 100755
+--- a/t/t2018-checkout-branch.sh
++++ b/t/t2018-checkout-branch.sh
+@@ -23,7 +23,8 @@ do_checkout () {
+ 	exp_ref="refs/heads/$exp_branch" &&
+ 
+ 	# if <sha> is not specified, use HEAD.
+-	exp_sha=${2:-$(git rev-parse --verify HEAD)} &&
++	head=$(git rev-parse --verify HEAD) &&
++	exp_sha=${2:-$head} &&
+ 
+ 	# default options for git checkout: -b
+ 	if [ -z "$3" ]; then
+@@ -36,8 +37,12 @@ do_checkout () {
+ 
+ 	if test -z "$should_fail"
+ 	then
+-		test $exp_ref = $(git rev-parse --symbolic-full-name HEAD) &&
+-		test $exp_sha = $(git rev-parse --verify HEAD)
++		echo "$exp_ref" >ref.expect &&
++		git rev-parse --symbolic-full-name HEAD >ref.actual &&
++		test_cmp ref.expect ref.actual &&
++		echo "$exp_sha" >sha.expect &&
++		git rev-parse --verify HEAD >sha.actual &&
++		test_cmp sha.expect sha.actual
+ 	fi
+ }
+ 
+@@ -159,7 +164,8 @@ test_expect_success 'checkout -B to a merge base' '
+ '
+ 
+ test_expect_success 'checkout -B to an existing branch from detached HEAD resets branch to HEAD' '
+-	git checkout $(git rev-parse --verify HEAD) &&
++	head=$(git rev-parse --verify HEAD) &&
++	git checkout "$head" &&
+ 
+ 	do_checkout branch2 "" -B
+ '
+-- 
+2.24.1.810.g65a2f617f4
+

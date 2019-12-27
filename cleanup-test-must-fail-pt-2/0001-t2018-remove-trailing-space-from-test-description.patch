@@ -1,0 +1,29 @@
+From a0199f1e48b88a93ec181113752fab132b22fa91 Mon Sep 17 00:00:00 2001
+Message-Id: <a0199f1e48b88a93ec181113752fab132b22fa91.1577454401.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1577454401.git.liu.denton@gmail.com>
+References: <cover.1577454401.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 4 Dec 2019 03:42:11 -0800
+Subject: [PATCH 01/16] t2018: remove trailing space from test description
+To: Git Mailing List <git@vger.kernel.org>
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t2018-checkout-branch.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/t/t2018-checkout-branch.sh b/t/t2018-checkout-branch.sh
+index 822381dd9d..e18abce3d2 100755
+--- a/t/t2018-checkout-branch.sh
++++ b/t/t2018-checkout-branch.sh
+@@ -1,6 +1,6 @@
+ #!/bin/sh
+ 
+-test_description='checkout '
++test_description='checkout'
+ 
+ . ./test-lib.sh
+ 
+-- 
+2.24.1.810.g65a2f617f4
+

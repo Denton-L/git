@@ -1,0 +1,62 @@
+From e885dd9c39e71089e73615a6dc8a60e1439a0284 Mon Sep 17 00:00:00 2001
+Message-Id: <e885dd9c39e71089e73615a6dc8a60e1439a0284.1577454401.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1577454401.git.liu.denton@gmail.com>
+References: <cover.1577454401.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 10 Sep 2019 01:00:03 -0700
+Subject: [PATCH 14/16] t3507: use test_path_is_missing()
+To: Git Mailing List <git@vger.kernel.org>
+
+The test_must_fail() function should only be used for git commands since
+we should assume that external commands work sanely. Replace
+`test_must_fail test_path_exists` with `test_path_is_missing` since we
+expect these paths to not exist.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t3507-cherry-pick-conflict.sh | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/t/t3507-cherry-pick-conflict.sh b/t/t3507-cherry-pick-conflict.sh
+index 2a0d119c8a..9bd482ce3b 100755
+--- a/t/t3507-cherry-pick-conflict.sh
++++ b/t/t3507-cherry-pick-conflict.sh
+@@ -168,7 +168,7 @@ test_expect_success 'successful final commit clears cherry-pick state' '
+ 	echo resolved >foo &&
+ 	test_path_is_file .git/sequencer/todo &&
+ 	git commit -a &&
+-	test_must_fail test_path_exists .git/sequencer
++	test_path_is_missing .git/sequencer
+ '
+ 
+ test_expect_success 'reset after final pick clears cherry-pick state' '
+@@ -178,7 +178,7 @@ test_expect_success 'reset after final pick clears cherry-pick state' '
+ 	echo resolved >foo &&
+ 	test_path_is_file .git/sequencer/todo &&
+ 	git reset &&
+-	test_must_fail test_path_exists .git/sequencer
++	test_path_is_missing .git/sequencer
+ '
+ 
+ test_expect_success 'failed cherry-pick produces dirty index' '
+@@ -387,7 +387,7 @@ test_expect_success 'successful final commit clears revert state' '
+ 	echo resolved >foo &&
+ 	test_path_is_file .git/sequencer/todo &&
+ 	git commit -a &&
+-	test_must_fail test_path_exists .git/sequencer
++	test_path_is_missing .git/sequencer
+ '
+ 
+ test_expect_success 'reset after final pick clears revert state' '
+@@ -397,7 +397,7 @@ test_expect_success 'reset after final pick clears revert state' '
+ 	echo resolved >foo &&
+ 	test_path_is_file .git/sequencer/todo &&
+ 	git reset &&
+-	test_must_fail test_path_exists .git/sequencer
++	test_path_is_missing .git/sequencer
+ '
+ 
+ test_expect_success 'revert conflict, diff3 -m style' '
+-- 
+2.24.1.810.g65a2f617f4
+
