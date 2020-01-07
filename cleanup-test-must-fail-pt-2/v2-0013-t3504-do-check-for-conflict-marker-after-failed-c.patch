@@ -1,0 +1,63 @@
+From 88134bb6d1cb32fca621f5b8acdb3e8b0c4e1c69 Mon Sep 17 00:00:00 2001
+Message-Id: <88134bb6d1cb32fca621f5b8acdb3e8b0c4e1c69.1578372682.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1578372682.git.liu.denton@gmail.com>
+References: <cover.1577454401.git.liu.denton@gmail.com>
+	<cover.1578372682.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Fri, 27 Dec 2019 21:39:24 +0100
+Subject: [PATCH v2 13/16] t3504: do check for conflict marker after failed
+ cherry-pick
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Jakub Narebski <jnareb@gmail.com>,
+    Johannes Sixt <j6t@kdbg.org>,
+    Junio C Hamano <gitster@pobox.com>
+
+From: Johannes Sixt <j6t@kdbg.org>
+
+The test with disabled rerere should make sure that the cherry-picked
+result does not have the conflict replaced with a recorded resolution.
+
+It attempts to do so by ensuring that the file content is _not_ equal
+to some other file. That by itself is a very dubious check because just
+about every random result of an incomplete cherry-pick would satisfy
+the condition.
+
+In this case, the intent was to check that the conflicting file does
+_not_ contain the resolved content. But the check actually uses the
+wrong reference file, but not the resolved content. Needless to say
+that the non-equality is satisfied. And, on top of it, it uses a commit
+that does not even touch the file that is checked.
+
+Do check for the expected result, which is content from both sides of
+the merge and merge conflicts. (The latter we check for just the
+middle separator for brevity.)
+
+As a side-effect, this also removes an incorrect use of test_must_fail.
+
+Signed-off-by: Johannes Sixt <j6t@kdbg.org>
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t3504-cherry-pick-rerere.sh | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/t/t3504-cherry-pick-rerere.sh b/t/t3504-cherry-pick-rerere.sh
+index a267b2d144..80a0d08706 100755
+--- a/t/t3504-cherry-pick-rerere.sh
++++ b/t/t3504-cherry-pick-rerere.sh
+@@ -94,8 +94,10 @@ test_expect_success 'cherry-pick --rerere-autoupdate more than once' '
+ 
+ test_expect_success 'cherry-pick conflict without rerere' '
+ 	test_config rerere.enabled false &&
+-	test_must_fail git cherry-pick master &&
+-	test_must_fail test_cmp expect foo
++	test_must_fail git cherry-pick foo-master &&
++	grep ===== foo &&
++	grep foo-dev foo &&
++	grep foo-master foo
+ '
+ 
+ test_done
+-- 
+2.25.0.rc1.180.g49a268d3eb
+

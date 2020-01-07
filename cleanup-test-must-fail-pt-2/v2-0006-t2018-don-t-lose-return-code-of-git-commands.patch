@@ -1,0 +1,54 @@
+From e09a70f6ca9ec922f6da47f1e978de622f81698e Mon Sep 17 00:00:00 2001
+Message-Id: <e09a70f6ca9ec922f6da47f1e978de622f81698e.1578372682.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1578372682.git.liu.denton@gmail.com>
+References: <cover.1577454401.git.liu.denton@gmail.com>
+	<cover.1578372682.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 4 Dec 2019 03:34:19 -0800
+Subject: [PATCH v2 06/16] t2018: don't lose return code of git commands
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Jakub Narebski <jnareb@gmail.com>,
+    Johannes Sixt <j6t@kdbg.org>,
+    Junio C Hamano <gitster@pobox.com>
+
+Fix invocations of git commands so their exit codes are not lost
+within non-assignment command substitutions.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t2018-checkout-branch.sh | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/t/t2018-checkout-branch.sh b/t/t2018-checkout-branch.sh
+index 687ab6713c..caf43571b1 100755
+--- a/t/t2018-checkout-branch.sh
++++ b/t/t2018-checkout-branch.sh
+@@ -41,8 +41,12 @@ do_checkout () {
+ 		test_must_fail git checkout $opts $exp_branch $exp_sha
+ 	else
+ 		git checkout $opts $exp_branch $exp_sha &&
+-		test $exp_ref = $(git rev-parse --symbolic-full-name HEAD) &&
+-		test $exp_sha = $(git rev-parse --verify HEAD)
++		echo "$exp_ref" >ref.expect &&
++		git rev-parse --symbolic-full-name HEAD >ref.actual &&
++		test_cmp ref.expect ref.actual &&
++		echo "$exp_sha" >sha.expect &&
++		git rev-parse --verify HEAD >sha.actual &&
++		test_cmp sha.expect sha.actual
+ 	fi
+ }
+ 
+@@ -162,7 +166,8 @@ test_expect_success 'checkout -B to a merge base' '
+ '
+ 
+ test_expect_success 'checkout -B to an existing branch from detached HEAD resets branch to HEAD' '
+-	git checkout $(git rev-parse --verify HEAD) &&
++	head=$(git rev-parse --verify HEAD) &&
++	git checkout "$head" &&
+ 
+ 	do_checkout branch2 "" -B
+ '
+-- 
+2.25.0.rc1.180.g49a268d3eb
+

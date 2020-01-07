@@ -1,0 +1,39 @@
+From 501eb147c3442b781b6b50be0691f326dc82f91a Mon Sep 17 00:00:00 2001
+Message-Id: <501eb147c3442b781b6b50be0691f326dc82f91a.1578372682.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1578372682.git.liu.denton@gmail.com>
+References: <cover.1577454401.git.liu.denton@gmail.com>
+	<cover.1578372682.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 6 Jan 2020 20:15:39 -0500
+Subject: [PATCH v2 03/16] t2018: improve style of if-statement
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Jakub Narebski <jnareb@gmail.com>,
+    Johannes Sixt <j6t@kdbg.org>,
+    Junio C Hamano <gitster@pobox.com>
+
+Convert `[]` to `test` and break if-then into separate lines, both of
+which bring the style in line with Git's coding guidelines.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t2018-checkout-branch.sh | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/t/t2018-checkout-branch.sh b/t/t2018-checkout-branch.sh
+index 79b16e4677..61206a90fb 100755
+--- a/t/t2018-checkout-branch.sh
++++ b/t/t2018-checkout-branch.sh
+@@ -20,7 +20,8 @@ do_checkout () {
+ 	exp_sha=${2:-$(git rev-parse --verify HEAD)} &&
+ 
+ 	# default options for git checkout: -b
+-	if [ -z "$3" ]; then
++	if test -z "$3"
++	then
+ 		opts="-b"
+ 	else
+ 		opts="$3"
+-- 
+2.25.0.rc1.180.g49a268d3eb
+
