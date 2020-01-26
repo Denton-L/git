@@ -1,0 +1,113 @@
+From 4af0c20e2981ed7e361083a71cb25b9f4a55fa4f Mon Sep 17 00:00:00 2001
+Message-Id: <4af0c20e2981ed7e361083a71cb25b9f4a55fa4f.1580069736.git.liu.denton@gmail.com>
+In-Reply-To: <587e53053f02ad0867dc903688c8887602950bd3.1578372682.git.liu.denton@gmail.com>
+References: <587e53053f02ad0867dc903688c8887602950bd3.1578372682.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 10 Sep 2019 01:08:19 -0700
+Subject: [PATCH v3] t2018: be more discerning when checking for expected exit
+ codes
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Jakub Narebski <jnareb@gmail.com>,
+    Johannes Sixt <j6t@kdbg.org>,
+    Junio C Hamano <gitster@pobox.com>
+
+Functions test_dirty_unmergeable() and test_dirty_mergeable()
+expect git-diff to exit with the specific code 1. However, rather
+than checking for that value explicitly, they instead negate the
+exit code. Unfortunately, this negation makes it impossible to
+distinguish the expected code from some other unexpected non-zero
+code, for instance, from a segmentation fault. Therefore, be more
+discerning by checking the exit code explicitly using
+test_expect_code().
+
+Furthermore, some callers of those functions want to negate the
+result again, and do so with test_must_fail(). However,
+test_must_fail() should only be used with git commands. Address
+this by introducing a couple new tiny helper functions which test
+the exact condition expected (without the unnecessarily confusing
+double-negation).
+
+Helped-by: Eric Sunshine <sunshine@sunshineco.com>
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+This patch is a complete replacement for 4/16: "t2018: use
+test_expect_code for failing git commands"[1] in
+"dl/test-must-fail-fixes-2". It replaces the commit message with a
+much-improved version from Eric. Other than that, no code changes are
+made.
+
+[1]: https://lore.kernel.org/git/587e53053f02ad0867dc903688c8887602950bd3.1578372682.git.liu.denton@gmail.com/
+
+ t/t2018-checkout-branch.sh | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
+
+diff --git a/t/t2018-checkout-branch.sh b/t/t2018-checkout-branch.sh
+index 61206a90fb..7ca55efc6b 100755
+--- a/t/t2018-checkout-branch.sh
++++ b/t/t2018-checkout-branch.sh
+@@ -34,7 +34,11 @@ do_checkout () {
+ }
+ 
+ test_dirty_unmergeable () {
+-	! git diff --exit-code >/dev/null
++	test_expect_code 1 git diff --exit-code
++}
++
++test_dirty_unmergeable_discards_changes () {
++	git diff --exit-code
+ }
+ 
+ setup_dirty_unmergeable () {
+@@ -42,7 +46,11 @@ setup_dirty_unmergeable () {
+ }
+ 
+ test_dirty_mergeable () {
+-	! git diff --cached --exit-code >/dev/null
++	test_expect_code 1 git diff --cached --exit-code
++}
++
++test_dirty_mergeable_discards_changes () {
++	git diff --cached --exit-code
+ }
+ 
+ setup_dirty_mergeable () {
+@@ -94,7 +102,7 @@ test_expect_success 'checkout -f -b to a new branch with unmergeable changes dis
+ 
+ 	# still dirty and on branch1
+ 	do_checkout branch2 $HEAD1 "-f -b" &&
+-	test_must_fail test_dirty_unmergeable
++	test_dirty_unmergeable_discards_changes
+ '
+ 
+ test_expect_success 'checkout -b to a new branch preserves mergeable changes' '
+@@ -112,7 +120,7 @@ test_expect_success 'checkout -f -b to a new branch with mergeable changes disca
+ 	test_when_finished git reset --hard HEAD &&
+ 	setup_dirty_mergeable &&
+ 	do_checkout branch2 $HEAD1 "-f -b" &&
+-	test_must_fail test_dirty_mergeable
++	test_dirty_mergeable_discards_changes
+ '
+ 
+ test_expect_success 'checkout -b to an existing branch fails' '
+@@ -163,7 +171,7 @@ test_expect_success 'checkout -B to an existing branch with unmergeable changes
+ test_expect_success 'checkout -f -B to an existing branch with unmergeable changes discards changes' '
+ 	# still dirty and on branch1
+ 	do_checkout branch2 $HEAD1 "-f -B" &&
+-	test_must_fail test_dirty_unmergeable
++	test_dirty_unmergeable_discards_changes
+ '
+ 
+ test_expect_success 'checkout -B to an existing branch preserves mergeable changes' '
+@@ -180,7 +188,7 @@ test_expect_success 'checkout -f -B to an existing branch with mergeable changes
+ 
+ 	setup_dirty_mergeable &&
+ 	do_checkout branch2 $HEAD1 "-f -B" &&
+-	test_must_fail test_dirty_mergeable
++	test_dirty_mergeable_discards_changes
+ '
+ 
+ test_expect_success 'checkout -b <describe>' '
+-- 
+2.25.0.rc1.180.g49a268d3eb
+
