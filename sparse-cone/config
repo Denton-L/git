@@ -1,3 +1,0 @@
-[format]
-	outputDirectory = patches/sparse-cone
-	cc = Junio C Hamano <gitster@pobox.com>
