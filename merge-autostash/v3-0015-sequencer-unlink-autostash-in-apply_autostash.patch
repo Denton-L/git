@@ -1,0 +1,42 @@
+From d5af261eb813cc5bb4dd8ad69d63cd322303179c Mon Sep 17 00:00:00 2001
+Message-Id: <d5af261eb813cc5bb4dd8ad69d63cd322303179c.1584782450.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1584782450.git.liu.denton@gmail.com>
+References: <cover.1577185374.git.liu.denton@gmail.com>
+	<cover.1584782450.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 16 Oct 2019 17:44:11 -0700
+Subject: [PATCH v3 15/19] sequencer: unlink autostash in apply_autostash()
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Alban Gruin <alban.gruin@gmail.com>,
+    Johannes Schindelin <johannes.schindelin@gmx.de>,
+    Junio C Hamano <gitster@pobox.com>,
+    Phillip Wood <phillip.wood123@gmail.com>
+
+Explicitly remove autostash file in apply_autostash() once it has been
+applied successfully.
+
+This is currently a no-op because the only users of this function will unlink
+the state (including the autostash file) after this function runs.
+However, in the future, we will introduce a user of the function that
+does not explicitly remove the state so we do it here.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ sequencer.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/sequencer.c b/sequencer.c
+index b2951843a1..81b6c700d1 100644
+--- a/sequencer.c
++++ b/sequencer.c
+@@ -3746,6 +3746,7 @@ int apply_autostash(const char *path)
+ 				  " \"git stash drop\" at any time.\n"));
+ 	}
+ 
++	unlink(path);
+ 	strbuf_release(&stash_sha1);
+ 	return ret;
+ }
+-- 
+2.25.0.114.g5b0ca878e0
+
