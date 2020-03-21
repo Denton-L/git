@@ -1,0 +1,33 @@
+From 249dbb9420598fcc08fb041f0bb4dd089cdd5c31 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1584786523.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Sat, 21 Mar 2020 06:28:43 -0400
+Subject: [PATCH 0/2] Lib-ify functions in builtin.h
+To: Git Mailing List <git@vger.kernel.org>
+
+In builtin.h, there exist a couple of functions that are very lib-ish.
+Extract these functions into their own files which should make more
+organizational sense.
+
+Denton Liu (2):
+  Lib-ify fmt-merge-msg
+  Lib-ify prune-packed
+
+ Makefile                |   2 +
+ builtin.h               |  16 -
+ builtin/fmt-merge-msg.c | 655 +---------------------------------------
+ builtin/prune-packed.c  |  44 +--
+ builtin/prune.c         |   1 +
+ builtin/repack.c        |   1 +
+ fmt-merge-msg.c         | 653 +++++++++++++++++++++++++++++++++++++++
+ fmt-merge-msg.h         |  13 +
+ prune-packed.c          |  43 +++
+ prune-packed.h          |   9 +
+ 10 files changed, 724 insertions(+), 713 deletions(-)
+ create mode 100644 fmt-merge-msg.c
+ create mode 100644 prune-packed.c
+ create mode 100644 prune-packed.h
+
+-- 
+2.25.0.114.g5b0ca878e0
+
