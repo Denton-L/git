@@ -49,3 +49,9 @@
 	path = libify-builtin/config
 [branch "submitted/libify-builtin"]
 	description = Lib-ify functions in builtin.h\n\nIn builtin.h, there exist a couple of functions that are very lib-ish.\nExtract these functions into their own files which should make more\norganizational sense.
+[includeIf "onbranch:submitted/test-must-fail-fixes-3"]
+	path = test-must-fail-fixes-3/config
+[branch "submitted/test-must-fail-fixes-3"]
+	description = t: replace incorrect test_must_fail usage (part 3)\n\nThe overall scope of these patches is to replace inappropriate uses of\ntest_must_fail. IOW, we should only allow test_must_fail to run on `git`\nand `test-tool`. Ultimately, we will conclude by making test_must_fail\nerror out on non-git commands. An advance view of the final series can\nbe found here[1].\n\nThis is the third part. It focuses on t5*.sh.\n\nThe first part can be found here[2]. The second part can be found here[3].\n\n[1]: (may be rebased at any time) https://github.com/Denton-L/git/tree/ready/cleanup-test-must-fail2\n[2]: https://lore.kernel.org/git/cover.1576583819.git.liu.denton@gmail.com/\n[3]: https://lore.kernel.org/git/cover.1577454401.git.liu.denton@gmail.com/
+	remote = origin
+	merge = refs/heads/submitted/test-must-fail-fixes-3

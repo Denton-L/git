@@ -1,0 +1,34 @@
+From 68c911e29b509d75e390aba573921d6ac385fcaf Mon Sep 17 00:00:00 2001
+Message-Id: <68c911e29b509d75e390aba573921d6ac385fcaf.1585115341.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1585115341.git.liu.denton@gmail.com>
+References: <cover.1585115341.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 3 Dec 2019 00:01:50 -0800
+Subject: [PATCH 4/8] t5550: remove use of `test_might_fail grep`
+To: Git Mailing List <git@vger.kernel.org>
+
+The test_must_fail() family of functions (including test_might_fail())
+should only be used on git commands. Rewrite the use of
+test_might_fail() with grep to remove this improper usage.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t5550-http-fetch-dumb.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/t/t5550-http-fetch-dumb.sh b/t/t5550-http-fetch-dumb.sh
+index b811d89cfd..a06294ad8f 100755
+--- a/t/t5550-http-fetch-dumb.sh
++++ b/t/t5550-http-fetch-dumb.sh
+@@ -248,7 +248,7 @@ test_expect_success 'fetch can handle previously-fetched .idx files' '
+ '
+ 
+ test_expect_success 'did not use upload-pack service' '
+-	test_might_fail grep '/git-upload-pack' <"$HTTPD_ROOT_PATH"/access.log >act &&
++	{ grep '/git-upload-pack' <"$HTTPD_ROOT_PATH"/access.log >act || :; } &&
+ 	: >exp &&
+ 	test_cmp exp act
+ '
+-- 
+2.25.0.114.g5b0ca878e0
+
