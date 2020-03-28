@@ -57,3 +57,5 @@
 	merge = refs/heads/submitted/test-must-fail-fixes-3
 [includeIf "onbranch:submitted/stop-infinite-serve"]
 	path = stop-infinite-serve/config
+[includeIf "onbranch:submitted/fix-tabs"]
+	path = fix-tabs/config
