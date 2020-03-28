@@ -1,0 +1,5 @@
+[format]
+	outputDirectory = patches/stop-infinite-serve
+	cc = Brandon Williams <bmwill@google.com>
+	cc = Jeff King <peff@peff.net>
+	cc = Jonathan Tan <jonathantanmy@google.com>
