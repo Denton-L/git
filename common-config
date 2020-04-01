@@ -59,3 +59,5 @@
 	path = stop-infinite-serve/config
 [includeIf "onbranch:submitted/fix-tabs"]
 	path = fix-tabs/config
+[includeIf "onbranch:submitted/fix-warnings"]
+	path = fix-warnings/config
