@@ -1938,7 +1938,7 @@ static int for_each_fullref_in_pattern(struct ref_filter *filter,
 {
 	struct string_list prefixes = STRING_LIST_INIT_DUP;
 	struct string_list_item *prefix;
-	int ret;
+	int ret = 0;
 
 	if (!filter->match_as_path) {
 		/*

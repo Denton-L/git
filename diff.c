@@ -3263,7 +3263,7 @@ static void emit_binary_diff_body(struct diff_options *o,
 	void *delta;
 	void *deflated;
 	void *data;
-	unsigned long orig_size;
+	unsigned long orig_size = 0;
 	unsigned long delta_size;
 	unsigned long deflate_size;
 	unsigned long data_size;

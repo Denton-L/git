@@ -252,7 +252,7 @@ static void http_config(void)
 
 static struct rpc_service *select_service(struct strbuf *hdr, const char *name)
 {
-	const char *svc_name;
+	const char *svc_name = NULL;
 	struct rpc_service *svc = NULL;
 	int i;
 

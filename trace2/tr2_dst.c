@@ -227,7 +227,7 @@ static int tr2_dst_try_unix_domain_socket(struct tr2_dst *dst,
 {
 	unsigned int uds_try = 0;
 	int fd;
-	int e;
+	int e = 0;
 	const char *path = NULL;
 
 	/*
