@@ -19,7 +19,7 @@ static unsigned int arg_flags(const char *arg, const char *name)
 
 static const char **get_store(const char **argv, struct ref_store **refs)
 {
-	const char *gitdir;
+	const char *gitdir = NULL;
 
 	if (!argv[0]) {
 		die("ref store required");

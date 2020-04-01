@@ -455,7 +455,7 @@ static void print_current_branch_name(void)
 {
 	int flags;
 	const char *refname = resolve_ref_unsafe("HEAD", 0, NULL, &flags);
-	const char *shortname;
+	const char *shortname = NULL;
 	if (!refname)
 		die(_("could not resolve HEAD"));
 	else if (!(flags & REF_ISSYMREF))

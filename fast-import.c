@@ -1829,7 +1829,7 @@ static void parse_original_identifier(void)
 
 static int parse_data(struct strbuf *sb, uintmax_t limit, uintmax_t *len_res)
 {
-	const char *data;
+	const char *data = NULL;
 	strbuf_reset(sb);
 
 	if (!skip_prefix(command_buf.buf, "data ", &data))
@@ -2719,7 +2719,7 @@ static void parse_new_commit(const char *arg)
 static void parse_new_tag(const char *arg)
 {
 	static struct strbuf msg = STRBUF_INIT;
-	const char *from;
+	const char *from = NULL;
 	char *tagger;
 	struct branch *s;
 	struct tag *t;
