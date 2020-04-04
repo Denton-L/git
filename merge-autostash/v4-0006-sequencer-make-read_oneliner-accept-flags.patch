@@ -1,0 +1,127 @@
+From 6ead240957da808be1261bc960227c4183da3dd9 Mon Sep 17 00:00:00 2001
+Message-Id: <6ead240957da808be1261bc960227c4183da3dd9.1585962672.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1585962672.git.liu.denton@gmail.com>
+References: <cover.1584782450.git.liu.denton@gmail.com>
+	<cover.1585962672.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Fri, 27 Dec 2019 09:11:50 -0500
+Subject: [PATCH v4 06/23] sequencer: make read_oneliner() accept flags
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Alban Gruin <alban.gruin@gmail.com>,
+    Johannes Schindelin <johannes.schindelin@gmx.de>,
+    Junio C Hamano <gitster@pobox.com>,
+    Phillip Wood <phillip.wood123@gmail.com>
+
+In a future commit, we will need read_oneliner() to accept flags other
+than just `skip_if_empty`. Instead of having an argument for each flag,
+teach read_oneliner() to accept the bitfield `flags` instead. For now,
+only recognize the `READ_ONELINER_SKIP_IF_EMPTY` flag. More flags will
+be added in a future commit.
+
+The result of this is that parallel topics which introduce invocations
+of read_oneliner() will still be compatible with this new function
+signature since, instead of passing 1 or 0 for `skip_if_empty`, they'll
+be passing 1 or 0 to `flags`, which gives equivalent behavior.
+
+Mechanically fix up invocations of read_oneliner() with the following
+spatch
+
+	@@
+	expression a, b;
+	@@
+	  read_oneliner(a, b,
+	- 1
+	+ READ_ONELINER_SKIP_IF_EMPTY
+	  )
+
+and manually break up long lines in the result.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ sequencer.c | 21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
+
+diff --git a/sequencer.c b/sequencer.c
+index 6e63224c41..6c26d61670 100644
+--- a/sequencer.c
++++ b/sequencer.c
+@@ -419,6 +419,8 @@ static int write_message(const void *buf, size_t len, const char *filename,
+ 	return 0;
+ }
+ 
++#define READ_ONELINER_SKIP_IF_EMPTY (1 << 0)
++
+ /*
+  * Resets a strbuf then reads a file that was presumably written by a shell
+  * script, i.e. with an end-of-line marker that needs to be stripped.
+@@ -429,7 +431,7 @@ static int write_message(const void *buf, size_t len, const char *filename,
+  * Returns 1 if the file was read, 0 if it could not be read or does not exist.
+  */
+ static int read_oneliner(struct strbuf *buf,
+-	const char *path, int skip_if_empty)
++	const char *path, unsigned flags)
+ {
+ 	strbuf_reset(buf);
+ 	if (strbuf_read_file(buf, path, 0) < 0) {
+@@ -440,7 +442,7 @@ static int read_oneliner(struct strbuf *buf,
+ 
+ 	strbuf_trim(buf);
+ 
+-	if (skip_if_empty && !buf->len)
++	if ((flags & READ_ONELINER_SKIP_IF_EMPTY) && !buf->len)
+ 		return 0;
+ 
+ 	return 1;
+@@ -2479,7 +2481,8 @@ static int read_populate_opts(struct replay_opts *opts)
+ 		struct strbuf buf = STRBUF_INIT;
+ 		int ret = 0;
+ 
+-		if (read_oneliner(&buf, rebase_path_gpg_sign_opt(), 1)) {
++		if (read_oneliner(&buf, rebase_path_gpg_sign_opt(),
++				  READ_ONELINER_SKIP_IF_EMPTY)) {
+ 			if (!starts_with(buf.buf, "-S"))
+ 				strbuf_reset(&buf);
+ 			else {
+@@ -2488,7 +2491,8 @@ static int read_populate_opts(struct replay_opts *opts)
+ 			}
+ 		}
+ 
+-		if (read_oneliner(&buf, rebase_path_allow_rerere_autoupdate(), 1)) {
++		if (read_oneliner(&buf, rebase_path_allow_rerere_autoupdate(),
++				  READ_ONELINER_SKIP_IF_EMPTY)) {
+ 			if (!strcmp(buf.buf, "--rerere-autoupdate"))
+ 				opts->allow_rerere_auto = RERERE_AUTOUPDATE;
+ 			else if (!strcmp(buf.buf, "--no-rerere-autoupdate"))
+@@ -2519,7 +2523,8 @@ static int read_populate_opts(struct replay_opts *opts)
+ 		read_strategy_opts(opts, &buf);
+ 
+ 		if (read_oneliner(&opts->current_fixups,
+-				  rebase_path_current_fixups(), 1)) {
++				  rebase_path_current_fixups(),
++				  READ_ONELINER_SKIP_IF_EMPTY)) {
+ 			const char *p = opts->current_fixups.buf;
+ 			opts->current_fixup_count = 1;
+ 			while ((p = strchr(p, '\n'))) {
+@@ -3660,7 +3665,8 @@ static int apply_autostash(struct replay_opts *opts)
+ 	struct child_process child = CHILD_PROCESS_INIT;
+ 	int ret = 0;
+ 
+-	if (!read_oneliner(&stash_sha1, rebase_path_autostash(), 1)) {
++	if (!read_oneliner(&stash_sha1, rebase_path_autostash(),
++			   READ_ONELINER_SKIP_IF_EMPTY)) {
+ 		strbuf_release(&stash_sha1);
+ 		return 0;
+ 	}
+@@ -4283,7 +4289,8 @@ int sequencer_continue(struct repository *r, struct replay_opts *opts)
+ 		struct strbuf buf = STRBUF_INIT;
+ 		struct object_id oid;
+ 
+-		if (read_oneliner(&buf, rebase_path_stopped_sha(), 1) &&
++		if (read_oneliner(&buf, rebase_path_stopped_sha(),
++				  READ_ONELINER_SKIP_IF_EMPTY) &&
+ 		    !get_oid_committish(buf.buf, &oid))
+ 			record_in_rewritten(&oid, peek_command(&todo_list, 0));
+ 		strbuf_release(&buf);
+-- 
+2.26.0.159.g23e2136ad0
+
