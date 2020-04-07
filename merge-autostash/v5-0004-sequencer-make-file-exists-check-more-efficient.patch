@@ -1,0 +1,44 @@
+From dc4674d222317fa2f503e6e1b3cad6a78dd70676 Mon Sep 17 00:00:00 2001
+Message-Id: <dc4674d222317fa2f503e6e1b3cad6a78dd70676.1586269543.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1586269542.git.liu.denton@gmail.com>
+References: <cover.1585962672.git.liu.denton@gmail.com>
+	<cover.1586269542.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Fri, 3 Apr 2020 01:06:30 -0400
+Subject: [PATCH v5 04/22] sequencer: make file exists check more efficient
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Alban Gruin <alban.gruin@gmail.com>,
+    Johannes Schindelin <johannes.schindelin@gmx.de>,
+    Junio C Hamano <gitster@pobox.com>,
+    Phillip Wood <phillip.wood123@gmail.com>
+
+We currently check whether a file exists and return early before reading
+the file. Instead of accessing the file twice, always read the file and
+check `errno` to see if the file doesn't exist.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ sequencer.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/sequencer.c b/sequencer.c
+index faab0b13e8..a961cf5a9b 100644
+--- a/sequencer.c
++++ b/sequencer.c
+@@ -433,11 +433,9 @@ static int read_oneliner(struct strbuf *buf,
+ {
+ 	int orig_len = buf->len;
+ 
+-	if (!file_exists(path))
+-		return 0;
+-
+ 	if (strbuf_read_file(buf, path, 0) < 0) {
+-		warning_errno(_("could not read '%s'"), path);
++		if (errno != ENOENT && errno != ENOTDIR)
++			warning_errno(_("could not read '%s'"), path);
+ 		return 0;
+ 	}
+ 
+-- 
+2.26.0.159.g23e2136ad0
+

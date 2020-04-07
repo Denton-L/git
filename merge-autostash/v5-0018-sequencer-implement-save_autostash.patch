@@ -1,0 +1,122 @@
+From 7e04ce8d8e8ec8308efda05ea7f0cd31f9612ea0 Mon Sep 17 00:00:00 2001
+Message-Id: <7e04ce8d8e8ec8308efda05ea7f0cd31f9612ea0.1586269543.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1586269542.git.liu.denton@gmail.com>
+References: <cover.1585962672.git.liu.denton@gmail.com>
+	<cover.1586269542.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Thu, 19 Mar 2020 03:39:41 -0400
+Subject: [PATCH v5 18/22] sequencer: implement save_autostash()
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Alban Gruin <alban.gruin@gmail.com>,
+    Johannes Schindelin <johannes.schindelin@gmx.de>,
+    Junio C Hamano <gitster@pobox.com>,
+    Phillip Wood <phillip.wood123@gmail.com>
+
+Extract common functionality of apply_autostash() into
+apply_save_autostash() and use it to implement save_autostash(). This
+function will be used in a future commit.
+
+The difference between save_autostash() and apply_autostash() is that
+the former does not try to apply the stash. It skips that step and
+just stores the created entry in the stash reflog.
+
+This is useful in the case where we abort an operation when an autostash
+is present but we don't want to dirty the worktree with the application
+of the stash. For example, in a future commit, we will implement
+`git merge --autostash`. Since merges can be aborted using
+`git reset --hard`, we'd make use of save_autostash() to save the
+autostash entry instead of applying it to the worktree thus keeping the
+worktree undirtied.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ sequencer.c | 37 +++++++++++++++++++++++++++----------
+ sequencer.h |  1 +
+ 2 files changed, 28 insertions(+), 10 deletions(-)
+
+diff --git a/sequencer.c b/sequencer.c
+index 645bc47ce3..084ea4117e 100644
+--- a/sequencer.c
++++ b/sequencer.c
+@@ -3707,7 +3707,7 @@ void create_autostash(struct repository *r, const char *path,
+ 	strbuf_release(&buf);
+ }
+ 
+-int apply_autostash(const char *path)
++static int apply_save_autostash(const char *path, int attempt_apply)
+ {
+ 	struct strbuf stash_oid = STRBUF_INIT;
+ 	struct child_process child = CHILD_PROCESS_INIT;
+@@ -3720,13 +3720,17 @@ int apply_autostash(const char *path)
+ 	}
+ 	strbuf_trim(&stash_oid);
+ 
+-	child.git_cmd = 1;
+-	child.no_stdout = 1;
+-	child.no_stderr = 1;
+-	argv_array_push(&child.args, "stash");
+-	argv_array_push(&child.args, "apply");
+-	argv_array_push(&child.args, stash_oid.buf);
+-	if (!run_command(&child))
++	if (attempt_apply) {
++		child.git_cmd = 1;
++		child.no_stdout = 1;
++		child.no_stderr = 1;
++		argv_array_push(&child.args, "stash");
++		argv_array_push(&child.args, "apply");
++		argv_array_push(&child.args, stash_oid.buf);
++		ret = run_command(&child);
++	}
++
++	if (attempt_apply && !ret)
+ 		fprintf(stderr, _("Applied autostash.\n"));
+ 	else {
+ 		struct child_process store = CHILD_PROCESS_INIT;
+@@ -3742,10 +3746,13 @@ int apply_autostash(const char *path)
+ 			ret = error(_("cannot store %s"), stash_oid.buf);
+ 		else
+ 			fprintf(stderr,
+-				_("Applying autostash resulted in conflicts.\n"
++				_("%s\n"
+ 				  "Your changes are safe in the stash.\n"
+ 				  "You can run \"git stash pop\" or"
+-				  " \"git stash drop\" at any time.\n"));
++				  " \"git stash drop\" at any time.\n"),
++				attempt_apply ?
++				_("Applying autostash resulted in conflicts.") :
++				_("Autostash exists; creating a new stash entry."));
+ 	}
+ 
+ 	unlink(path);
+@@ -3753,6 +3760,16 @@ int apply_autostash(const char *path)
+ 	return ret;
+ }
+ 
++int save_autostash(const char *path)
++{
++	return apply_save_autostash(path, 0);
++}
++
++int apply_autostash(const char *path)
++{
++	return apply_save_autostash(path, 1);
++}
++
+ static const char *reflog_message(struct replay_opts *opts,
+ 	const char *sub_action, const char *fmt, ...)
+ {
+diff --git a/sequencer.h b/sequencer.h
+index 9d1fe0ccfb..306d4cecfb 100644
+--- a/sequencer.h
++++ b/sequencer.h
+@@ -193,6 +193,7 @@ void commit_post_rewrite(struct repository *r,
+ 
+ void create_autostash(struct repository *r, const char *path,
+ 		      const char *default_reflog_action);
++int save_autostash(const char *path);
+ int apply_autostash(const char *path);
+ 
+ #define SUMMARY_INITIAL_COMMIT   (1 << 0)
+-- 
+2.26.0.159.g23e2136ad0
+

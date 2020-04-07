@@ -1,0 +1,100 @@
+From c2ed4cd39d6ec2c7ba095a5a75bf28334be476c8 Mon Sep 17 00:00:00 2001
+Message-Id: <c2ed4cd39d6ec2c7ba095a5a75bf28334be476c8.1586269543.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1586269542.git.liu.denton@gmail.com>
+References: <cover.1585962672.git.liu.denton@gmail.com>
+	<cover.1586269542.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Thu, 7 Nov 2019 14:51:26 -0800
+Subject: [PATCH v5 15/22] rebase: generify create_autostash()
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Alban Gruin <alban.gruin@gmail.com>,
+    Johannes Schindelin <johannes.schindelin@gmx.de>,
+    Junio C Hamano <gitster@pobox.com>,
+    Phillip Wood <phillip.wood123@gmail.com>
+
+In the future, we plan on lib-ifying create_autostash() so we need it to
+be more generic. Make it more generic by making it accept a
+`struct repository` argument instead of implicitly using the non-repo
+functions and `the_repository`. Also, make it accept a `path` argument
+so that we no longer rely have to rely on `struct rebase_options`.
+Finally, make it accept a `default_reflog_action` argument so we no
+longer have to rely on `DEFAULT_REFLOG_ACTION`.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ builtin/rebase.c | 32 ++++++++++++++++----------------
+ 1 file changed, 16 insertions(+), 16 deletions(-)
+
+diff --git a/builtin/rebase.c b/builtin/rebase.c
+index 581ad3af7b..ae345c9e57 100644
+--- a/builtin/rebase.c
++++ b/builtin/rebase.c
+@@ -1274,22 +1274,21 @@ static int check_exec_cmd(const char *cmd)
+ 	return 0;
+ }
+ 
+-static void create_autostash(struct rebase_options *options)
++static void create_autostash(struct repository *r, const char *path,
++			     const char *default_reflog_action)
+ {
+ 	struct strbuf buf = STRBUF_INIT;
+ 	struct lock_file lock_file = LOCK_INIT;
+ 	int fd;
+ 
+-	fd = hold_locked_index(&lock_file, 0);
+-	refresh_cache(REFRESH_QUIET);
++	fd = repo_hold_locked_index(r, &lock_file, 0);
++	refresh_index(r->index, REFRESH_QUIET, NULL, NULL, NULL);
+ 	if (0 <= fd)
+-		repo_update_index_if_able(the_repository, &lock_file);
++		repo_update_index_if_able(r, &lock_file);
+ 	rollback_lock_file(&lock_file);
+ 
+-	if (has_unstaged_changes(the_repository, 1) ||
+-	    has_uncommitted_changes(the_repository, 1)) {
+-		const char *autostash =
+-			state_dir_path("autostash", options);
++	if (has_unstaged_changes(r, 1) ||
++	    has_uncommitted_changes(r, 1)) {
+ 		struct child_process stash = CHILD_PROCESS_INIT;
+ 		struct object_id oid;
+ 
+@@ -1307,18 +1306,18 @@ static void create_autostash(struct rebase_options *options)
+ 		strbuf_reset(&buf);
+ 		strbuf_add_unique_abbrev(&buf, &oid, DEFAULT_ABBREV);
+ 
+-		if (safe_create_leading_directories_const(autostash))
++		if (safe_create_leading_directories_const(path))
+ 			die(_("Could not create directory for '%s'"),
+-			    options->state_dir);
+-		write_file(autostash, "%s", oid_to_hex(&oid));
++			    path);
++		write_file(path, "%s", oid_to_hex(&oid));
+ 		printf(_("Created autostash: %s\n"), buf.buf);
+-		if (reset_head(the_repository, NULL, "reset --hard",
++		if (reset_head(r, NULL, "reset --hard",
+ 			       NULL, RESET_HEAD_HARD, NULL, NULL,
+-			       DEFAULT_REFLOG_ACTION) < 0)
++			       default_reflog_action) < 0)
+ 			die(_("could not reset --hard"));
+ 
+-		if (discard_index(the_repository->index) < 0 ||
+-			repo_read_index(the_repository) < 0)
++		if (discard_index(r->index) < 0 ||
++			repo_read_index(r) < 0)
+ 			die(_("could not read index"));
+ 	}
+ 	strbuf_release(&buf);
+@@ -1956,7 +1955,8 @@ int cmd_rebase(int argc, const char **argv, const char *prefix)
+ 		die(_("could not read index"));
+ 
+ 	if (options.autostash) {
+-		create_autostash(&options);
++		create_autostash(the_repository, state_dir_path("autostash", &options),
++				 DEFAULT_REFLOG_ACTION);
+ 	}
+ 
+ 	if (require_clean_work_tree(the_repository, "rebase",
+-- 
+2.26.0.159.g23e2136ad0
+
