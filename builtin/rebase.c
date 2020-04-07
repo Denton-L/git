@@ -613,7 +613,6 @@ static int read_basic_state(struct rebase_options *opts)
 	 * head. Fall back to reading from head to cover for the case that the
 	 * user upgraded git with an ongoing interactive rebase.
 	 */
-	strbuf_reset(&buf);
 	if (file_exists(state_dir_path("orig-head", opts))) {
 		if (!read_oneliner(&buf, state_dir_path("orig-head", opts),
 				   READ_ONELINER_WARN_MISSING))
@@ -638,7 +637,6 @@ static int read_basic_state(struct rebase_options *opts)
 	}
 
 	if (file_exists(state_dir_path("allow_rerere_autoupdate", opts))) {
-		strbuf_reset(&buf);
 		if (!read_oneliner(&buf, state_dir_path("allow_rerere_autoupdate", opts),
 				   READ_ONELINER_WARN_MISSING))
 			return -1;
@@ -652,7 +650,6 @@ static int read_basic_state(struct rebase_options *opts)
 	}
 
 	if (file_exists(state_dir_path("gpg_sign_opt", opts))) {
-		strbuf_reset(&buf);
 		if (!read_oneliner(&buf, state_dir_path("gpg_sign_opt", opts),
 				   READ_ONELINER_WARN_MISSING))
 			return -1;
@@ -661,7 +658,6 @@ static int read_basic_state(struct rebase_options *opts)
 	}
 
 	if (file_exists(state_dir_path("strategy", opts))) {
-		strbuf_reset(&buf);
 		if (!read_oneliner(&buf, state_dir_path("strategy", opts),
 				   READ_ONELINER_WARN_MISSING))
 			return -1;
@@ -670,7 +666,6 @@ static int read_basic_state(struct rebase_options *opts)
 	}
 
 	if (file_exists(state_dir_path("strategy_opts", opts))) {
-		strbuf_reset(&buf);
 		if (!read_oneliner(&buf, state_dir_path("strategy_opts", opts),
 				   READ_ONELINER_WARN_MISSING))
 			return -1;

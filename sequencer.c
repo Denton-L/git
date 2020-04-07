@@ -423,8 +423,7 @@ static int write_message(const void *buf, size_t len, const char *filename,
 int read_oneliner(struct strbuf *buf,
 	const char *path, unsigned flags)
 {
-	int orig_len = buf->len;
-
+	strbuf_reset(buf);
 	if (strbuf_read_file(buf, path, 0) < 0) {
 		if ((flags & READ_ONELINER_WARN_MISSING) ||
 		    (errno != ENOENT && errno != ENOTDIR))
@@ -432,13 +431,9 @@ int read_oneliner(struct strbuf *buf,
 		return 0;
 	}
 
-	if (buf->len > orig_len && buf->buf[buf->len - 1] == '\n') {
-		if (--buf->len > orig_len && buf->buf[buf->len - 1] == '\r')
-			--buf->len;
-		buf->buf[buf->len] = '\0';
-	}
+	strbuf_trim(buf);
 
-	if ((flags & READ_ONELINER_SKIP_IF_EMPTY) && buf->len == orig_len)
+	if ((flags & READ_ONELINER_SKIP_IF_EMPTY) && !buf->len)
 		return 0;
 
 	return 1;
@@ -2462,7 +2457,6 @@ void parse_strategy_opts(struct replay_opts *opts, char *raw_opts)
 
 static void read_strategy_opts(struct replay_opts *opts, struct strbuf *buf)
 {
-	strbuf_reset(buf);
 	if (!read_oneliner(buf, rebase_path_strategy(), 0))
 		return;
 	opts->strategy = strbuf_detach(buf, NULL);
@@ -2486,7 +2480,6 @@ static int read_populate_opts(struct replay_opts *opts)
 				free(opts->gpg_sign);
 				opts->gpg_sign = xstrdup(buf.buf + 2);
 			}
-			strbuf_reset(&buf);
 		}
 
 		if (read_oneliner(&buf, rebase_path_allow_rerere_autoupdate(),
@@ -2519,7 +2512,6 @@ static int read_populate_opts(struct replay_opts *opts)
 			opts->keep_redundant_commits = 1;
 
 		read_strategy_opts(opts, &buf);
-		strbuf_reset(&buf);
 
 		if (read_oneliner(&opts->current_fixups,
 				  rebase_path_current_fixups(),
@@ -4082,7 +4074,6 @@ cleanup_head_ref:
 				res = error(_("could not read orig-head"));
 				goto cleanup_head_ref;
 			}
-			strbuf_reset(&buf);
 			if (!read_oneliner(&buf, rebase_path_onto(), 0)) {
 				res = error(_("could not read 'onto'"));
 				goto cleanup_head_ref;

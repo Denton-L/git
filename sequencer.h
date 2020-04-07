@@ -208,8 +208,8 @@ void print_commit_summary(struct repository *repo,
 #define READ_ONELINER_WARN_MISSING (1 << 1)
 
 /*
- * Reads a file that was presumably written by a shell script, i.e. with an
- * end-of-line marker that needs to be stripped.
+ * Resets a strbuf then reads a file that was presumably written by a shell
+ * script, i.e. with an end-of-line marker that needs to be stripped.
  *
  * Note that only the last end-of-line marker is stripped, consistent with the
  * behavior of "$(cat path)" in a shell script.
