@@ -1,0 +1,38 @@
+From 572d12a5fb4777b10417bb4fc7e38954796a8404 Mon Sep 17 00:00:00 2001
+Message-Id: <572d12a5fb4777b10417bb4fc7e38954796a8404.1587372771.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1587372771.git.liu.denton@gmail.com>
+References: <cover.1587372771.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 10 Sep 2019 01:00:03 -0700
+Subject: [PATCH 5/8] t9160: use test_path_is_missing()
+To: Git Mailing List <git@vger.kernel.org>
+
+The test_must_fail() function should only be used for git commands since
+we assume that external commands work sanely. Since, not only should
+this file not exist, but there shouldn't exit _any_ filesystem entity in
+these paths, replace `test_must_fail test -f` with
+`test_path_is_missing`.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t9160-git-svn-preserve-empty-dirs.sh | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/t/t9160-git-svn-preserve-empty-dirs.sh b/t/t9160-git-svn-preserve-empty-dirs.sh
+index 0ede3cfedb..36c6b1a12f 100755
+--- a/t/t9160-git-svn-preserve-empty-dirs.sh
++++ b/t/t9160-git-svn-preserve-empty-dirs.sh
+@@ -86,8 +86,8 @@ test_expect_success 'remove non-last entry from directory' '
+ 		cd "$GIT_REPO" &&
+ 		git checkout HEAD~2
+ 	) &&
+-	test_must_fail test -f "$GIT_REPO"/2/.gitignore &&
+-	test_must_fail test -f "$GIT_REPO"/3/.gitignore
++	test_path_is_missing "$GIT_REPO"/2/.gitignore &&
++	test_path_is_missing "$GIT_REPO"/3/.gitignore
+ '
+ 
+ # After re-cloning the repository with --placeholder-file specified, there
+-- 
+2.26.0.159.g23e2136ad0
+

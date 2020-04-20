@@ -1,0 +1,63 @@
+From 17db727121925cf0774e95a80ea13bbea8264931 Mon Sep 17 00:00:00 2001
+Message-Id: <17db727121925cf0774e95a80ea13bbea8264931.1587372771.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1587372771.git.liu.denton@gmail.com>
+References: <cover.1587372771.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Fri, 18 Oct 2019 09:51:52 -0700
+Subject: [PATCH 2/8] t7408: replace incorrect uses of test_must_fail
+To: Git Mailing List <git@vger.kernel.org>
+
+According to t/README, test_must_fail() should only be used to test for
+failure in Git commands.
+
+Replace the invocation of `test_must_fail test_path_is_file` with
+`test_path_is_missing` since, in this test case, the path should not
+exist at all.
+
+In all the cases where `test_must_fail test_alternate_is_used` appears,
+test_alternate_is_used() fails because test_line_count() cannot open the
+non-existent $alternates_file. Replace
+`test_must_fail test_alternate_is_used` with `test_path_is_missing` to
+test for this directly.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t7408-submodule-reference.sh | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/t/t7408-submodule-reference.sh b/t/t7408-submodule-reference.sh
+index 34ac28c056..a3892f494b 100755
+--- a/t/t7408-submodule-reference.sh
++++ b/t/t7408-submodule-reference.sh
+@@ -122,8 +122,8 @@ test_expect_success 'missing submodule alternate fails clone and submodule updat
+ 		# update of the submodule succeeds
+ 		test_must_fail git submodule update --init &&
+ 		# and we have no alternates:
+-		test_must_fail test_alternate_is_used .git/modules/sub/objects/info/alternates sub &&
+-		test_must_fail test_path_is_file sub/file1
++		test_path_is_missing .git/modules/sub/objects/info/alternates &&
++		test_path_is_missing sub/file1
+ 	)
+ '
+ 
+@@ -137,7 +137,7 @@ test_expect_success 'ignoring missing submodule alternates passes clone and subm
+ 		# update of the submodule succeeds
+ 		git submodule update --init &&
+ 		# and we have no alternates:
+-		test_must_fail test_alternate_is_used .git/modules/sub/objects/info/alternates sub &&
++		test_path_is_missing .git/modules/sub/objects/info/alternates &&
+ 		test_path_is_file sub/file1
+ 	)
+ '
+@@ -182,7 +182,7 @@ check_that_two_of_three_alternates_are_used() {
+ 	# immediate submodule has alternate:
+ 	test_alternate_is_used .git/modules/subwithsub/objects/info/alternates subwithsub &&
+ 	# but nested submodule has no alternate:
+-	test_must_fail test_alternate_is_used .git/modules/subwithsub/modules/sub/objects/info/alternates subwithsub/sub
++	test_path_is_missing .git/modules/subwithsub/modules/sub/objects/info/alternates
+ }
+ 
+ 
+-- 
+2.26.0.159.g23e2136ad0
+

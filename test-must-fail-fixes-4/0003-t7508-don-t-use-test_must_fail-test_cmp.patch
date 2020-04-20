@@ -1,0 +1,35 @@
+From fd79ade3527e6be6b97f07d798a0ea38507f24c0 Mon Sep 17 00:00:00 2001
+Message-Id: <fd79ade3527e6be6b97f07d798a0ea38507f24c0.1587372771.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1587372771.git.liu.denton@gmail.com>
+References: <cover.1587372771.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 10 Sep 2019 01:00:03 -0700
+Subject: [PATCH 3/8] t7508: don't use `test_must_fail test_cmp`
+To: Git Mailing List <git@vger.kernel.org>
+
+The test_must_fail function should only be used for git commands since
+we assume that external commands work sanely. Since test_cmp() just
+wraps an external command, replace `test_must_fail test_cmp` with
+`! test_cmp`.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t7508-status.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/t/t7508-status.sh b/t/t7508-status.sh
+index 482ce3510e..8e969f3e36 100755
+--- a/t/t7508-status.sh
++++ b/t/t7508-status.sh
+@@ -1471,7 +1471,7 @@ test_expect_success '"status.branch=true" same as "-b"' '
+ test_expect_success '"status.branch=true" different from "--no-branch"' '
+ 	git status -s --no-branch  >expected_nobranch &&
+ 	git -c status.branch=true status -s >actual &&
+-	test_must_fail test_cmp expected_nobranch actual
++	! test_cmp expected_nobranch actual
+ '
+ 
+ test_expect_success '"status.branch=true" weaker than "--no-branch"' '
+-- 
+2.26.0.159.g23e2136ad0
+

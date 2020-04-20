@@ -1,0 +1,42 @@
+From 1eb50e1be2f548c65f5491a1554fc7d69fd261d4 Mon Sep 17 00:00:00 2001
+Message-Id: <1eb50e1be2f548c65f5491a1554fc7d69fd261d4.1587372771.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1587372771.git.liu.denton@gmail.com>
+References: <cover.1587372771.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 10 Sep 2019 01:00:03 -0700
+Subject: [PATCH 4/8] t9141: use test_path_is_missing()
+To: Git Mailing List <git@vger.kernel.org>
+
+The test_must_fail() function should only be used for git commands since
+we assume that external commands work sanely. Since, not only should
+these directories not exist, but there shouldn't exist _any_ filesystem
+entity in these paths, replace `test_must_fail test -d` with
+`test_path_is_missing`.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t9141-git-svn-multiple-branches.sh | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/t/t9141-git-svn-multiple-branches.sh b/t/t9141-git-svn-multiple-branches.sh
+index 8e7f7d68b7..bf168a3645 100755
+--- a/t/t9141-git-svn-multiple-branches.sh
++++ b/t/t9141-git-svn-multiple-branches.sh
+@@ -90,10 +90,10 @@ test_expect_success 'Multiple branch or tag paths require -d' '
+ 	) &&
+ 	( cd svn_project &&
+ 		svn_cmd up &&
+-		test_must_fail test -d b_one/Nope &&
+-		test_must_fail test -d b_two/Nope &&
+-		test_must_fail test -d tags_A/Tagless &&
+-		test_must_fail test -d tags_B/Tagless
++		test_path_is_missing b_one/Nope &&
++		test_path_is_missing b_two/Nope &&
++		test_path_is_missing tags_A/Tagless &&
++		test_path_is_missing tags_B/Tagless
+ 	)
+ '
+ 
+-- 
+2.26.0.159.g23e2136ad0
+

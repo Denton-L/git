@@ -1,0 +1,44 @@
+From dfccb04e2d03656e18286bcca2c558e19d748ffd Mon Sep 17 00:00:00 2001
+Message-Id: <dfccb04e2d03656e18286bcca2c558e19d748ffd.1587372771.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1587372771.git.liu.denton@gmail.com>
+References: <cover.1587372771.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 10 Sep 2019 01:00:03 -0700
+Subject: [PATCH 6/8] t9164: don't use `test_must_fail test_cmp`
+To: Git Mailing List <git@vger.kernel.org>
+
+The test_must_fail function should only be used for git commands since
+we assume that external commands work sanely. Since test_cmp() just
+wraps an external command, replace `test_must_fail test_cmp` with
+`! test_cmp`.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t9164-git-svn-dcommit-concurrent.sh | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/t/t9164-git-svn-dcommit-concurrent.sh b/t/t9164-git-svn-dcommit-concurrent.sh
+index 90346ff4e9..8466269bf5 100755
+--- a/t/t9164-git-svn-dcommit-concurrent.sh
++++ b/t/t9164-git-svn-dcommit-concurrent.sh
+@@ -92,7 +92,7 @@ test_expect_success 'check if post-commit hook creates a concurrent commit' '
+ 		echo 1 >> file &&
+ 		svn_cmd commit -m "changing file" &&
+ 		svn_cmd up &&
+-		test_must_fail test_cmp auto_updated_file au_file_saved
++		! test_cmp auto_updated_file au_file_saved
+ 	)
+ '
+ 
+@@ -103,7 +103,7 @@ test_expect_success 'check if pre-commit hook fails' '
+ 		echo 2 >> file &&
+ 		svn_cmd commit -m "changing file once again" &&
+ 		echo 3 >> file &&
+-		test_must_fail svn_cmd commit -m "this commit should fail" &&
++		! svn_cmd commit -m "this commit should fail" &&
+ 		svn_cmd revert file
+ 	)
+ '
+-- 
+2.26.0.159.g23e2136ad0
+

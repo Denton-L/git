@@ -53,3 +53,5 @@
 	path = stop-infinite-serve/config
 [includeIf "onbranch:submitted/fix-warnings"]
 	path = fix-warnings/config
+[includeIf "onbranch:submitted/test-must-fail-fixes-4"]
+	path = test-must-fail-fixes-4/config
