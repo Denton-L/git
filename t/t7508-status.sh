@@ -446,7 +446,7 @@ EOF
 	test_i18ncmp expect output
 '
 
-cat >expect << EOF
+cat >expect <<EOF
  M dir1/modified
 A  dir2/added
 EOF
@@ -1068,12 +1068,12 @@ test_expect_success POSIXPERM,SANITY 'status succeeds in a read-only repository'
 	)
 '
 
-(cd sm && echo > bar && git add bar && git commit -q -m 'Add bar') && git add sm
+(cd sm && echo >bar && git add bar && git commit -q -m 'Add bar') && git add sm
 new_head=$(cd sm && git rev-parse --short=7 --verify HEAD)
 touch .gitmodules
 
 test_expect_success '--ignore-submodules=untracked suppresses submodules with untracked content' '
-	cat > expect << EOF &&
+	cat >expect <<EOF &&
 On branch master
 Your branch and '\''upstream'\'' have diverged,
 and have 2 and 2 different commits each, respectively.
@@ -1182,7 +1182,7 @@ test_expect_success '.git/config ignore=dirty suppresses submodules with modifie
 '
 
 test_expect_success "--ignore-submodules=untracked doesn't suppress submodules with modified content" '
-	cat > expect << EOF &&
+	cat >expect <<EOF &&
 On branch master
 Your branch and '\''upstream'\'' have diverged,
 and have 2 and 2 different commits each, respectively.
@@ -1213,7 +1213,7 @@ Untracked files:
 	untracked
 
 EOF
-	git status --ignore-submodules=untracked > output &&
+	git status --ignore-submodules=untracked >output &&
 	test_i18ncmp expect output
 '
 
@@ -1239,7 +1239,7 @@ test_expect_success ".git/config ignore=untracked doesn't suppress submodules wi
 head2=$(cd sm && git commit -q -m "2nd commit" foo && git rev-parse --short=7 --verify HEAD)
 
 test_expect_success "--ignore-submodules=untracked doesn't suppress submodule summary" '
-	cat > expect << EOF &&
+	cat >expect <<EOF &&
 On branch master
 Your branch and '\''upstream'\'' have diverged,
 and have 2 and 2 different commits each, respectively.
@@ -1274,7 +1274,7 @@ Untracked files:
 	untracked
 
 EOF
-	git status --ignore-submodules=untracked > output &&
+	git status --ignore-submodules=untracked >output &&
 	test_i18ncmp expect output
 '
 
@@ -1298,7 +1298,7 @@ test_expect_success ".git/config ignore=untracked doesn't suppress submodule sum
 '
 
 test_expect_success "--ignore-submodules=dirty doesn't suppress submodule summary" '
-	git status --ignore-submodules=dirty > output &&
+	git status --ignore-submodules=dirty >output &&
 	test_i18ncmp expect output
 '
 test_expect_success ".gitmodules ignore=dirty doesn't suppress submodule summary" '
@@ -1320,7 +1320,7 @@ test_expect_success ".git/config ignore=dirty doesn't suppress submodule summary
 	git config -f .gitmodules  --remove-section submodule.subname
 '
 
-cat > expect << EOF
+cat >expect <<EOF
 ; On branch master
 ; Your branch and 'upstream' have diverged,
 ; and have 2 and 2 different commits each, respectively.
@@ -1368,7 +1368,7 @@ test_expect_success "status (core.commentchar with two chars with submodule summ
 '
 
 test_expect_success "--ignore-submodules=all suppresses submodule summary" '
-	cat > expect << EOF &&
+	cat >expect <<EOF &&
 On branch master
 Your branch and '\''upstream'\'' have diverged,
 and have 2 and 2 different commits each, respectively.
@@ -1389,12 +1389,12 @@ Untracked files:
 
 no changes added to commit (use "git add" and/or "git commit -a")
 EOF
-	git status --ignore-submodules=all > output &&
+	git status --ignore-submodules=all >output &&
 	test_i18ncmp expect output
 '
 
 test_expect_success '.gitmodules ignore=all suppresses unstaged submodule summary' '
-	cat > expect << EOF &&
+	cat >expect <<EOF &&
 On branch master
 Your branch and '\''upstream'\'' have diverged,
 and have 2 and 2 different commits each, respectively.
@@ -1420,7 +1420,7 @@ Untracked files:
 EOF
 	git config --add -f .gitmodules submodule.subname.ignore all &&
 	git config --add -f .gitmodules submodule.subname.path sm &&
-	git status > output &&
+	git status >output &&
 	test_i18ncmp expect output &&
 	git config -f .gitmodules  --remove-section submodule.subname
 '
@@ -1430,7 +1430,7 @@ test_expect_success '.git/config ignore=all suppresses unstaged submodule summar
 	git config --add -f .gitmodules submodule.subname.path sm &&
 	git config --add submodule.subname.ignore all &&
 	git config --add submodule.subname.path sm &&
-	git status > output &&
+	git status >output &&
 	test_i18ncmp expect output &&
 	git config --remove-section submodule.subname &&
 	git config -f .gitmodules  --remove-section submodule.subname
@@ -1514,7 +1514,7 @@ test_expect_success 'git commit will commit a staged but ignored submodule' '
 test_expect_success 'git commit --dry-run will show a staged but ignored submodule' '
 	git reset HEAD^ &&
 	git add sm &&
-	cat >expect << EOF &&
+	cat >expect <<EOF &&
 On branch master
 Your branch and '\''upstream'\'' have diverged,
 and have 2 and 2 different commits each, respectively.
