@@ -1468,10 +1468,11 @@ test_expect_success '"status.branch=true" same as "-b"' '
 	test_cmp expect_branch actual
 '
 
-test_expect_success '"status.branch=true" different from "--no-branch"' '
+test_expect_success '"status.branch=true" and "--no-branch" differ only by branch info' '
 	git status -s --no-branch  >expect_nobranch &&
 	git -c status.branch=true status -s >actual &&
-	! test_cmp expect_nobranch actual
+	sed -e "1d" actual >actual_nobranch &&
+	test_cmp expect_nobranch actual_nobranch
 '
 
 test_expect_success '"status.branch=true" weaker than "--no-branch"' '
