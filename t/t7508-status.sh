@@ -67,7 +67,13 @@ test_expect_success 'setup' '
 	echo 3 >dir2/added &&
 	git add dir2/added &&
 
-	git branch --set-upstream-to=upstream
+	git branch --set-upstream-to=upstream &&
+
+	cat >.gitignore <<-\EOF
+	.gitignore
+	expect*
+	output*
+	EOF
 '
 
 test_expect_success 'status (1)' '
@@ -79,12 +85,6 @@ strip_comments () {
 	sed "s/^\# //; s/^\#$//; s/^#$tab/$tab/" <"$1" >"$1".tmp &&
 	rm "$1" && mv "$1".tmp "$1"
 }
-
-cat >.gitignore <<\EOF
-.gitignore
-expect*
-output*
-EOF
 
 test_expect_success 'status --column' '
 	cat >expect <<\EOF &&
@@ -118,7 +118,8 @@ test_expect_success 'status --column status.displayCommentPrefix=false' '
 	test_i18ncmp expect output
 '
 
-cat >expect <<\EOF
+test_expect_success 'status with status.displayCommentPrefix=true' '
+	cat >expect <<\EOF &&
 # On branch master
 # Your branch and 'upstream' have diverged,
 # and have 1 and 2 different commits each, respectively.
@@ -141,8 +142,6 @@ cat >expect <<\EOF
 #	untracked
 #
 EOF
-
-test_expect_success 'status with status.displayCommentPrefix=true' '
 	git -c status.displayCommentPrefix=true status >output &&
 	test_i18ncmp expect output
 '
@@ -174,7 +173,7 @@ test_expect_success 'setup fake editor' '
 	cat >.git/editor <<-\EOF &&
 	#! /bin/sh
 	cp "$1" output
-EOF
+	EOF
 	chmod 755 .git/editor
 '
 
@@ -192,7 +191,8 @@ test_expect_success 'commit ignores status.displayCommentPrefix=false in COMMIT_
 	commit_template_commented
 '
 
-cat >expect <<\EOF
+test_expect_success 'status (advice.statusHints false)' '
+	cat >expect <<\EOF &&
 On branch master
 Your branch and 'upstream' have diverged,
 and have 1 and 2 different commits each, respectively.
@@ -210,24 +210,21 @@ Untracked files:
 	untracked
 
 EOF
-
-test_expect_success 'status (advice.statusHints false)' '
 	test_config advice.statusHints false &&
 	git status >output &&
 	test_i18ncmp expect output
 
 '
 
-cat >expect <<\EOF
- M dir1/modified
-A  dir2/added
-?? dir1/untracked
-?? dir2/modified
-?? dir2/untracked
-?? untracked
-EOF
-
 test_expect_success 'status -s' '
+	cat >expect <<-\EOF &&
+	 M dir1/modified
+	A  dir2/added
+	?? dir1/untracked
+	?? dir2/modified
+	?? dir2/untracked
+	?? untracked
+	EOF
 
 	git status -s >output &&
 	test_cmp expect output
@@ -265,36 +262,36 @@ test_expect_success 'status with gitignore' '
 	git status -s --ignored >output &&
 	test_cmp expect output &&
 
-	cat >expect <<\EOF &&
-On branch master
-Your branch and '\''upstream'\'' have diverged,
-and have 1 and 2 different commits each, respectively.
-  (use "git pull" to merge the remote branch into yours)
+	cat >expect <<-\EOF &&
+	On branch master
+	Your branch and '\''upstream'\'' have diverged,
+	and have 1 and 2 different commits each, respectively.
+	  (use "git pull" to merge the remote branch into yours)
 
-Changes to be committed:
-  (use "git restore --staged <file>..." to unstage)
-	new file:   dir2/added
+	Changes to be committed:
+	  (use "git restore --staged <file>..." to unstage)
+		new file:   dir2/added
 
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git restore <file>..." to discard changes in working directory)
-	modified:   dir1/modified
+	Changes not staged for commit:
+	  (use "git add <file>..." to update what will be committed)
+	  (use "git restore <file>..." to discard changes in working directory)
+		modified:   dir1/modified
 
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-	dir2/modified
+	Untracked files:
+	  (use "git add <file>..." to include in what will be committed)
+		dir2/modified
 
-Ignored files:
-  (use "git add -f <file>..." to include in what will be committed)
-	.gitignore
-	dir1/untracked
-	dir2/untracked
-	expect
-	expect-with-v
-	output
-	untracked
+	Ignored files:
+	  (use "git add -f <file>..." to include in what will be committed)
+		.gitignore
+		dir1/untracked
+		dir2/untracked
+		expect
+		expect-with-v
+		output
+		untracked
 
-EOF
+	EOF
 	git status --ignored >output &&
 	test_i18ncmp expect output
 '
@@ -361,23 +358,22 @@ EOF
 	test_i18ncmp expect output
 '
 
-cat >.gitignore <<\EOF
-.gitignore
-expect*
-output*
-EOF
-
-cat >expect <<\EOF
-## master...upstream [ahead 1, behind 2]
- M dir1/modified
-A  dir2/added
-?? dir1/untracked
-?? dir2/modified
-?? dir2/untracked
-?? untracked
-EOF
-
 test_expect_success 'status -s -b' '
+	cat >.gitignore <<-\EOF &&
+	.gitignore
+	expect*
+	output*
+	EOF
+
+	cat >expect <<-\EOF &&
+	## master...upstream [ahead 1, behind 2]
+	 M dir1/modified
+	A  dir2/added
+	?? dir1/untracked
+	?? dir2/modified
+	?? dir2/untracked
+	?? untracked
+	EOF
 
 	git status -s -b >output &&
 	test_i18ncmp expect output
@@ -446,11 +442,11 @@ EOF
 	test_i18ncmp expect output
 '
 
-cat >expect <<EOF
- M dir1/modified
-A  dir2/added
-EOF
 test_expect_success 'status -s -uno' '
+	cat >expect <<-EOF &&
+	 M dir1/modified
+	A  dir2/added
+	EOF
 	git status -s -uno >output &&
 	test_cmp expect output
 '
@@ -495,18 +491,17 @@ test_expect_success 'status (status.showUntrackedFiles normal)' '
 	git status >output &&
 	test_i18ncmp expect output
 '
-
-cat >expect <<EOF
- M dir1/modified
-A  dir2/added
-?? dir1/untracked
-?? dir2/modified
-?? dir2/untracked
-?? dir3/
-?? untracked
-EOF
 test_expect_success 'status -s -unormal' '
-	git status -s -unormal >output &&
+	cat >expect <<-EOF &&
+	 M dir1/modified
+	A  dir2/added
+	?? dir1/untracked
+	?? dir2/modified
+	?? dir2/untracked
+	?? dir3/
+	?? untracked
+	EOF
+		git status -s -unormal >output &&
 	test_cmp expect output
 '
 
@@ -556,15 +551,15 @@ test_expect_success 'teardown dir3' '
 	rm -rf dir3
 '
 
-cat >expect <<EOF
- M dir1/modified
-A  dir2/added
-?? dir1/untracked
-?? dir2/modified
-?? dir2/untracked
-?? untracked
-EOF
 test_expect_success 'status -s -uall' '
+	cat >expect <<-EOF &&
+	 M dir1/modified
+	A  dir2/added
+	?? dir1/untracked
+	?? dir2/modified
+	?? dir2/untracked
+	?? untracked
+	EOF
 	test_unconfig status.showuntrackedfiles &&
 	git status -s -uall >output &&
 	test_cmp expect output
@@ -604,31 +599,29 @@ EOF
 	test_i18ncmp expect output
 '
 
-cat >expect <<\EOF
- M modified
-A  ../dir2/added
-?? untracked
-?? ../dir2/modified
-?? ../dir2/untracked
-?? ../untracked
-EOF
 test_expect_success 'status -s with relative paths' '
-
+	cat >expect <<-\EOF &&
+	 M modified
+	A  ../dir2/added
+	?? untracked
+	?? ../dir2/modified
+	?? ../dir2/untracked
+	?? ../untracked
+	EOF
 	(cd dir1 && git status -s) >output &&
 	test_cmp expect output
 
 '
 
-cat >expect <<\EOF
- M dir1/modified
-A  dir2/added
-?? dir1/untracked
-?? dir2/modified
-?? dir2/untracked
-?? untracked
-EOF
-
 test_expect_success 'status --porcelain ignores relative paths setting' '
+	cat >expect <<-\EOF &&
+	 M dir1/modified
+	A  dir2/added
+	?? dir1/untracked
+	?? dir2/modified
+	?? dir2/untracked
+	?? untracked
+	EOF
 
 	(cd dir1 && git status --porcelain) >output &&
 	test_cmp expect output
@@ -679,17 +672,15 @@ test_expect_success TTY 'status with color.status' '
 	test_i18ncmp expect output
 '
 
-cat >expect <<\EOF
- <RED>M<RESET> dir1/modified
-<GREEN>A<RESET>  dir2/added
-<BLUE>??<RESET> dir1/untracked
-<BLUE>??<RESET> dir2/modified
-<BLUE>??<RESET> dir2/untracked
-<BLUE>??<RESET> untracked
-EOF
-
 test_expect_success TTY 'status -s with color.ui' '
-
+	cat >expect <<-\EOF &&
+	 <RED>M<RESET> dir1/modified
+	<GREEN>A<RESET>  dir2/added
+	<BLUE>??<RESET> dir1/untracked
+	<BLUE>??<RESET> dir2/modified
+	<BLUE>??<RESET> dir2/untracked
+	<BLUE>??<RESET> untracked
+	EOF
 	git config color.ui auto &&
 	test_terminal git status -s | test_decode_color >output &&
 	test_cmp expect output
@@ -705,34 +696,30 @@ test_expect_success TTY 'status -s with color.status' '
 
 '
 
-cat >expect <<\EOF
-## <YELLOW>master<RESET>...<CYAN>upstream<RESET> [ahead <YELLOW>1<RESET>, behind <CYAN>2<RESET>]
- <RED>M<RESET> dir1/modified
-<GREEN>A<RESET>  dir2/added
-<BLUE>??<RESET> dir1/untracked
-<BLUE>??<RESET> dir2/modified
-<BLUE>??<RESET> dir2/untracked
-<BLUE>??<RESET> untracked
-EOF
-
 test_expect_success TTY 'status -s -b with color.status' '
-
+	cat >expect <<-\EOF &&
+	## <YELLOW>master<RESET>...<CYAN>upstream<RESET> [ahead <YELLOW>1<RESET>, behind <CYAN>2<RESET>]
+	 <RED>M<RESET> dir1/modified
+	<GREEN>A<RESET>  dir2/added
+	<BLUE>??<RESET> dir1/untracked
+	<BLUE>??<RESET> dir2/modified
+	<BLUE>??<RESET> dir2/untracked
+	<BLUE>??<RESET> untracked
+	EOF
 	test_terminal git status -s -b | test_decode_color >output &&
 	test_i18ncmp expect output
 
 '
 
-cat >expect <<\EOF
- M dir1/modified
-A  dir2/added
-?? dir1/untracked
-?? dir2/modified
-?? dir2/untracked
-?? untracked
-EOF
-
 test_expect_success TTY 'status --porcelain ignores color.ui' '
-
+	cat >expect <<-\EOF &&
+	 M dir1/modified
+	A  dir2/added
+	?? dir1/untracked
+	?? dir2/modified
+	?? dir2/untracked
+	?? untracked
+	EOF
 	git config --unset color.status &&
 	git config color.ui auto &&
 	test_terminal git status --porcelain | test_decode_color >output &&
@@ -797,17 +784,15 @@ EOF
 
 '
 
-cat >expect <<\EOF
- M dir1/modified
-A  dir2/added
-?? dir1/untracked
-?? dir2/modified
-?? dir2/untracked
-?? untracked
-EOF
-
 test_expect_success 'status -s without relative paths' '
-
+	cat >expect <<-\EOF &&
+	 M dir1/modified
+	A  dir2/added
+	?? dir1/untracked
+	?? dir2/modified
+	?? dir2/untracked
+	?? untracked
+	EOF
 	test_config status.relativePaths false &&
 	(cd dir1 && git status -s) >output &&
 	test_cmp expect output
@@ -836,10 +821,10 @@ EOF
 	test_i18ncmp expect output
 '
 
-cat >expect <<EOF
-:100644 100644 $EMPTY_BLOB 0000000000000000000000000000000000000000 M	dir1/modified
-EOF
 test_expect_success 'status refreshes the index' '
+	cat >expect <<-EOF &&
+	:100644 100644 $EMPTY_BLOB 0000000000000000000000000000000000000000 M	dir1/modified
+	EOF
 	touch dir2/added &&
 	git status &&
 	git diff-files >output &&
@@ -890,17 +875,16 @@ test_expect_success 'status --untracked-files=all does not show submodule' '
 	git status --untracked-files=all >output &&
 	test_i18ncmp expect output
 '
-
-cat >expect <<EOF
- M dir1/modified
-A  dir2/added
-A  sm
-?? dir1/untracked
-?? dir2/modified
-?? dir2/untracked
-?? untracked
-EOF
 test_expect_success 'status -s submodule summary is disabled by default' '
+	cat >expect <<-EOF &&
+	 M dir1/modified
+	A  dir2/added
+	A  sm
+	?? dir1/untracked
+	?? dir2/modified
+	?? dir2/untracked
+	?? untracked
+	EOF
 	git status -s >output &&
 	test_cmp expect output
 '
@@ -911,9 +895,8 @@ test_expect_success 'status -s --untracked-files=all does not show submodule' '
 	test_cmp expect output
 '
 
-head=$(cd sm && git rev-parse --short=7 --verify HEAD)
-
 test_expect_success 'status submodule summary' '
+	head=$(cd sm && git rev-parse --short=7 --verify HEAD) &&
 	cat >expect <<EOF &&
 On branch master
 Your branch and '\''upstream'\'' have diverged,
@@ -958,16 +941,16 @@ test_expect_success 'commit with submodule summary ignores status.displayComment
 	commit_template_commented
 '
 
-cat >expect <<EOF
- M dir1/modified
-A  dir2/added
-A  sm
-?? dir1/untracked
-?? dir2/modified
-?? dir2/untracked
-?? untracked
-EOF
 test_expect_success 'status -s submodule summary' '
+	cat >expect <<-EOF &&
+	 M dir1/modified
+	A  dir2/added
+	A  sm
+	?? dir1/untracked
+	?? dir2/modified
+	?? dir2/untracked
+	?? untracked
+	EOF
 	git status -s >output &&
 	test_cmp expect output
 '
@@ -1000,15 +983,14 @@ EOF
 	git status >output &&
 	test_i18ncmp expect output
 '
-
-cat >expect <<EOF
- M dir1/modified
-?? dir1/untracked
-?? dir2/modified
-?? dir2/untracked
-?? untracked
-EOF
 test_expect_success 'status -s submodule summary (clean submodule)' '
+	cat >expect <<-EOF &&
+	 M dir1/modified
+	?? dir1/untracked
+	?? dir2/modified
+	?? dir2/untracked
+	?? untracked
+	EOF
 	git status -s >output &&
 	test_cmp expect output
 '
@@ -1068,11 +1050,10 @@ test_expect_success POSIXPERM,SANITY 'status succeeds in a read-only repository'
 	)
 '
 
-(cd sm && echo >bar && git add bar && git commit -q -m 'Add bar') && git add sm
-new_head=$(cd sm && git rev-parse --short=7 --verify HEAD)
-touch .gitmodules
-
 test_expect_success '--ignore-submodules=untracked suppresses submodules with untracked content' '
+	(cd sm && echo >bar && git add bar && git commit -q -m "Add bar") && git add sm &&
+	new_head=$(cd sm && git rev-parse --short=7 --verify HEAD) &&
+	touch .gitmodules &&
 	cat >expect <<EOF &&
 On branch master
 Your branch and '\''upstream'\'' have diverged,
@@ -1320,7 +1301,8 @@ test_expect_success ".git/config ignore=dirty doesn't suppress submodule summary
 	git config -f .gitmodules  --remove-section submodule.subname
 '
 
-cat >expect <<EOF
+test_expect_success "status (core.commentchar with submodule summary)" '
+	cat >expect <<EOF &&
 ; On branch master
 ; Your branch and 'upstream' have diverged,
 ; and have 2 and 2 different commits each, respectively.
@@ -1355,8 +1337,6 @@ cat >expect <<EOF
 ;	untracked
 ;
 EOF
-
-test_expect_success "status (core.commentchar with submodule summary)" '
 	test_config core.commentchar ";" &&
 	git -c status.displayCommentPrefix=true status >output &&
 	test_i18ncmp expect output
