@@ -1,9 +1,0 @@
-Changes since v2:
-
-* Run test-cases outside foo/ since the subdirectory is not necessary
-* Implicitly add `**` when there is a trailing `/`
-
-Changes since v1:
-
-* Allow onbranch: to specify a pattern instead of just a static
-  comparison
