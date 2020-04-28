@@ -1,0 +1,5 @@
+[format]
+	outputDirectory = patches/opt-callback
+	cc = Junio C Hamano <gitster@pobox.com>
+	cc = Jeff King <peff@peff.net>
+	cc = Andrew White <andrew.white@audinate.com>

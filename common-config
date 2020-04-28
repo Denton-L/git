@@ -57,3 +57,5 @@
 	path = test-must-fail-fixes-4/config
 [includeIf "onbranch:submitted/fix-push-help"]
 	path = fix-push-help/config
+[includeIf "onbranch:submitted/opt-callback"]
+	path = opt-callback/config
