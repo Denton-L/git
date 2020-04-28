@@ -59,3 +59,5 @@
 	path = fix-push-help/config
 [includeIf "onbranch:submitted/opt-callback"]
 	path = opt-callback/config
+[includeIf "onbranch:submitted/save-rebase-autostash"]
+	path = save-rebase-autostash/config

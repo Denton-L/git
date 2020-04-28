@@ -1,0 +1,90 @@
+From 353a67567a90aea8a90bce1de05d005c61b3b670 Mon Sep 17 00:00:00 2001
+Message-Id: <353a67567a90aea8a90bce1de05d005c61b3b670.1588066252.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 28 Apr 2020 05:14:13 -0400
+Subject: [PATCH] rebase: save autostash entry into stash reflog on --quit
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Phillip Wood <phillip.wood123@gmail.com>
+
+In a03b55530a (merge: teach --autostash option, 2020-04-07), the
+--autostash option was introduced for `git merge`. Notably, when
+`git merge --quit` is run with an autostash entry present, it is saved
+into the stash reflog. This is contrasted with the current behaviour of
+`git rebase --quit` where the autostash entry is simply just dropped out
+of existence.
+
+Adopt the behaviour of `git merge --quit` in `git rebase --quit` and
+save the autostash entry into the stash reflog instead of just deleting
+it.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+
+Notes:
+    This patch is based on 'dl/merge-autostash'.
+
+ Documentation/git-rebase.txt |  3 ++-
+ builtin/rebase.c             |  1 +
+ t/t3420-rebase-autostash.sh  | 20 ++++++++++++++++++++
+ 3 files changed, 23 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/git-rebase.txt b/Documentation/git-rebase.txt
+index f7a6033607..7d0c89a184 100644
+--- a/Documentation/git-rebase.txt
++++ b/Documentation/git-rebase.txt
+@@ -256,7 +256,8 @@ See also INCOMPATIBLE OPTIONS below.
+ --quit::
+ 	Abort the rebase operation but HEAD is not reset back to the
+ 	original branch. The index and working tree are also left
+-	unchanged as a result.
++	unchanged as a result. If a temporary stash entry was created
++	using --autostash, it will be saved to the stash reflog.
+ 
+ --apply:
+ 	Use applying strategies to rebase (calling `git-am`
+diff --git a/builtin/rebase.c b/builtin/rebase.c
+index bc4fc69906..71aec532b1 100644
+--- a/builtin/rebase.c
++++ b/builtin/rebase.c
+@@ -1556,6 +1556,7 @@ int cmd_rebase(int argc, const char **argv, const char *prefix)
+ 		goto cleanup;
+ 	}
+ 	case ACTION_QUIT: {
++		save_autostash(state_dir_path("autostash", &options));
+ 		if (options.type == REBASE_MERGE) {
+ 			struct replay_opts replay = REPLAY_OPTS_INIT;
+ 
+diff --git a/t/t3420-rebase-autostash.sh b/t/t3420-rebase-autostash.sh
+index b97ea62363..ca331733fb 100755
+--- a/t/t3420-rebase-autostash.sh
++++ b/t/t3420-rebase-autostash.sh
+@@ -184,6 +184,26 @@ testrebase () {
+ 		git checkout feature-branch
+ 	'
+ 
++	test_expect_success "rebase$type: --quit" '
++		test_config rebase.autostash true &&
++		git reset --hard &&
++		git checkout -b rebased-feature-branch feature-branch &&
++		test_when_finished git branch -D rebased-feature-branch &&
++		echo dirty >>file3 &&
++		git diff >expect &&
++		test_must_fail git rebase$type related-onto-branch &&
++		test_path_is_file $dotest/autostash &&
++		test_path_is_missing file3 &&
++		git rebase --quit &&
++		test_when_finished git stash drop &&
++		test_path_is_missing $dotest/autostash &&
++		! grep dirty file3 &&
++		git stash show -p >actual &&
++		test_cmp expect actual &&
++		git reset --hard &&
++		git checkout feature-branch
++	'
++
+ 	test_expect_success "rebase$type: non-conflicting rebase, conflicting stash" '
+ 		test_config rebase.autostash true &&
+ 		git reset --hard &&
+-- 
+2.26.0.159.g23e2136ad0
+
