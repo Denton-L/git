@@ -1,3 +1,0 @@
-[format]
-	outputDirectory = patches/libify-builtin
-	cc = Junio C Hamano <gitster@pobox.com>
