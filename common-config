@@ -31,18 +31,12 @@
 	path = branch-specific-format-patch/config
 [includeIf "onbranch:submitted/better-apply-error"]
 	path = better-apply-error/config
-[includeIf "onbranch:submitted/merge-autostash"]
-	path = merge-autostash/config
 [includeIf "onbranch:submitted/gitk-use-pretty-reference"]
 	path = gitk-use-pretty-reference/config
 [branch "submitted/gitk-use-pretty-reference"]
 	remote = origin
 	merge = refs/heads/submitted/gitk-use-pretty-reference
 	description = gitk: match Git's 'reference' pretty format\n\nRecently, the 'reference' pretty format was implemented in Git, which\nhas the same function as the 'Copy commit summary' feature in gitk.\nSince Git now has a canonical way of doing this, update gitk to match\nthis.
-[branch "submitted/merge-autostash"]
-	remote = origin
-	merge = refs/heads/submitted/merge-autostash
-	description = merge: learn --autostash\n\nAlban reported[1] that he expected merge to have an --autostash option,\njust like rebase. Since there's not really any reason why merge can't\nhave it, let's implement it in this patchset.\n\nThe majority of this patchset is spent refactoring. This is so that the\nactual implementation in merge is done as simply as possible.\n\nChagnes since v4:\n\n* Drop 'sequencer: reuse strbuf_trim() in read_oneliner()'\n\n* Fix commit message in 'sequencer: make apply_autostash() accept a path'\n\n* Add more detail in commit message 'sequencer: implement save_autostash()'\n\n* In 'merge: teach --autostash option', improve documentation, remove\n  builtin/reset.c changes, add a `git merge --quit` test case\n\nChanges since v3:\n\n* Replace 'sequencer: use file strbuf for read_oneliner()' with patches 3-5\n\n* Rename flag to READ_ONELINER_WARN_MISSING\n\n* Add 'sequencer: rename stash_sha1 to stash_oid'\n\n* Many changes to 'merge: teach --autostash option'\n\nChanges since v2:\n\n* Change patch 1 to refer to ASCII order[2]\n\n* Make read_oneliner() accept a collective flags arg instead of two\n  separate args[3]\n\n* `git reset --hard` now leaves the worktree clean[4]\n\n* Rebased against 'master' since the base is quite old and a new release is\n  coming out soon\n\nChanges since v1:\n\n* Completely changed how the refactoring was done\n\n* More tests and documentation\n\n[1]: https://github.com/gitgitgadget/git/issues/394\n[2]: https://lore.kernel.org/git/xmqqwoadfq8n.fsf@gitster-ct.c.googlers.com/\n[3]: https://lore.kernel.org/git/xmqqwoaikehz.fsf@gitster-ct.c.googlers.com/\n[4]: https://lore.kernel.org/git/20200123042906.GA29009@generichostname/
 [includeIf "onbranch:submitted/format-output-relative-gitdir"]
 	path = format-output-relative-gitdir/config
 [includeIf "onbranch:submitted/stop-infinite-serve"]
