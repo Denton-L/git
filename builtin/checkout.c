@@ -1741,6 +1741,21 @@ static int checkout_main(int argc, const char **argv, const char *prefix,
 		return checkout_branch(opts, &new_branch_info);
 }
 
+static int handle_worktree_opt(const struct option *opt, const char *arg, int unset)
+{
+	struct checkout_opts *opts = opt->value;
+
+	BUG_ON_OPT_NEG(unset);
+	BUG_ON_OPT_ARG(arg);
+
+	opts->checkout_index = 0;
+	opts->checkout_worktree = 1;
+	opts->empty_pathspec_ok = 0;
+
+	return 0;
+}
+
+
 int cmd_checkout(int argc, const char **argv, const char *prefix)
 {
 	struct checkout_opts opts;
@@ -1750,6 +1765,9 @@ int cmd_checkout(int argc, const char **argv, const char *prefix)
 			   N_("create and checkout a new branch")),
 		OPT_STRING('B', NULL, &opts.new_branch_force, N_("branch"),
 			   N_("create/reset and checkout a branch")),
+		OPT_CALLBACK_F('W', "worktree", &opts, NULL,
+			   N_("restore the working tree"),
+			   PARSE_OPT_NOARG | PARSE_OPT_NONEG, handle_worktree_opt),
 		OPT_BOOL('l', NULL, &opts.new_branch_log, N_("create reflog for new branch")),
 		OPT_BOOL(0, "guess", &opts.dwim_new_local_branch,
 			 N_("second guess 'git checkout <no-such-branch>' (default)")),

@@ -12,9 +12,9 @@ SYNOPSIS
 'git checkout' [-q] [-f] [-m] --detach [<branch>]
 'git checkout' [-q] [-f] [-m] [--detach] <commit>
 'git checkout' [-q] [-f] [-m] [[-b|-B|--orphan] <new_branch>] [<start_point>]
-'git checkout' [-f|--ours|--theirs|-m|--conflict=<style>] [<tree-ish>] [--] <pathspec>...
-'git checkout' [-f|--ours|--theirs|-m|--conflict=<style>] [<tree-ish>] --pathspec-from-file=<file> [--pathspec-file-nul]
-'git checkout' (-p|--patch) [<tree-ish>] [--] [<pathspec>...]
+'git checkout' [-f|--ours|--theirs|-m|--conflict=<style>] [--worktree] [<tree-ish>] [--] <pathspec>...
+'git checkout' [-f|--ours|--theirs|-m|--conflict=<style>] [--worktree] [<tree-ish>] --pathspec-from-file=<file> [--pathspec-file-nul]
+'git checkout' (-p|--patch) [--worktree] [<tree-ish>] [--] [<pathspec>...]
 
 DESCRIPTION
 -----------
@@ -79,14 +79,16 @@ be used to detach `HEAD` at the tip of the branch (`git checkout
 +
 Omitting `<branch>` detaches `HEAD` at the tip of the current branch.
 
-'git checkout' [-f|--ours|--theirs|-m|--conflict=<style>] [<tree-ish>] [--] <pathspec>...::
-'git checkout' [-f|--ours|--theirs|-m|--conflict=<style>] [<tree-ish>] --pathspec-from-file=<file> [--pathspec-file-nul]::
+'git checkout' [-f|--ours|--theirs|-m|--conflict=<style>] [--worktree] [<tree-ish>] [--] <pathspec>...::
+'git checkout' [-f|--ours|--theirs|-m|--conflict=<style>] [--worktree] [<tree-ish>] --pathspec-from-file=<file> [--pathspec-file-nul]::
 
 	Overwrite the contents of the files that match the pathspec.
 	When the `<tree-ish>` (most often a commit) is not given,
 	overwrite working tree with the contents in the index.
 	When the `<tree-ish>` is given, overwrite both the index and
-	the working tree with the contents at the `<tree-ish>`.
+	the working tree with the contents at the `<tree-ish>` unless
+	`--worktree` is given in which case _only_ the working tree is
+	overwritten.
 +
 The index may contain unmerged entries because of a previous failed merge.
 By default, if you try to check out such an entry from the index, the
@@ -96,7 +98,7 @@ specific side of the merge can be checked out of the index by
 using `--ours` or `--theirs`.  With `-m`, changes made to the working tree
 file can be discarded to re-create the original conflicted merge result.
 
-'git checkout' (-p|--patch) [<tree-ish>] [--] [<pathspec>...]::
+'git checkout' (-p|--patch) [--worktree] [<tree-ish>] [--] [<pathspec>...]::
 	This is similar to the previous mode, but lets you use the
 	interactive interface to show the "diff" output and choose which
 	hunks to use in the result.  See below for the description of
@@ -263,6 +265,12 @@ When switching branches with `--merge`, staged changes may be lost.
 	`merge.conflictStyle` configuration variable.  Possible values are
 	"merge" (default) and "diff3" (in addition to what is shown by
 	"merge" style, shows the original contents).
+
+-W::
+--worktree::
+	When writing contents, only modify files in the worktree. Do not
+	modify the index.  This option does not make sense without a
+	`<pathspec>`.
 
 -p::
 --patch::
