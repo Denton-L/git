@@ -51,3 +51,9 @@
 	path = opt-callback/config
 [includeIf "onbranch:submitted/fix-switch-error"]
 	path = fix-switch-error/config
+[includeIf "onbranch:submitted/test-must-fail-fixes-5"]
+	path = test-must-fail-fixes-5/config
+[branch "submitted/test-must-fail-fixes-5"]
+	description = t: replace incorrect test_must_fail usage (part 5)\n\nThe overall scope of these patches is to replace inappropriate uses of\ntest_must_fail. IOW, we should only allow test_must_fail to run on `git`\nand `test-tool`. Ultimately, we will conclude by making test_must_fail\nerror out on non-git commands. An advance view of the final series can\nbe found here[1].\n\nThis is the fifth part. It focuses on lib-submodule-update.sh and tests\nthat make use of it.\n\nThe first part can be found here[2]. The second part can be found\nhere[3]. The third part can be found here[4]. The fourth part can be\nfound here[5].\n\n[1]: (may be rebased at any time) https://github.com/Denton-L/git/tree/ready/cleanup-test-must-fail2\n[2]: https://lore.kernel.org/git/cover.1576583819.git.liu.denton@gmail.com/\n[3]: https://lore.kernel.org/git/cover.1577454401.git.liu.denton@gmail.com/\n[4]: https://lore.kernel.org/git/cover.1585209554.git.liu.denton@gmail.com/\n[5]: https://lore.kernel.org/git/cover.1587372771.git.liu.denton@gmail.com/
+	remote = origin
+	merge = refs/heads/submitted/test-must-fail-fixes-5
