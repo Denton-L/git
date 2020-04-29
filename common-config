@@ -49,3 +49,5 @@
 	path = fix-push-help/config
 [includeIf "onbranch:submitted/opt-callback"]
 	path = opt-callback/config
+[includeIf "onbranch:submitted/fix-switch-error"]
+	path = fix-switch-error/config
