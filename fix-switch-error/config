@@ -1,3 +1,6 @@
 [format]
 	outputDirectory = patches/fix-switch-error
 	cc = "Robert Simpson" <no-reply@MailScreen.com>
+	cc = Taylor Blau <me@ttaylorr.com>
+	cc = Eric Sunshine <sunshine@sunshineco.com>
+	cc = Junio C Hamano <gitster@pobox.com>
