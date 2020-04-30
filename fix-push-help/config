@@ -1,3 +1,0 @@
-[format]
-	outputDirectory = patches/fix-push-help
-	cc = Andrew White <andrew.white@audinate.com>
