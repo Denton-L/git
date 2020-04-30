@@ -45,8 +45,6 @@
 	path = fix-warnings/config
 [includeIf "onbranch:submitted/fix-push-help"]
 	path = fix-push-help/config
-[includeIf "onbranch:submitted/opt-callback"]
-	path = opt-callback/config
 [includeIf "onbranch:submitted/fix-switch-error"]
 	path = fix-switch-error/config
 [includeIf "onbranch:submitted/test-must-fail-fixes-5"]
