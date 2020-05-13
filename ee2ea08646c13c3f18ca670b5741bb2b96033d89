@@ -1,0 +1,2 @@
+I wish there were some way to insert a timeout on the test case so that
+we don't block forever in case we regress.
