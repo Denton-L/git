@@ -39,8 +39,6 @@
 	description = gitk: match Git's 'reference' pretty format\n\nRecently, the 'reference' pretty format was implemented in Git, which\nhas the same function as the 'Copy commit summary' feature in gitk.\nSince Git now has a canonical way of doing this, update gitk to match\nthis.
 [includeIf "onbranch:submitted/format-output-relative-gitdir"]
 	path = format-output-relative-gitdir/config
-[includeIf "onbranch:submitted/stop-infinite-serve"]
-	path = stop-infinite-serve/config
 [includeIf "onbranch:submitted/fix-warnings"]
 	path = fix-warnings/config
 [includeIf "onbranch:submitted/test-must-fail-fixes-5"]
