@@ -2,3 +2,4 @@
 	outputDirectory = patches/stop-infinite-serve
 	cc = Jeff King <peff@peff.net>
 	cc = Eric Sunshine <sunshine@sunshineco.com>
+	cc = Junio C Hamano <gitster@pobox.com>
