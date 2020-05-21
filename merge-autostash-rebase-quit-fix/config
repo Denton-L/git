@@ -1,4 +1,0 @@
-[format]
-	outputDirectory = patches/merge-autostash-rebase-quit-fix
-	cc = Junio C Hamano <gitster@pobox.com>
-	cc = Phillip Wood <phillip.wood123@gmail.com>
