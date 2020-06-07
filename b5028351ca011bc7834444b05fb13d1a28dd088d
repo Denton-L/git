@@ -1,0 +1,8 @@
+This patch is somewhat conservative. Python 2.7 has been EOL'd (although
+it's still in common use). Would it make sense, instead, to say that
+Python 3.x (the earliest non-EOL'd version) is the minimum version we
+support and it would be _nice_ to support 2.7 as well?
+
+On the topic of Python 3.x, 3.1 has been EOL'd since 2012. Would it make
+sense to update this version to 3.5 which is the earliest supported
+version of Python?
