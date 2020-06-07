@@ -49,3 +49,5 @@
 	merge = refs/heads/submitted/test-must-fail-fixes-5
 [includeIf "onbranch:submitted/lowercase-git-t-readme"]
 	path = lowercase-git-t-readme/config
+[includeIf "onbranch:submitted/coding-guidelines-python"]
+	path = coding-guidelines-python/config

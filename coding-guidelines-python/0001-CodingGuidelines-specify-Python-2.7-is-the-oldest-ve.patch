@@ -1,0 +1,54 @@
+From b5028351ca011bc7834444b05fb13d1a28dd088d Mon Sep 17 00:00:00 2001
+Message-Id: <b5028351ca011bc7834444b05fb13d1a28dd088d.1591525231.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Sun, 7 Jun 2020 06:11:50 -0400
+Subject: [PATCH] CodingGuidelines: specify Python 2.7 is the oldest version
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Luke Diamand <luke@diamand.org>
+
+In 0b4396f068 (git-p4: make python2.7 the oldest supported version,
+2019-12-13), git-p4 was updated to only support 2.7 and newer. Since
+Python 2.6 is pretty much ancient history, update CodingGuidelines to
+show that 2.7 is the oldest version supported.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+
+Notes:
+    This patch is somewhat conservative. Python 2.7 has been EOL'd (although
+    it's still in common use). Would it make sense, instead, to say that
+    Python 3.x (the earliest non-EOL'd version) is the minimum version we
+    support and it would be _nice_ to support 2.7 as well?
+    
+    On the topic of Python 3.x, 3.1 has been EOL'd since 2012. Would it make
+    sense to update this version to 3.5 which is the earliest supported
+    version of Python?
+
+ Documentation/CodingGuidelines | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
+
+diff --git a/Documentation/CodingGuidelines b/Documentation/CodingGuidelines
+index 227f46ae40..45465bc0c9 100644
+--- a/Documentation/CodingGuidelines
++++ b/Documentation/CodingGuidelines
+@@ -489,16 +489,11 @@ For Python scripts:
+ 
+  - We follow PEP-8 (http://www.python.org/dev/peps/pep-0008/).
+ 
+- - As a minimum, we aim to be compatible with Python 2.6 and 2.7.
++ - As a minimum, we aim to be compatible with Python 2.7.
+ 
+  - Where required libraries do not restrict us to Python 2, we try to
+    also be compatible with Python 3.1 and later.
+ 
+- - When you must differentiate between Unicode literals and byte string
+-   literals, it is OK to use the 'b' prefix.  Even though the Python
+-   documentation for version 2.6 does not mention this prefix, it has
+-   been supported since version 2.6.0.
+-
+ Error Messages
+ 
+  - Do not end error messages with a full stop.
+-- 
+2.27.0.107.g134631ef42
+
