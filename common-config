@@ -51,3 +51,5 @@
 	path = lowercase-git-t-readme/config
 [includeIf "onbranch:submitted/coding-guidelines-python"]
 	path = coding-guidelines-python/config
+[includeIf "onbranch:submitted/update-git-version"]
+	path = update-git-version/config
