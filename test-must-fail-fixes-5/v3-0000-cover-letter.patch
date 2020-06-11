@@ -1,0 +1,91 @@
+From 74e6086da451a4ce2ac52b04a2399ef332d61047 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1591897173.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1588162842.git.liu.denton@gmail.com>
+References: <cover.1588162842.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Thu, 11 Jun 2020 13:39:33 -0400
+Subject: [PATCH v3 0/4] t: replace incorrect test_must_fail usage (part 5)
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>,
+    Taylor Blau <me@ttaylorr.com>,
+    Johannes Sixt <j6t@kdbg.org>,
+    Eric Sunshine <sunshine@sunshineco.com>,
+    Jeff King <peff@peff.net>
+
+Hi all,
+
+Sorry for taking so long with the reroll. I've taken Peff's suggestion
+and hopefully this approach is a lot more understandable. Unfortunately,
+we introduce a few evals in test_submodule_switch_common() in the
+process but I think that the end result looks pretty clean.
+
+
+The overall scope of these patches is to replace inappropriate uses of
+test_must_fail. IOW, we should only allow test_must_fail to run on `git`
+and `test-tool`. Ultimately, we will conclude by making test_must_fail
+error out on non-git commands. An advance view of the final series can
+be found here[1].
+
+This is the fifth part. It focuses on lib-submodule-update.sh and tests
+that make use of it.
+
+The first part can be found here[2]. The second part can be found
+here[3]. The third part can be found here[4]. The fourth part can be
+found here[5].
+
+Changes since v1.2:
+
+* In "lib-submodule-update: pass OVERWRITING_FAIL", use if-then return
+  to reduce the amount of code churn
+
+Changes since v2:
+
+* Replace the OVERWRITING_FAIL approach with callback functions as
+  suggested by Peff[6]
+
+[1]: (may be rebased at any time) https://github.com/Denton-L/git/tree/ready/cleanup-test-must-fail2
+[2]: https://lore.kernel.org/git/cover.1576583819.git.liu.denton@gmail.com/
+[3]: https://lore.kernel.org/git/cover.1577454401.git.liu.denton@gmail.com/
+[4]: https://lore.kernel.org/git/cover.1585209554.git.liu.denton@gmail.com/
+[5]: https://lore.kernel.org/git/cover.1587372771.git.liu.denton@gmail.com/
+[6]: https://lore.kernel.org/git/20200521182928.GA1308647@coredump.intra.peff.net/
+
+Denton Liu (4):
+  lib-submodule-update: add space after function name
+  lib-submodule-update: consolidate --recurse-submodules
+  lib-submodule-update: prepend "git" to $command
+  lib-submodule-update: use callbacks in test_submodule_switch_common()
+
+ t/lib-submodule-update.sh        | 115 +++++++++++++++++++++++--------
+ t/t1013-read-tree-submodule.sh   |   4 +-
+ t/t2013-checkout-submodule.sh    |   4 +-
+ t/t3426-rebase-submodule.sh      |  10 ++-
+ t/t3512-cherry-pick-submodule.sh |   2 +-
+ t/t3513-revert-submodule.sh      |  10 +--
+ t/t3906-stash-submodule.sh       |  10 +--
+ t/t4137-apply-submodule.sh       |  12 ++--
+ t/t4255-am-submodule.sh          |  12 ++--
+ t/t5572-pull-submodule.sh        |  28 ++------
+ t/t6041-bisect-submodule.sh      |  10 +--
+ t/t7112-reset-submodule.sh       |   6 +-
+ t/t7613-merge-submodule.sh       |   8 +--
+ 13 files changed, 132 insertions(+), 99 deletions(-)
+
+Range-diff against v2:
+1:  ba2f642e0f = 1:  ba2f642e0f lib-submodule-update: add space after function name
+2:  16d0a3eb9a = 2:  16d0a3eb9a lib-submodule-update: consolidate --recurse-submodules
+3:  578bab6f1a ! 3:  09446be5b9 lib-submodule-update: prepend "git" to $command
+    @@ t/lib-submodule-update.sh: test_submodule_content () {
+      
+     -# Internal function; use test_submodule_switch() or
+     -# test_submodule_forced_switch() instead.
+    -+# Internal function; use test_submodule_switch_func(), test_submodule_switch_func(),
+    ++# Internal function; use test_submodule_switch_func(), test_submodule_switch(),
+     +# or test_submodule_forced_switch() instead.
+      test_submodule_switch_common () {
+      	command="$1"
+4:  48598e3f98 < -:  ---------- lib-submodule-update: pass OVERWRITING_FAIL
+-:  ---------- > 4:  74e6086da4 lib-submodule-update: use callbacks in test_submodule_switch_common()
+-- 
+2.27.0.132.g321788e831
+

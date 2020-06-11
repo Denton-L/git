@@ -1,0 +1,58 @@
+From ba2f642e0f505730d5d740207128036448787c8c Mon Sep 17 00:00:00 2001
+Message-Id: <ba2f642e0f505730d5d740207128036448787c8c.1591897173.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1591897173.git.liu.denton@gmail.com>
+References: <cover.1588162842.git.liu.denton@gmail.com>
+	<cover.1591897173.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 2 Dec 2019 23:04:34 -0800
+Subject: [PATCH v3 1/4] lib-submodule-update: add space after function name
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>,
+    Taylor Blau <me@ttaylorr.com>,
+    Johannes Sixt <j6t@kdbg.org>,
+    Eric Sunshine <sunshine@sunshineco.com>,
+    Jeff King <peff@peff.net>
+
+In the shell scripts in this codebase, the usual style is to include a
+space between the function name and the (). Add these missing spaces to
+conform to the usual style of the code.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/lib-submodule-update.sh | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/t/lib-submodule-update.sh b/t/lib-submodule-update.sh
+index 1dd17fc03e..122554acd6 100755
+--- a/t/lib-submodule-update.sh
++++ b/t/lib-submodule-update.sh
+@@ -183,7 +183,7 @@ test_git_directory_is_unchanged () {
+ 	)
+ }
+ 
+-test_git_directory_exists() {
++test_git_directory_exists () {
+ 	test -e ".git/modules/$1" &&
+ 	if test -f sub1/.git
+ 	then
+@@ -309,7 +309,7 @@ test_submodule_content () {
+ 
+ # Internal function; use test_submodule_switch() or
+ # test_submodule_forced_switch() instead.
+-test_submodule_switch_common() {
++test_submodule_switch_common () {
+ 	command="$1"
+ 	######################### Appearing submodule #########################
+ 	# Switching to a commit letting a submodule appear creates empty dir ...
+@@ -629,7 +629,7 @@ test_submodule_forced_switch () {
+ 
+ # Internal function; use test_submodule_switch_recursing_with_args() or
+ # test_submodule_forced_switch_recursing_with_args() instead.
+-test_submodule_recursing_with_args_common() {
++test_submodule_recursing_with_args_common () {
+ 	command="$1"
+ 
+ 	######################### Appearing submodule #########################
+-- 
+2.27.0.132.g321788e831
+
