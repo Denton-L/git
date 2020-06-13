@@ -53,3 +53,5 @@
 	path = coding-guidelines-python/config
 [includeIf "onbranch:submitted/update-git-version"]
 	path = update-git-version/config
+[includeIf "onbranch:submitted/refactor-4"]
+	path = refactor-4/config
