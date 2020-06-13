@@ -55,3 +55,5 @@
 	path = update-git-version/config
 [includeIf "onbranch:submitted/refactor-4"]
 	path = refactor-4/config
+[includeIf "onbranch:submitted/checkout-worktree"]
+	path = checkout-worktree/config
