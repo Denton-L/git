@@ -5,6 +5,8 @@
 #include "strbuf.h"
 #include "sideband.h"
 
+#define PACKET_HEADER_SIZE 4
+
 /*
  * Write a packetized stream, where each line is preceded by
  * its length (including the header) as a 4-byte hex number.
@@ -82,7 +84,7 @@ int packet_read(int fd, char **src_buffer, size_t *src_len, char
  * If lenbuf_hex contains non-hex characters, return -1. Otherwise, return the
  * numeric value of the length header.
  */
-int packet_length(const char lenbuf_hex[4]);
+int packet_length(const char lenbuf_hex[PACKET_HEADER_SIZE]);
 
 /*
  * Read a packetized line into a buffer like the 'packet_read()' function but
@@ -211,7 +213,7 @@ enum packet_read_status packet_reader_peek(struct packet_reader *reader);
 
 #define DEFAULT_PACKET_MAX 1000
 #define LARGE_PACKET_MAX 65520
-#define LARGE_PACKET_DATA_MAX (LARGE_PACKET_MAX - 4)
+#define LARGE_PACKET_DATA_MAX (LARGE_PACKET_MAX - PACKET_HEADER_SIZE)
 extern char packet_buffer[LARGE_PACKET_MAX];
 
 struct packet_writer {
