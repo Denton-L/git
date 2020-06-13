@@ -536,8 +536,8 @@ struct rpc_state {
 	unsigned initial_buffer : 1;
 
 	/*
-	 * Whenever a pkt-line is read into buf, append the 4 characters
-	 * denoting its length before appending the payload.
+	 * Whenever a pkt-line is read into buf, append the PACKET_HEADER_SIZE
+	 * characters denoting its length before appending the payload.
 	 */
 	unsigned write_line_lengths : 1;
 
@@ -556,8 +556,9 @@ struct rpc_state {
  * rpc->buf and rpc->len if there is enough space. Returns 1 if there was
  * enough space, 0 otherwise.
  *
- * If rpc->write_line_lengths is true, appends the line length as a 4-byte
- * hexadecimal string before appending the result described above.
+ * If rpc->write_line_lengths is true, appends the line length as a
+ * PACKET_HEADER_SIZE-byte hexadecimal string before appending the result
+ * described above.
  *
  * Writes the total number of bytes appended into appended.
  */
@@ -569,8 +570,8 @@ static int rpc_read_from_out(struct rpc_state *rpc, int options,
 	int pktlen_raw;
 
 	if (rpc->write_line_lengths) {
-		left = rpc->alloc - rpc->len - 4;
-		buf = rpc->buf + rpc->len + 4;
+		left = rpc->alloc - rpc->len - PACKET_HEADER_SIZE;
+		buf = rpc->buf + rpc->len + PACKET_HEADER_SIZE;
 	} else {
 		left = rpc->alloc - rpc->len;
 		buf = rpc->buf + rpc->len;
@@ -582,7 +583,7 @@ static int rpc_read_from_out(struct rpc_state *rpc, int options,
 	*status = packet_read_with_status(rpc->out, NULL, NULL, buf,
 			left, &pktlen_raw, options);
 	if (*status != PACKET_READ_EOF) {
-		*appended = pktlen_raw + (rpc->write_line_lengths ? 4 : 0);
+		*appended = pktlen_raw + (rpc->write_line_lengths ? PACKET_HEADER_SIZE : 0);
 		rpc->len += *appended;
 	}
 
@@ -593,7 +594,7 @@ static int rpc_read_from_out(struct rpc_state *rpc, int options,
 				die(_("shouldn't have EOF when not gentle on EOF"));
 			break;
 		case PACKET_READ_NORMAL:
-			set_packet_header(buf - 4, *appended);
+			set_packet_header(buf - PACKET_HEADER_SIZE, *appended);
 			break;
 		case PACKET_READ_DELIM:
 			memcpy(buf - strlen("0001"), "0001", strlen("0001"));
@@ -682,7 +683,7 @@ static curlioerr rpc_ioctl(CURL *handle, int cmd, void *clientp)
 #endif
 
 struct check_pktline_state {
-	char len_buf[4];
+	char len_buf[PACKET_HEADER_SIZE];
 	int len_filled;
 	int remaining;
 };
@@ -691,7 +692,7 @@ static void check_pktline(struct check_pktline_state *state, const char *ptr, si
 {
 	while (size) {
 		if (!state->remaining) {
-			int digits_remaining = 4 - state->len_filled;
+			int digits_remaining = sizeof(state->len_buf) - state->len_filled;
 			if (digits_remaining > size)
 				digits_remaining = size;
 			memcpy(&state->len_buf[state->len_filled], ptr, digits_remaining);
@@ -699,16 +700,16 @@ static void check_pktline(struct check_pktline_state *state, const char *ptr, si
 			ptr += digits_remaining;
 			size -= digits_remaining;
 
-			if (state->len_filled == 4) {
+			if (state->len_filled == sizeof(state->len_buf)) {
 				state->remaining = packet_length(state->len_buf);
 				if (state->remaining < 0) {
 					die(_("remote-curl: bad line length character: %.4s"), state->len_buf);
 				} else if (state->remaining == 2) {
 					die(_("remote-curl: unexpected response end packet"));
-				} else if (state->remaining < 4) {
+				} else if (state->remaining < sizeof(state->len_buf)) {
 					state->remaining = 0;
 				} else {
-					state->remaining -= 4;
+					state->remaining -= sizeof(state->len_buf);
 				}
 				state->len_filled = 0;
 			}
@@ -1469,7 +1470,7 @@ int cmd_main(int argc, const char **argv)
 			parse_fetch(&buf);
 
 		} else if (!strcmp(buf.buf, "list") || starts_with(buf.buf, "list ")) {
-			int for_push = !!strstr(buf.buf + 4, "for-push");
+			int for_push = !!strstr(buf.buf + PACKET_HEADER_SIZE, "for-push");
 			output_refs(get_refs(for_push));
 
 		} else if (starts_with(buf.buf, "push ")) {

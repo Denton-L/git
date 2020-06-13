@@ -165,7 +165,7 @@ static void format_packet(struct strbuf *out, const char *prefix,
 		die(_("protocol error: impossibly long line"));
 
 	set_packet_header(&out->buf[orig_len], n);
-	packet_trace(out->buf + orig_len + 4, n - 4, 1);
+	packet_trace(out->buf + orig_len + PACKET_HEADER_SIZE, n - PACKET_HEADER_SIZE, 1);
 }
 
 static int packet_write_fmt_1(int fd, int gently, const char *prefix,
@@ -211,13 +211,13 @@ static int packet_write_gently(const int fd_out, const char *buf, size_t size)
 	static char packet_write_buffer[LARGE_PACKET_MAX];
 	size_t packet_size;
 
-	if (size > sizeof(packet_write_buffer) - 4)
+	if (size > sizeof(packet_write_buffer) - PACKET_HEADER_SIZE)
 		return error(_("packet write failed - data exceeds max packet size"));
 
 	packet_trace(buf, size, 1);
-	packet_size = size + 4;
+	packet_size = size + PACKET_HEADER_SIZE;
 	set_packet_header(packet_write_buffer, packet_size);
-	memcpy(packet_write_buffer + 4, buf, size);
+	memcpy(packet_write_buffer + PACKET_HEADER_SIZE, buf, size);
 	if (write_in_full(fd_out, packet_write_buffer, packet_size) < 0)
 		return error(_("packet write failed"));
 	return 0;
@@ -325,7 +325,7 @@ static int get_packet_data(int fd, char **src_buf, size_t *src_size,
 	return ret;
 }
 
-int packet_length(const char lenbuf_hex[4])
+int packet_length(const char lenbuf_hex[PACKET_HEADER_SIZE])
 {
 	int val = hex2chr(lenbuf_hex);
 	return (val < 0) ? val : (val << 8) | hex2chr(lenbuf_hex + 2);
@@ -337,9 +337,9 @@ enum packet_read_status packet_read_with_status(int fd, char **src_buffer,
 						int options)
 {
 	int len;
-	char linelen[4];
+	char linelen[PACKET_HEADER_SIZE];
 
-	if (get_packet_data(fd, src_buffer, src_len, linelen, 4, options) < 0) {
+	if (get_packet_data(fd, src_buffer, src_len, linelen, sizeof(linelen), options) < 0) {
 		*pktlen = -1;
 		return PACKET_READ_EOF;
 	}
@@ -360,11 +360,11 @@ enum packet_read_status packet_read_with_status(int fd, char **src_buffer,
 		packet_trace_str("0002", 0);
 		*pktlen = 0;
 		return PACKET_READ_RESPONSE_END;
-	} else if (len < 4) {
+	} else if (len < PACKET_HEADER_SIZE) {
 		die(_("protocol error: bad line length %d"), len);
 	}
 
-	len -= 4;
+	len -= sizeof(linelen);
 	if ((unsigned)len >= size)
 		die(_("protocol error: bad line length %d"), len);
 
@@ -382,7 +382,7 @@ enum packet_read_status packet_read_with_status(int fd, char **src_buffer,
 
 	if ((options & PACKET_READ_DIE_ON_ERR_PACKET) &&
 	    starts_with(buffer, "ERR "))
-		die(_("remote error: %s"), buffer + 4);
+		die(_("remote error: %s"), buffer + PACKET_HEADER_SIZE);
 
 	*pktlen = len;
 	return PACKET_READ_NORMAL;
