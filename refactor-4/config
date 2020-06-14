@@ -1,3 +1,6 @@
 [format]
 	outputDirectory = patches/refactor-4
 	cc = Jeff King <peff@peff.net>
+	cc = Chris Torek <chris.torek@gmail.com>
+	cc = "Đoàn Trần Công Danh" <congdanhqx@gmail.com>
+	cc = Junio C Hamano <gitster@pobox.com>
