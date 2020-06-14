@@ -81,49 +81,59 @@ static void packet_trace(const char *buf, unsigned int len, int write)
 	strbuf_release(&out);
 }
 
+static inline void packet_trace_str(const char *buf, int write)
+{
+	packet_trace(buf, strlen(buf), write);
+}
+
+static inline void control_packet_write(int fd, const char *s, const char *type)
+{
+	packet_trace_str(s, 1);
+	if (write_str_in_full(fd, s) < 0)
+		die_errno(_("unable to write %s packet"), type);
+}
+
 /*
  * If we buffered things up above (we don't, but we should),
  * we'd flush it here
  */
 void packet_flush(int fd)
 {
-	packet_trace("0000", 4, 1);
-	if (write_in_full(fd, "0000", 4) < 0)
-		die_errno(_("unable to write flush packet"));
+	control_packet_write(fd, "0000", "flush");
 }
 
 void packet_delim(int fd)
 {
-	packet_trace("0001", 4, 1);
-	if (write_in_full(fd, "0001", 4) < 0)
-		die_errno(_("unable to write delim packet"));
+	control_packet_write(fd, "0001", "delim");
 }
 
 void packet_response_end(int fd)
 {
-	packet_trace("0002", 4, 1);
-	if (write_in_full(fd, "0002", 4) < 0)
-		die_errno(_("unable to write stateless separator packet"));
+	control_packet_write(fd, "0002", "stateless separator");
 }
 
 int packet_flush_gently(int fd)
 {
-	packet_trace("0000", 4, 1);
-	if (write_in_full(fd, "0000", 4) < 0)
+	packet_trace_str("0000", 1);
+	if (write_str_in_full(fd, "0000") < 0)
 		return error(_("flush packet write failed"));
 	return 0;
 }
 
+static inline void control_packet_buf_write(struct strbuf *buf, const char *s)
+{
+	packet_trace_str(s, 1);
+	strbuf_addstr(buf, s);
+}
+
 void packet_buf_flush(struct strbuf *buf)
 {
-	packet_trace("0000", 4, 1);
-	strbuf_add(buf, "0000", 4);
+	control_packet_buf_write(buf, "0000");
 }
 
 void packet_buf_delim(struct strbuf *buf)
 {
-	packet_trace("0001", 4, 1);
-	strbuf_add(buf, "0001", 4);
+	control_packet_buf_write(buf, "0001");
 }
 
 void set_packet_header(char *buf, int size)
@@ -337,15 +347,15 @@ enum packet_read_status packet_read_with_status(int fd, char **src_buffer,
 	if (len < 0) {
 		die(_("protocol error: bad line length character: %.4s"), linelen);
 	} else if (!len) {
-		packet_trace("0000", 4, 0);
+		packet_trace_str("0000", 0);
 		*pktlen = 0;
 		return PACKET_READ_FLUSH;
 	} else if (len == 1) {
-		packet_trace("0001", 4, 0);
+		packet_trace_str("0001", 0);
 		*pktlen = 0;
 		return PACKET_READ_DELIM;
 	} else if (len == 2) {
-		packet_trace("0002", 4, 0);
+		packet_trace_str("0002", 0);
 		*pktlen = 0;
 		return PACKET_READ_RESPONSE_END;
 	} else if (len < 4) {
