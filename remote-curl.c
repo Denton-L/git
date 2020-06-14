@@ -596,10 +596,10 @@ static int rpc_read_from_out(struct rpc_state *rpc, int options,
 			set_packet_header(buf - 4, *appended);
 			break;
 		case PACKET_READ_DELIM:
-			memcpy(buf - 4, "0001", 4);
+			memcpy(buf - strlen("0001"), "0001", strlen("0001"));
 			break;
 		case PACKET_READ_FLUSH:
-			memcpy(buf - 4, "0000", 4);
+			memcpy(buf - strlen("0000"), "0000", strlen("0000"));
 			break;
 		case PACKET_READ_RESPONSE_END:
 			die(_("remote server sent stateless separator"));
