@@ -61,3 +61,5 @@
 	remote = origin
 	merge = refs/heads/submitted/refactor-4
 	description = pkt-line: war on magical `4` literal\n\nThere are many instances of the literal `4` in packet line-related code.\nThis series replaces these instances with either functions that can\ngenerate the number or an appropriately-named constant.\n\nChanges since v1:\n\n* Introduce patch 1-2 so that the string length is used to generate the\n  `4` where appropriate
+[includeIf "onbranch:submitted/diff-fix-comment"]
+	path = diff-fix-comment/config
