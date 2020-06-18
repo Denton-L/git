@@ -1,0 +1,4 @@
+This change can be broken down into three separate commits but I figured
+it is a little bit overkill considering how little the scope of each
+individual change would be. If it's more readable as separate commits, I
+can resubmit it, though.
