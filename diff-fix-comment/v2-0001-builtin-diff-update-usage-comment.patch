@@ -1,0 +1,150 @@
+From 54c5de021a50ca7f39588efde1b89119aaf4cffa Mon Sep 17 00:00:00 2001
+Message-Id: <54c5de021a50ca7f39588efde1b89119aaf4cffa.1592476980.git.liu.denton@gmail.com>
+In-Reply-To: <a9aea5dbb821544eea636bc5de9fe8185bb603fb.1592219700.git.liu.denton@gmail.com>
+References: <a9aea5dbb821544eea636bc5de9fe8185bb603fb.1592219700.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 26 Feb 2019 23:46:58 -0800
+Subject: [PATCH v2] builtin/diff: update usage comment
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>
+
+A comment in cmd_diff() states that if one tree-ish and no blobs are
+provided, (the "N=1, M=0" case), it will provide a diff between the tree
+and the cache. This is incorrect because a diff happens between the
+tree-ish and the working tree. Remove the `--cached` in the comment so
+that the correct behavior is shown. Add a new section describing the
+"N=1, M=0, --cached" behavior.
+
+Next, describe the "N=0, M=0, --cached" case, similar to the above since
+it is undocumented.
+
+Finally, fix some spacing issues. Add spaces between each section for
+consistency and readability. Also, change tabs within the comment into
+spaces.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+
+Notes:
+    This change can be broken down into three separate commits but I figured
+    it is a little bit overkill considering how little the scope of each
+    individual change would be. If it's more readable as separate commits, I
+    can resubmit it, though.
+
+Range-diff against v1:
+1:  a9aea5dbb8 ! 1:  54c5de021a builtin/diff: fix incorrect comment
+    @@ Metadata
+     Author: Denton Liu <liu.denton@gmail.com>
+     
+      ## Commit message ##
+    -    builtin/diff: fix incorrect comment
+    +    builtin/diff: update usage comment
+     
+         A comment in cmd_diff() states that if one tree-ish and no blobs are
+    -    provided, it would provide a diff between the tree and the cache. This
+    -    is incorrect because a diff happens between the tree-ish and the working
+    -    tree. Remove the `--cached` in the comment so that the correct behavior
+    -    is shown.
+    +    provided, (the "N=1, M=0" case), it will provide a diff between the tree
+    +    and the cache. This is incorrect because a diff happens between the
+    +    tree-ish and the working tree. Remove the `--cached` in the comment so
+    +    that the correct behavior is shown. Add a new section describing the
+    +    "N=1, M=0, --cached" behavior.
+    +
+    +    Next, describe the "N=0, M=0, --cached" case, similar to the above since
+    +    it is undocumented.
+    +
+    +    Finally, fix some spacing issues. Add spaces between each section for
+    +    consistency and readability. Also, change tabs within the comment into
+    +    spaces.
+    +
+    +
+    + ## Notes ##
+    +    This change can be broken down into three separate commits but I figured
+    +    it is a little bit overkill considering how little the scope of each
+    +    individual change would be. If it's more readable as separate commits, I
+    +    can resubmit it, though.
+     
+      ## builtin/diff.c ##
+     @@ builtin/diff.c: int cmd_diff(int argc, const char **argv, const char *prefix)
+    - 	 *	compare a blob with a working tree file.
+    + 
+    + 	/*
+    + 	 * We could get N tree-ish in the rev.pending_objects list.
+    +-	 * Also there could be M blobs there, and P pathspecs.
+    ++	 * Also there could be M blobs there, and P pathspecs. --cached may
+    ++	 * also be present.
+      	 *
+    - 	 * N=1, M=0:
+    --	 *      tree vs cache (diff-index --cached)
+    + 	 * N=0, M=0:
+    +-	 *	cache vs files (diff-files)
+    ++	 *      cache vs files (diff-files)
+    ++	 *
+    ++	 * N=0, M=0, --cached:
+    ++	 *      HEAD vs cache (diff-index --cached)
+    ++	 *
+    + 	 * N=0, M=2:
+    + 	 *      compare two random blobs.  P must be zero.
+    ++	 *
+    + 	 * N=0, M=1, P=1:
+    +-	 *	compare a blob with a working tree file.
+    ++	 *      compare a blob with a working tree file.
+    ++	 *
+    ++	 * N=1, M=0:
+     +	 *      tree vs files (diff-index)
+      	 *
+    + 	 * N=1, M=0:
+    + 	 *      tree vs cache (diff-index --cached)
+    + 	 *
+    ++	 * N=1, M=0, --cached:
+    ++	 *      tree vs files (diff-index)
+    ++	 *
+      	 * N=2, M=0:
+      	 *      tree vs tree (diff-tree)
+    + 	 *
+
+ builtin/diff.c | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
+
+diff --git a/builtin/diff.c b/builtin/diff.c
+index 8537b17bd5..0f1a882bd7 100644
+--- a/builtin/diff.c
++++ b/builtin/diff.c
+@@ -266,18 +266,30 @@ int cmd_diff(int argc, const char **argv, const char *prefix)
+ 
+ 	/*
+ 	 * We could get N tree-ish in the rev.pending_objects list.
+-	 * Also there could be M blobs there, and P pathspecs.
++	 * Also there could be M blobs there, and P pathspecs. --cached may
++	 * also be present.
+ 	 *
+ 	 * N=0, M=0:
+-	 *	cache vs files (diff-files)
++	 *      cache vs files (diff-files)
++	 *
++	 * N=0, M=0, --cached:
++	 *      HEAD vs cache (diff-index --cached)
++	 *
+ 	 * N=0, M=2:
+ 	 *      compare two random blobs.  P must be zero.
++	 *
+ 	 * N=0, M=1, P=1:
+-	 *	compare a blob with a working tree file.
++	 *      compare a blob with a working tree file.
++	 *
++	 * N=1, M=0:
++	 *      tree vs files (diff-index)
+ 	 *
+ 	 * N=1, M=0:
+ 	 *      tree vs cache (diff-index --cached)
+ 	 *
++	 * N=1, M=0, --cached:
++	 *      tree vs files (diff-index)
++	 *
+ 	 * N=2, M=0:
+ 	 *      tree vs tree (diff-tree)
+ 	 *
+-- 
+2.27.0.132.g321788e831
+
