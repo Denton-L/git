@@ -1,0 +1,18 @@
+Junio, you mentioned in an earlier email[0] that write_str_in_full() and
+strbuf_addstr() each count the string length at runtime. However, I
+don't think that's true since they're both inline functions and
+strbuf_addstr() has the following comment:
+
+	/**
+	 * Add a NUL-terminated string to the buffer.
+	 *
+	 * NOTE: This function will *always* be implemented as an inline or a macro
+	 * using strlen, meaning that this is efficient to write things like:
+	 *
+	 *     strbuf_addstr(sb, "immediate string");
+	 *
+	 */
+
+so I believe that the lengths should be determined at compile-time.
+
+[0]: https://lore.kernel.org/git/xmqqeeqhxred.fsf@gitster.c.googlers.com/
