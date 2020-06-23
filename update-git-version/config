@@ -1,3 +1,0 @@
-[format]
-	outputDirectory = patches/update-git-version
-	cc = Junio C Hamano <gitster@pobox.com>
