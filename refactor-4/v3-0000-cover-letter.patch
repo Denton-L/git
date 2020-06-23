@@ -1,0 +1,183 @@
+From 00c19983fd99d7c335238725011e32785cb2b2a5 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1592934880.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1592119902.git.liu.denton@gmail.com>
+References: <cover.1592119902.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 23 Jun 2020 13:54:40 -0400
+Subject: [PATCH v3 0/3] pkt-line: war on magical `4` literal
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Jeff King <peff@peff.net>,
+    Chris Torek <chris.torek@gmail.com>,
+    Đoàn Trần Công Danh <congdanhqx@gmail.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+There are many instances of the literal `4` in packet line-related code.
+This series replaces these instances with either functions that can
+generate the number or an appropriately-named constant.
+
+Changes since v1:
+
+* Introduce patch 1-2 so that the string length is used to generate the
+  `4` where appropriate
+
+Changes since v2:
+
+* Replace some a couple of inline functions with macros that ensure they
+  are string constants
+
+* Use strlen() in one more instance over the PACKET_HEADER_SIZE
+
+Denton Liu (3):
+  remote-curl: use strlen() instead of magic numbers
+  pkt-line: use string versions of functions
+  pkt-line: extract out PACKET_HEADER_SIZE
+
+ pkt-line.c    | 68 ++++++++++++++++++++++++++++++---------------------
+ pkt-line.h    |  6 +++--
+ remote-curl.c | 35 +++++++++++++-------------
+ 3 files changed, 62 insertions(+), 47 deletions(-)
+
+Range-diff against v2:
+1:  d2aaf15aa8 ! 1:  cb8683837c remote-curl: use strlen() instead of magic numbers
+    @@ Metadata
+      ## Commit message ##
+         remote-curl: use strlen() instead of magic numbers
+     
+    -    When we are memcpy()ing the length header, we use the magic literal `4`,
+    -    representing the length of "0000" and "0001", the packet line length
+    -    headers. Use `strlen("000x")` so that we do not have to use the magic
+    -    literal.
+    +    When we are dealing with a packet-line length header, we use the magic
+    +    literal `4`, representing the length of "0000" and "0001", the packet
+    +    line length headers. Use `strlen("000x")` so that we do not have to use
+    +    the magic literal.
+     
+      ## remote-curl.c ##
+     @@ remote-curl.c: static int rpc_read_from_out(struct rpc_state *rpc, int options,
+    @@ remote-curl.c: static int rpc_read_from_out(struct rpc_state *rpc, int options,
+      			break;
+      		case PACKET_READ_RESPONSE_END:
+      			die(_("remote server sent stateless separator"));
+    +@@ remote-curl.c: static int probe_rpc(struct rpc_state *rpc, struct slot_results *results)
+    + 	curl_easy_setopt(slot->curl, CURLOPT_URL, rpc->service_url);
+    + 	curl_easy_setopt(slot->curl, CURLOPT_ENCODING, NULL);
+    + 	curl_easy_setopt(slot->curl, CURLOPT_POSTFIELDS, "0000");
+    +-	curl_easy_setopt(slot->curl, CURLOPT_POSTFIELDSIZE, 4);
+    ++	curl_easy_setopt(slot->curl, CURLOPT_POSTFIELDSIZE, strlen("0000"));
+    + 	curl_easy_setopt(slot->curl, CURLOPT_HTTPHEADER, headers);
+    + 	curl_easy_setopt(slot->curl, CURLOPT_WRITEFUNCTION, fwrite_buffer);
+    + 	curl_easy_setopt(slot->curl, CURLOPT_FILE, &buf);
+2:  8cab5078b1 ! 2:  d283a1b514 pkt-line: use string versions of functions
+    @@ Commit message
+         replaced with constants at compile-time so this should not result in any
+         performance penalty.
+     
+    +
+    + ## Notes ##
+    +    Junio, you mentioned in an earlier email[0] that write_str_in_full() and
+    +    strbuf_addstr() each count the string length at runtime. However, I
+    +    don't think that's true since they're both inline functions and
+    +    strbuf_addstr() has the following comment:
+    +
+    +    	/**
+    +    	 * Add a NUL-terminated string to the buffer.
+    +    	 *
+    +    	 * NOTE: This function will *always* be implemented as an inline or a macro
+    +    	 * using strlen, meaning that this is efficient to write things like:
+    +    	 *
+    +    	 *     strbuf_addstr(sb, "immediate string");
+    +    	 *
+    +    	 */
+    +
+    +    so I believe that the lengths should be determined at compile-time.
+    +
+    +    [0]: https://lore.kernel.org/git/xmqqeeqhxred.fsf@gitster.c.googlers.com/
+    +
+      ## pkt-line.c ##
+     @@ pkt-line.c: static void packet_trace(const char *buf, unsigned int len, int write)
+      	strbuf_release(&out);
+    @@ pkt-line.c: static void packet_trace(const char *buf, unsigned int len, int writ
+     +	packet_trace(buf, strlen(buf), write);
+     +}
+     +
+    -+static inline void control_packet_write(int fd, const char *s, const char *type)
+    -+{
+    -+	packet_trace_str(s, 1);
+    -+	if (write_str_in_full(fd, s) < 0)
+    -+		die_errno(_("unable to write %s packet"), type);
+    -+}
+    ++#define control_packet_write(fd, s, errstr) \
+    ++	do { \
+    ++		(void)s"is a string constant"; \
+    ++		packet_trace_str(s, 1); \
+    ++		if (write_str_in_full((fd), s) < 0) \
+    ++			die_errno((errstr)); \
+    ++	} while (0)
+     +
+      /*
+       * If we buffered things up above (we don't, but we should),
+    @@ pkt-line.c: static void packet_trace(const char *buf, unsigned int len, int writ
+     -	packet_trace("0000", 4, 1);
+     -	if (write_in_full(fd, "0000", 4) < 0)
+     -		die_errno(_("unable to write flush packet"));
+    -+	control_packet_write(fd, "0000", "flush");
+    ++	control_packet_write(fd, "0000", _("unable to write flush packet"));
+      }
+      
+      void packet_delim(int fd)
+    @@ pkt-line.c: static void packet_trace(const char *buf, unsigned int len, int writ
+     -	packet_trace("0001", 4, 1);
+     -	if (write_in_full(fd, "0001", 4) < 0)
+     -		die_errno(_("unable to write delim packet"));
+    -+	control_packet_write(fd, "0001", "delim");
+    ++	control_packet_write(fd, "0001", _("unable to write delim packet"));
+      }
+      
+      void packet_response_end(int fd)
+    @@ pkt-line.c: static void packet_trace(const char *buf, unsigned int len, int writ
+     -	packet_trace("0002", 4, 1);
+     -	if (write_in_full(fd, "0002", 4) < 0)
+     -		die_errno(_("unable to write stateless separator packet"));
+    -+	control_packet_write(fd, "0002", "stateless separator");
+    ++	control_packet_write(fd, "0002", _("unable to write stateless separator packet"));
+      }
+      
+      int packet_flush_gently(int fd)
+    @@ pkt-line.c: static void packet_trace(const char *buf, unsigned int len, int writ
+      	return 0;
+      }
+      
+    -+static inline void control_packet_buf_write(struct strbuf *buf, const char *s)
+    -+{
+    -+	packet_trace_str(s, 1);
+    -+	strbuf_addstr(buf, s);
+    -+}
+    ++#define control_packet_buf_write(buf, s) \
+    ++	do { \
+    ++		(void)s"is a string constant"; \
+    ++		packet_trace_str(s, 1); \
+    ++		strbuf_addstr((buf), s); \
+    ++	} while (0)
+     +
+      void packet_buf_flush(struct strbuf *buf)
+      {
+3:  585d8892c3 ! 3:  00c19983fd pkt-line: extract out PACKET_HEADER_SIZE
+    @@ remote-curl.c: static void check_pktline(struct check_pktline_state *state, cons
+      				}
+      				state->len_filled = 0;
+      			}
+    -@@ remote-curl.c: static int probe_rpc(struct rpc_state *rpc, struct slot_results *results)
+    - 	curl_easy_setopt(slot->curl, CURLOPT_URL, rpc->service_url);
+    - 	curl_easy_setopt(slot->curl, CURLOPT_ENCODING, NULL);
+    - 	curl_easy_setopt(slot->curl, CURLOPT_POSTFIELDS, "0000");
+    --	curl_easy_setopt(slot->curl, CURLOPT_POSTFIELDSIZE, 4);
+    -+	curl_easy_setopt(slot->curl, CURLOPT_POSTFIELDSIZE, PACKET_HEADER_SIZE);
+    - 	curl_easy_setopt(slot->curl, CURLOPT_HTTPHEADER, headers);
+    - 	curl_easy_setopt(slot->curl, CURLOPT_WRITEFUNCTION, fwrite_buffer);
+    - 	curl_easy_setopt(slot->curl, CURLOPT_FILE, &buf);
+     @@ remote-curl.c: int cmd_main(int argc, const char **argv)
+      			parse_fetch(&buf);
+      
+-- 
+2.27.0.307.g7979e895e7
+
