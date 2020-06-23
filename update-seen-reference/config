@@ -1,3 +1,0 @@
-[format]
-	outputDirectory = patches/update-seen-reference
-	cc = Junio C Hamano <gitster@pobox.com>
