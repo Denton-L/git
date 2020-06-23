@@ -1,0 +1,42 @@
+From 4a1e357c390690375374490cd5aa2431a2593b9d Mon Sep 17 00:00:00 2001
+Message-Id: <4a1e357c390690375374490cd5aa2431a2593b9d.1592903964.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Thu, 18 Jun 2020 06:43:34 -0400
+Subject: [PATCH] builtin/diff: fix botched update of usage comment
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>
+
+In the previous commit, an attempt was made to correct the "N=1, M=0"
+case. However, the fix was botched and it introduced two half-correct
+sections by mistake. Combine these half-correct sections into one fully
+correct section.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+
+Notes:
+    This patch is based on dl/diff-usage-comment-update.
+
+ builtin/diff.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/builtin/diff.c b/builtin/diff.c
+index bdae4d6a58..cdfb58d04b 100644
+--- a/builtin/diff.c
++++ b/builtin/diff.c
+@@ -284,11 +284,8 @@ int cmd_diff(int argc, const char **argv, const char *prefix)
+ 	 * N=1, M=0:
+ 	 *      tree vs files (diff-index)
+ 	 *
+-	 * N=1, M=0:
+-	 *      tree vs cache (diff-index --cached)
+-	 *
+ 	 * N=1, M=0, --cached:
+-	 *      tree vs files (diff-index)
++	 *      tree vs cache (diff-index --cached)
+ 	 *
+ 	 * N=2, M=0:
+ 	 *      tree vs tree (diff-tree)
+-- 
+2.27.0.132.g321788e831
+
