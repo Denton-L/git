@@ -22,6 +22,7 @@
 	signOff = true
 	coverLetter = auto
 	coverFromDescription = subject
+	notes = true
 	to = Git Mailing List <git@vger.kernel.org>
 [notes]
 	rewriteRef = refs/notes/commits
