@@ -1,0 +1,52 @@
+From 01e29450fe51a4ba13e07c611d8795ffd0282b9e Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1593529394.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 30 Jun 2020 11:03:14 -0400
+Subject: [PATCH 0/5] t: replace incorrect test_must_fail usage (part 6)
+To: Git Mailing List <git@vger.kernel.org>
+
+The overall scope of these patches is to replace inappropriate uses of
+test_must_fail. IOW, we should only allow test_must_fail to run on `git`
+and `test-tool`. Ultimately, we will conclude by making test_must_fail
+error out on non-git commands. An advance view of the final series can
+be found here[1].
+
+This is the sixth and final(!) part. It cleans up instances of
+`test_must_fail` that were introduced since the effort began. In
+addition, it finally flips the switch and makes test_must_fail only
+allow a whitelist of commands.
+
+This series is based on the merge of 'master' and
+'dl/test-must-fail-fixes-5'. In addition, this series was tested by
+merging with 'seen~1' (to ignore the reftable failures) to ensure no
+in-flight topics will require more changes.
+
+The first part can be found here[2]. The second part can be found
+here[3]. The third part can be found here[4]. The fourth part can be
+found here[5]. The fifth part can be found here[6].
+
+[1]: (may be rebased at any time) https://github.com/Denton-L/git/tree/ready/cleanup-test-must-fail2
+[2]: https://lore.kernel.org/git/cover.1576583819.git.liu.denton@gmail.com/
+[3]: https://lore.kernel.org/git/cover.1577454401.git.liu.denton@gmail.com/
+[4]: https://lore.kernel.org/git/cover.1585209554.git.liu.denton@gmail.com/
+[5]: https://lore.kernel.org/git/cover.1587372771.git.liu.denton@gmail.com/
+[6]: https://lore.kernel.org/git/cover.1588162842.git.liu.denton@gmail.com/
+
+Denton Liu (5):
+  t3701: stop using `env` in force_color()
+  t5324: reorder `run_with_limited_open_files test_might_fail`
+  t7107: don't use test_must_fail()
+  t9834: remove use of `test_might_fail p4`
+  test-lib-functions: restrict test_must_fail usage
+
+ t/t0000-basic.sh               | 18 ++++++++++++++++
+ t/t3701-add-interactive.sh     | 10 +++++++--
+ t/t5324-split-commit-graph.sh  |  2 +-
+ t/t7107-reset-pathspec-file.sh |  9 ++++++--
+ t/t9834-git-p4-file-dir-bug.sh |  2 +-
+ t/test-lib-functions.sh        | 39 ++++++++++++++++++++++++++++++++++
+ 6 files changed, 74 insertions(+), 6 deletions(-)
+
+-- 
+2.27.0.383.g050319c2ae
+

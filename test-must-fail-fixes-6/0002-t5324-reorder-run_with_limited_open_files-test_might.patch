@@ -1,0 +1,36 @@
+From aae48a89e50ce1841df33edbbeb17ae932c10d16 Mon Sep 17 00:00:00 2001
+Message-Id: <aae48a89e50ce1841df33edbbeb17ae932c10d16.1593529394.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1593529394.git.liu.denton@gmail.com>
+References: <cover.1593529394.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Thu, 26 Mar 2020 04:27:52 -0400
+Subject: [PATCH 2/5] t5324: reorder `run_with_limited_open_files
+ test_might_fail`
+To: Git Mailing List <git@vger.kernel.org>
+
+In the future, we plan on only allowing `test_might_fail` to work on a
+restricted subset of commands, including `git`. Reorder the commands so
+that `run_with_limited_open_files` comes before `test_might_fail`. This
+way, `test_might_fail` operates on a git command.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t5324-split-commit-graph.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/t/t5324-split-commit-graph.sh b/t/t5324-split-commit-graph.sh
+index 269d0964a3..9b850ea907 100755
+--- a/t/t5324-split-commit-graph.sh
++++ b/t/t5324-split-commit-graph.sh
+@@ -399,7 +399,7 @@ test_expect_success ULIMIT_FILE_DESCRIPTORS 'handles file descriptor exhaustion'
+ 		for i in $(test_seq 64)
+ 		do
+ 			test_commit $i &&
+-			test_might_fail run_with_limited_open_files git commit-graph write \
++			run_with_limited_open_files test_might_fail git commit-graph write \
+ 				--split=no-merge --reachable || return 1
+ 		done
+ 	)
+-- 
+2.27.0.383.g050319c2ae
+
