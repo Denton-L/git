@@ -1,7 +1,0 @@
-[format]
-	outputDirectory = patches/test-must-fail-fixes-5
-	cc = Junio C Hamano <gitster@pobox.com>
-	cc = Taylor Blau <me@ttaylorr.com>
-	cc = Johannes Sixt <j6t@kdbg.org>
-	cc = Eric Sunshine <sunshine@sunshineco.com>
-	cc = Jeff King <peff@peff.net>

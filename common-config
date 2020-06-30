@@ -41,12 +41,6 @@
 	path = format-output-relative-gitdir/config
 [includeIf "onbranch:submitted/fix-warnings"]
 	path = fix-warnings/config
-[includeIf "onbranch:submitted/test-must-fail-fixes-5"]
-	path = test-must-fail-fixes-5/config
-[branch "submitted/test-must-fail-fixes-5"]
-	description = t: replace incorrect test_must_fail usage (part 5)\n\nThe overall scope of these patches is to replace inappropriate uses of\ntest_must_fail. IOW, we should only allow test_must_fail to run on `git`\nand `test-tool`. Ultimately, we will conclude by making test_must_fail\nerror out on non-git commands. An advance view of the final series can\nbe found here[1].\n\nThis is the fifth part. It focuses on lib-submodule-update.sh and tests\nthat make use of it.\n\nThe first part can be found here[2]. The second part can be found\nhere[3]. The third part can be found here[4]. The fourth part can be\nfound here[5].\n\nChanges since v1.2:\n\n* In \"lib-submodule-update: pass OVERWRITING_FAIL\", use if-then return\n  to reduce the amount of code churn\n\nChanges since v2:\n\n* Replace the OVERWRITING_FAIL approach with callback functions as\n  suggested by Peff[6]\n\nChanges since v3:\n\n* Simply handling of empty $before and $after\n\n* Add more comments on the usage of the helper functions\n\nChanges since v4:\n\n* Combine $before and $command back together\n\n* Use a helper function to call the callbacks\n\n* Replace eval with proper argument passing\n\n[1]: (may be rebased at any time) https://github.com/Denton-L/git/tree/ready/cleanup-test-must-fail2\n[2]: https://lore.kernel.org/git/cover.1576583819.git.liu.denton@gmail.com/\n[3]: https://lore.kernel.org/git/cover.1577454401.git.liu.denton@gmail.com/\n[4]: https://lore.kernel.org/git/cover.1585209554.git.liu.denton@gmail.com/\n[5]: https://lore.kernel.org/git/cover.1587372771.git.liu.denton@gmail.com/\n[6]: https://lore.kernel.org/git/20200521182928.GA1308647@coredump.intra.peff.net/
-	remote = origin
-	merge = refs/heads/submitted/test-must-fail-fixes-5
 [includeIf "onbranch:submitted/refactor-4"]
 	path = refactor-4/config
 [includeIf "onbranch:submitted/checkout-worktree"]
