@@ -1,0 +1,62 @@
+From 654c864691866f644ff5ec92de5bfa0701645419 Mon Sep 17 00:00:00 2001
+Message-Id: <654c864691866f644ff5ec92de5bfa0701645419.1593576602.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1593576601.git.liu.denton@gmail.com>
+References: <cover.1593529394.git.liu.denton@gmail.com>
+	<cover.1593576601.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 17 Dec 2019 03:14:20 -0800
+Subject: [PATCH v2 1/5] t3701: stop using `env` in force_color()
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+In a future patch, we plan on making the test_must_fail()-family of
+functions accept only git commands. Even though force_color() wraps an
+invocation of `env git`, test_must_fail() will not be able to figure
+this out since it will assume that force_color() is just some random
+function which is disallowed.
+
+Instead of using `env` in force_color() (which does not support shell
+functions), export the environment variables in a subshell. Write the
+invocation as `force_color test_must_fail git ...` since shell functions
+are now supported.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t3701-add-interactive.sh | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/t/t3701-add-interactive.sh b/t/t3701-add-interactive.sh
+index 49decbac71..fb73a847cb 100755
+--- a/t/t3701-add-interactive.sh
++++ b/t/t3701-add-interactive.sh
+@@ -31,7 +31,16 @@ diff_cmp () {
+ # indicates a dumb terminal, so we set that variable, too.
+ 
+ force_color () {
+-	env GIT_PAGER_IN_USE=true TERM=vt100 "$@"
++	# The first element of $@ may be a shell function, as a result POSIX
++	# does not guarantee that "one-shot assignment" will not persist after
++	# the function call. Thus, we prevent these variables from escaping
++	# this function's context with this subshell.
++	(
++		GIT_PAGER_IN_USE=true &&
++		TERM=vt100 &&
++		export GIT_PAGER_IN_USE TERM &&
++		"$@"
++	)
+ }
+ 
+ test_expect_success 'setup (initial)' '
+@@ -604,7 +613,7 @@ test_expect_success 'detect bogus diffFilter output' '
+ 	echo content >test &&
+ 	test_config interactive.diffFilter "sed 1d" &&
+ 	printf y >y &&
+-	test_must_fail force_color git add -p <y
++	force_color test_must_fail git add -p <y
+ '
+ 
+ test_expect_success 'diff.algorithm is passed to `git diff-files`' '
+-- 
+2.27.0.383.g050319c2ae
+

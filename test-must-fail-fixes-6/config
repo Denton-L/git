@@ -1,2 +1,4 @@
 [format]
 	outputDirectory = patches/test-must-fail-fixes-6
+	cc = Eric Sunshine <sunshine@sunshineco.com>
+	cc = Junio C Hamano <gitster@pobox.com>

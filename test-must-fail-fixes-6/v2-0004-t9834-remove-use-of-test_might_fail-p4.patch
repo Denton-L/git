@@ -1,0 +1,37 @@
+From 92d3b38428adaf0befc6eecb8a4669306d0d4276 Mon Sep 17 00:00:00 2001
+Message-Id: <92d3b38428adaf0befc6eecb8a4669306d0d4276.1593576602.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1593576601.git.liu.denton@gmail.com>
+References: <cover.1593529394.git.liu.denton@gmail.com>
+	<cover.1593576601.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Fri, 20 Dec 2019 10:15:59 -0800
+Subject: [PATCH v2 4/5] t9834: remove use of `test_might_fail p4`
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+The test_must_fail() family of functions (including test_might_fail())
+should only be used on git commands. Replace test_might_fail() with
+a compound command wrapping the old p4 invocation that always returns 0.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t9834-git-p4-file-dir-bug.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/t/t9834-git-p4-file-dir-bug.sh b/t/t9834-git-p4-file-dir-bug.sh
+index 031e1f8668..dac67e89d7 100755
+--- a/t/t9834-git-p4-file-dir-bug.sh
++++ b/t/t9834-git-p4-file-dir-bug.sh
+@@ -10,7 +10,7 @@ repository.'
+ 
+ test_expect_success 'start p4d' '
+ 	start_p4d &&
+-	test_might_fail p4 configure set submit.collision.check=0
++	{ p4 configure set submit.collision.check=0 || :; }
+ '
+ 
+ test_expect_success 'init depot' '
+-- 
+2.27.0.383.g050319c2ae
+
