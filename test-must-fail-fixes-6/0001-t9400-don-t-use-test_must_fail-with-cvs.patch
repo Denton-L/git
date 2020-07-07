@@ -1,0 +1,45 @@
+From 4ca5e1f9c06ed509fc3165c550d0d665dd5b69c0 Mon Sep 17 00:00:00 2001
+Message-Id: <4ca5e1f9c06ed509fc3165c550d0d665dd5b69c0.1594159495.git.liu.denton@gmail.com>
+In-Reply-To: <xmqq7dvf3uwc.fsf@gitster.c.googlers.com>
+References: <xmqq7dvf3uwc.fsf@gitster.c.googlers.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 20 Apr 2020 04:54:45 -0400
+Subject: [PATCH] t9400: don't use test_must_fail with cvs
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+We are using `test_must_fail cvs` to test that the cvs command fails as
+expected. However, test_must_fail() is used to ensure that commands fail
+in an expected way, not due to something like a segv. Since we are not
+in the business of verifying the sanity of the external world, replace
+`test_must_fail cvs` with `! cvs` and assume that the cvs command does
+not die unexpectedly.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+Hi Junio,
+
+Thanks for pointing this out. It seems like the CI systems we use don't
+cover cvs. Is this something that we want to address or is it fine to
+leave it as a blindspot since no one really uses cvs anymore?
+
+ t/t9400-git-cvsserver-server.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/t/t9400-git-cvsserver-server.sh b/t/t9400-git-cvsserver-server.sh
+index a5e5dca753..4a46f31c41 100755
+--- a/t/t9400-git-cvsserver-server.sh
++++ b/t/t9400-git-cvsserver-server.sh
+@@ -603,7 +603,7 @@ test_expect_success 'cvs server does not run with vanilla git-shell' '
+ 		cd cvswork &&
+ 		CVS_SERVER=$WORKDIR/remote-cvs &&
+ 		export CVS_SERVER &&
+-		test_must_fail cvs log merge
++		! cvs log merge
+ 	)
+ '
+ 
+-- 
+2.27.0.383.g050319c2ae
+
