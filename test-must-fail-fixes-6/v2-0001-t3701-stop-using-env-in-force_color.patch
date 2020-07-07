@@ -1,11 +1,11 @@
 From 654c864691866f644ff5ec92de5bfa0701645419 Mon Sep 17 00:00:00 2001
-Message-Id: <654c864691866f644ff5ec92de5bfa0701645419.1593576602.git.liu.denton@gmail.com>
-In-Reply-To: <cover.1593576601.git.liu.denton@gmail.com>
-References: <cover.1593529394.git.liu.denton@gmail.com>
-	<cover.1593576601.git.liu.denton@gmail.com>
+Message-Id: <654c864691866f644ff5ec92de5bfa0701645419.1594101831.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1594101831.git.liu.denton@gmail.com>
+References: <cover.1593576601.git.liu.denton@gmail.com>
+	<cover.1594101831.git.liu.denton@gmail.com>
 From: Denton Liu <liu.denton@gmail.com>
 Date: Tue, 17 Dec 2019 03:14:20 -0800
-Subject: [PATCH v2 1/5] t3701: stop using `env` in force_color()
+Subject: [RESEND PATCH v2 1/5] t3701: stop using `env` in force_color()
 To: Git Mailing List <git@vger.kernel.org>
 Cc: Eric Sunshine <sunshine@sunshineco.com>,
     Junio C Hamano <gitster@pobox.com>
