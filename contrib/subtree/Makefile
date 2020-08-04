@@ -1,103 +1,56 @@
 # The default target of this Makefile is...
 all::
 
--include ../../config.mak.autogen
--include ../../config.mak
+SCRIPT_SH = git-subtree.sh
+MAN1_TXT = git-subtree.txt
+GIT_ROOT_DIR = ../..
+GIT_DOC_DIR = $(GIT_ROOT_DIR)/Documentation
+HERE = contrib/subtree
 
-prefix ?= /usr/local
-gitexecdir ?= $(prefix)/libexec/git-core
-mandir ?= $(prefix)/share/man
-man1dir ?= $(mandir)/man1
-htmldir ?= $(prefix)/share/doc/git-doc
+SCRIPT_SH_FULL = $(patsubst %,$(HERE)/%,$(SCRIPT_SH))
+MAN1_TXT_FULL = $(patsubst %,../$(HERE)/%,$(MAN1_TXT))
+DOC_HTML_FULL = $(patsubst %.txt,%.html,$(MAN1_TXT_FULL))
 
-../../GIT-VERSION-FILE: FORCE
-	$(MAKE) -C ../../ GIT-VERSION-FILE
+SCRIPT_GEN_EXTRA = -C $(GIT_ROOT_DIR) SCRIPT_SH="$(SCRIPT_SH_FULL)"
+DOC_GEN_EXTRA = -C $(GIT_DOC_DIR) MAN1_TXT="$(MAN1_TXT_FULL)" \
+		MAN_FILTER="$(MAN1_TXT_FULL)" \
+		HTML_FILTER="$(DOC_HTML_FULL)"
 
--include ../../GIT-VERSION-FILE
+RM ?= rm -f
 
-# this should be set to a 'standard' bsd-type install program
-INSTALL  ?= install
-RM       ?= rm -f
-
-ASCIIDOC         = asciidoc
-ASCIIDOC_CONF    = -f ../../Documentation/asciidoc.conf
-ASCIIDOC_HTML    = xhtml11
-ASCIIDOC_DOCBOOK = docbook
-ASCIIDOC_EXTRA   =
-XMLTO            = xmlto
-XMLTO_EXTRA      =
-
-ifdef USE_ASCIIDOCTOR
-ASCIIDOC         = asciidoctor
-ASCIIDOC_CONF    =
-ASCIIDOC_HTML    = xhtml5
-ASCIIDOC_DOCBOOK = docbook
-ASCIIDOC_EXTRA  += -I../../Documentation -rasciidoctor-extensions
-ASCIIDOC_EXTRA  += -alitdd='&\#x2d;&\#x2d;'
-XMLTO_EXTRA     += --skip-validation
-endif
-
-ifndef SHELL_PATH
-	SHELL_PATH = /bin/sh
-endif
-SHELL_PATH_SQ = $(subst ','\'',$(SHELL_PATH))
-
-MANPAGE_XSL   = ../../Documentation/manpage-normal.xsl
-
-GIT_SUBTREE_SH := git-subtree.sh
-GIT_SUBTREE    := git-subtree
-
-GIT_SUBTREE_DOC := git-subtree.1
-GIT_SUBTREE_XML := git-subtree.xml
-GIT_SUBTREE_TXT := git-subtree.txt
-GIT_SUBTREE_HTML := git-subtree.html
 GIT_SUBTREE_TEST := ../../git-subtree
 
-all:: $(GIT_SUBTREE)
+all:: build
 
-$(GIT_SUBTREE): $(GIT_SUBTREE_SH)
-	sed -e '1s|#!.*/sh|#!$(SHELL_PATH_SQ)|' $< >$@
-	chmod +x $@
+build:
+	$(MAKE) $(SCRIPT_GEN_EXTRA) build-sh-script
 
-doc: $(GIT_SUBTREE_DOC) $(GIT_SUBTREE_HTML)
+doc: man html
 
-man: $(GIT_SUBTREE_DOC)
+man:
+	$(MAKE) $(DOC_GEN_EXTRA) man
 
-html: $(GIT_SUBTREE_HTML)
+html:
+	$(MAKE) $(DOC_GEN_EXTRA) html
 
-install: $(GIT_SUBTREE)
-	$(INSTALL) -d -m 755 $(DESTDIR)$(gitexecdir)
-	$(INSTALL) -m 755 $(GIT_SUBTREE) $(DESTDIR)$(gitexecdir)
+install: build
+	$(MAKE) $(SCRIPT_GEN_EXTRA) install-sh-script
 
 install-doc: install-man install-html
 
-install-man: $(GIT_SUBTREE_DOC)
-	$(INSTALL) -d -m 755 $(DESTDIR)$(man1dir)
-	$(INSTALL) -m 644 $^ $(DESTDIR)$(man1dir)
+install-man:
+	$(MAKE) $(DOC_GEN_EXTRA) install-man
 
-install-html: $(GIT_SUBTREE_HTML)
-	$(INSTALL) -d -m 755 $(DESTDIR)$(htmldir)
-	$(INSTALL) -m 644 $^ $(DESTDIR)$(htmldir)
+install-html:
+	$(MAKE) $(DOC_GEN_EXTRA) install-html
 
-$(GIT_SUBTREE_DOC): $(GIT_SUBTREE_XML)
-	$(XMLTO) -m $(MANPAGE_XSL) $(XMLTO_EXTRA) man $^
-
-$(GIT_SUBTREE_XML): $(GIT_SUBTREE_TXT)
-	$(ASCIIDOC) -b $(ASCIIDOC_DOCBOOK) -d manpage $(ASCIIDOC_CONF) \
-		-agit_version=$(GIT_VERSION) $(ASCIIDOC_EXTRA) $^
-
-$(GIT_SUBTREE_HTML): $(GIT_SUBTREE_TXT)
-	$(ASCIIDOC) -b $(ASCIIDOC_HTML) -d manpage $(ASCIIDOC_CONF) \
-		-agit_version=$(GIT_VERSION) $(ASCIIDOC_EXTRA) $^
-
-$(GIT_SUBTREE_TEST): $(GIT_SUBTREE)
+$(GIT_SUBTREE_TEST): $(SCRIPT_SH)
 	cp $< $@
 
 test: $(GIT_SUBTREE_TEST)
 	$(MAKE) -C t/ test
 
 clean:
-	$(RM) $(GIT_SUBTREE)
+	$(MAKE) $(SCRIPT_GEN_EXTRA) clean-sh-script
+	$(RM) $(GIT_SUBTREE_TEST)
 	$(RM) *.xml *.html *.1
-
-.PHONY: FORCE
