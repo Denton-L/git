@@ -48,7 +48,7 @@ $(GIT_SUBTREE_TEST): $(SCRIPT_SH)
 	cp $< $@
 
 test: $(GIT_SUBTREE_TEST)
-	$(MAKE) -C t/ test
+	$(MAKE) -C ../../t/ T=t7900-subtree.sh test
 
 clean:
 	$(MAKE) $(SCRIPT_GEN_EXTRA) clean-sh-script

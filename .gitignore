@@ -165,6 +165,7 @@
 /git-stripspace
 /git-submodule
 /git-submodule--helper
+/git-subtree
 /git-svn
 /git-switch
 /git-symbolic-ref

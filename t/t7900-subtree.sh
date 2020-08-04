@@ -9,10 +9,13 @@ This test verifies the basic operation of the add, pull, merge
 and split subcommands of git subtree.
 '
 
-TEST_DIRECTORY=$(pwd)/../../../t
-export TEST_DIRECTORY
+. ./test-lib.sh
 
-. ../../../t/test-lib.sh
+if ! test_have_prereq GIT_SUBTREE
+then
+	skip_all="git subtree not installed"
+	test_done
+fi
 
 subtree_test_create_repo()
 {

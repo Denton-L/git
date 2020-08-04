@@ -1604,6 +1604,11 @@ test_lazy_prereq JGIT '
 	jgit --version
 '
 
+test_lazy_prereq GIT_SUBTREE '
+	git subtree -h
+	test "$?" = 129
+'
+
 # SANITY is about "can you correctly predict what the filesystem would
 # do by only looking at the permission bits of the files and
 # directories?"  A typical example of !SANITY is running the test
