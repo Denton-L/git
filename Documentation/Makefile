@@ -244,12 +244,18 @@ pdf: user-manual.pdf
 install: install-man
 
 install-man: man
+ifneq ($(DOC_MAN1),)
 	$(INSTALL) -d -m 755 $(DESTDIR)$(man1dir)
-	$(INSTALL) -d -m 755 $(DESTDIR)$(man5dir)
-	$(INSTALL) -d -m 755 $(DESTDIR)$(man7dir)
 	$(INSTALL) -m 644 $(DOC_MAN1) $(DESTDIR)$(man1dir)
+endif
+ifneq ($(DOC_MAN5),)
+	$(INSTALL) -d -m 755 $(DESTDIR)$(man5dir)
 	$(INSTALL) -m 644 $(DOC_MAN5) $(DESTDIR)$(man5dir)
+endif
+ifneq ($(DOC_MAN7),)
+	$(INSTALL) -d -m 755 $(DESTDIR)$(man7dir)
 	$(INSTALL) -m 644 $(DOC_MAN7) $(DESTDIR)$(man7dir)
+endif
 
 install-info: info
 	$(INSTALL) -d -m 755 $(DESTDIR)$(infodir)
