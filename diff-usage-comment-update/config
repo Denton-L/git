@@ -1,3 +1,0 @@
-[format]
-	outputDirectory = patches/diff-usage-comment-update
-	cc = Junio C Hamano <gitster@pobox.com>
