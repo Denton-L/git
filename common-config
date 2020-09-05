@@ -9,9 +9,9 @@
 [branch "master"]
 	remote = upstream
 	merge = refs/heads/master
-[branch "jch"]
+[branch "next"]
 	remote = upstream
-	merge = refs/heads/jch
+	merge = refs/heads/next
 	rebase = true
 [branch "patches"]
 	remote = origin
