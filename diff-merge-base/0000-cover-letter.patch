@@ -1,0 +1,41 @@
+From 231ba3f661cc4aa7a55c44e339e187c6d70c5507 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1599332861.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Sat, 5 Sep 2020 12:07:41 -0700
+Subject: [PATCH 0/4] builtin/diff: learn --merge-base
+To: Git Mailing List <git@vger.kernel.org>
+
+The range-notation in `git diff` has been cited as a mistake since diff
+compares two endpoints, not whole ranges.[0]  In fact, the ranges seem
+to take on the opposite meanings when compared to range notation in
+`git log`.
+
+In an effort to reduce the use of range notation as much as possible,
+introduce the `--merge-base` flag, slightly modified from a suggestion
+by Jonathan Nieder.[1] This flag allows us to replace the first commit
+given on the command-line with its merge base between the first and
+second commits. This allows us to gently deprecate the `...` form
+entirely, although that is left as an exercise to the reader ;)
+
+One additional bonus is that this flag allows the "after" side to be not
+just constrained to a commit (like with `...` notation). It can now be
+the working tree or the index as well.
+
+[0]: https://lore.kernel.org/git/xmqqy2v26hu0.fsf@gitster-ct.c.googlers.com/
+[1]: https://lore.kernel.org/git/20191223215928.GB38316@google.com/
+
+Denton Liu (4):
+  t4068: remove unnecessary >tmp
+  git-diff.txt: backtick quote command text
+  builtin/diff: parse --no-index using parse_options()
+  builtin/diff: learn --merge-base
+
+ Documentation/git-diff.txt | 40 ++++++++++++-----
+ builtin/diff.c             | 92 +++++++++++++++++++++++++++++++++-----
+ diff-no-index.c            | 15 ++-----
+ t/t4068-diff-symmetric.sh  | 89 +++++++++++++++++++++++++++++++++---
+ 4 files changed, 197 insertions(+), 39 deletions(-)
+
+-- 
+2.28.0.rc0.135.gc7877b767d
+
