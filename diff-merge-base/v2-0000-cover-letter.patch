@@ -1,0 +1,105 @@
+From 4f219cf0d1df1b92d2bd49e3449a4c387056a6cd Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1599723087.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1599332861.git.liu.denton@gmail.com>
+References: <cover.1599332861.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Thu, 10 Sep 2020 00:31:27 -0700
+Subject: [PATCH v2 0/4] builtin/diff: learn --merge-base
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>
+
+The range-notation in `git diff` has been cited as a mistake since diff
+compares two endpoints, not whole ranges.[0]  In fact, the ranges seem
+to take on the opposite meanings when compared to range notation in
+`git log`.
+
+In an effort to reduce the use of range notation as much as possible,
+introduce the `--merge-base` flag, slightly modified from a suggestion
+by Jonathan Nieder.[1] This flag allows us to replace the first commit
+given on the command-line with its merge base between the first and
+second commits. This allows us to gently deprecate the `...` form
+entirely, although that is left as an exercise to the reader ;)
+
+One additional bonus is that this flag allows the "after" side to be not
+just constrained to a commit (like with `...` notation). It can now be
+the working tree or the index as well.
+
+The `--merge-base` name isn't very satisfying. If anyone has any better
+suggestions, please let me know.
+
+Changes since v1:
+
+* Implement Junio's documentation suggestions
+
+* Update git diff's usage to include this option
+
+[0]: https://lore.kernel.org/git/xmqqy2v26hu0.fsf@gitster-ct.c.googlers.com/
+[1]: https://lore.kernel.org/git/20191223215928.GB38316@google.com/
+
+Denton Liu (4):
+  t4068: remove unnecessary >tmp
+  git-diff.txt: backtick quote command text
+  builtin/diff: parse --no-index using parse_options()
+  builtin/diff: learn --merge-base
+
+ Documentation/git-diff.txt | 40 +++++++++++-----
+ builtin/diff.c             | 94 +++++++++++++++++++++++++++++++++-----
+ diff-no-index.c            | 15 ++----
+ t/t4068-diff-symmetric.sh  | 89 ++++++++++++++++++++++++++++++++++--
+ 4 files changed, 198 insertions(+), 40 deletions(-)
+
+Range-diff against v1:
+1:  231ba3f661 ! 1:  4f219cf0d1 builtin/diff: learn --merge-base
+    @@ Commit message
+     
+         Suggested-by: Jonathan Nieder <jrnieder@gmail.com>
+     
+    +
+    + ## Notes ##
+    +    The `--merge-base` name isn't very satisfying. If anyone has any
+    +    suggestions for alternative names, please let me know.
+    +
+      ## Documentation/git-diff.txt ##
+     @@ Documentation/git-diff.txt: SYNOPSIS
+      'git diff' [<options>] [<commit>] [--] [<path>...]
+    @@ Documentation/git-diff.txt: files on disk.
+     +equivalent to `git diff $(git merge-base A B) B`.
+     ++
+     +In the case where one commit is given, a diff is displayed between the
+    -+merge base and the working tree or the index if `--cached` is given.
+    -+`git diff --merge-base A` is equivalent to `git diff $(git merge-base A
+    -+HEAD)`.
+    ++merge base of the commit and the HEAD and the working tree or the index
+    ++if `--cached` is given. `git diff --merge-base A` is equivalent to `git
+    ++diff $(git merge-base A HEAD)`.
+     ++
+     +In the case where no commits are given, this form behaves identically to
+     +as if no `--merge-base` were supplied.
+    @@ builtin/diff.c
+      
+      #define DIFF_NO_INDEX_EXPLICIT 1
+      #define DIFF_NO_INDEX_IMPLICIT 2
+    +@@ builtin/diff.c: static const char builtin_diff_usage[] =
+    + "git diff [<options>] [<commit>] [--] [<path>...]\n"
+    + "   or: git diff [<options>] --cached [<commit>] [--] [<path>...]\n"
+    + "   or: git diff [<options>] <commit> [<commit>...] <commit> [--] [<path>...]\n"
+    +-"   or: git diff [<options>] <commit>...<commit>] [--] [<path>...]\n"
+    ++"   or: git diff [<options>] --merge-base [<commit> [<commit>]] [--] [<path>...]\n"
+    + "   or: git diff [<options>] <blob> <blob>]\n"
+    + "   or: git diff [<options>] --no-index [--] <path> <path>]\n"
+    + COMMON_DIFF_OPTIONS_HELP;
+     @@ builtin/diff.c: int cmd_diff(int argc, const char **argv, const char *prefix)
+      	int blobs = 0, paths = 0;
+      	struct object_array_entry *blob[2];
+    @@ builtin/diff.c: int cmd_diff(int argc, const char **argv, const char *prefix)
+      			   DIFF_NO_INDEX_EXPLICIT,
+      			   PARSE_OPT_NONEG),
+     +		OPT_BOOL(0, "merge-base", &merge_base,
+    -+			 N_("use the merge base between the two commits as the diff base")),
+    ++			 N_("compare with the merge base between two commits")),
+      		OPT_END(),
+      	};
+      
+-- 
+2.28.0.618.gf4bc123cb7
+
