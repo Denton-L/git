@@ -60,4 +60,4 @@
 [branch "submitted/gitk-whitespace"]
 	remote = origin
 	merge = refs/heads/submitted/gitk-whitespace
-	description = gitk: fix mix of tabs and spaces in indentation\n\nThe source code of gitk has some funny indentation. It uses four spaces\nper level indent but uses tabs every other level (eight spaces).\nReindent gitk to just use tabs instead.\n\nThis series should be empty with `--ignore-all-space`.
+	description = gitk: fix mix of tabs and spaces in indentation\n\nThe source code of gitk has some funny indentation. It uses four spaces\nper level indent but uses tabs every other level (eight spaces).\nReindent gitk to just use spaces instead.\n\nThis series should be empty with `--ignore-all-space`.\n\nChanges since v1:\n\n* Instead of using tabs, just use spaces

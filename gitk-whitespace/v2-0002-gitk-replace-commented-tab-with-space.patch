@@ -1,0 +1,41 @@
+From 85d669828bf9455ac101f8177a7f46a94d30a114 Mon Sep 17 00:00:00 2001
+Message-Id: <85d669828bf9455ac101f8177a7f46a94d30a114.1599798976.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1599798976.git.liu.denton@gmail.com>
+References: <cover.1599726439.git.liu.denton@gmail.com>
+	<cover.1599798976.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 9 Sep 2020 12:10:51 -0700
+Subject: [PATCH v2 2/2] gitk: replace commented tab with space
+To: Git Mailing List <git@vger.kernel.org>,
+    Paul Mackerras <paulus@ozlabs.org>
+
+In the previous commit, the tab indents were mechanically replaced with
+spaces. However, one tab, in particular, was missed. This tab was not
+considered an indentation because it's hidden behind a comment. Manually
+replace this tab with spaces too.
+
+The only tabs that remain in this file are in the "Gitk key bindings"
+table where they are used for visual alignment in a user-facing table so
+leave those alone.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ gitk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/gitk b/gitk
+index 1dae9861ac..0380cd8976 100755
+--- a/gitk
++++ b/gitk
+@@ -4451,7 +4451,7 @@ proc addviewmenu {n} {
+     .bar.view add radiobutton -label $viewname($n) \
+         -command [list showview $n] -variable selectedview -value $n
+     #$viewhlmenu add radiobutton -label $viewname($n) \
+-    #	-command [list addvhighlight $n] -variable selectedhlview
++    #    -command [list addvhighlight $n] -variable selectedhlview
+ }
+ 
+ proc showview {n} {
+-- 
+2.28.0.618.gf4bc123cb7
+
