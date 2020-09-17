@@ -1,0 +1,60 @@
+From 80e9066a59524ededbb0d0191a93e6e3154c5623 Mon Sep 17 00:00:00 2001
+Message-Id: <80e9066a59524ededbb0d0191a93e6e3154c5623.1600328335.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1600328335.git.liu.denton@gmail.com>
+References: <cover.1599723087.git.liu.denton@gmail.com>
+	<cover.1600328335.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 31 Aug 2020 23:40:43 -0700
+Subject: [PATCH v3 01/10] t4068: remove unnecessary >tmp
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>
+
+The many `git diff` invocations have a `>tmp` redirection even though
+the file is not being used afterwards. Remove these unnecessary
+redirections.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t4068-diff-symmetric.sh | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/t/t4068-diff-symmetric.sh b/t/t4068-diff-symmetric.sh
+index 31d17a5af0..60c506c2b2 100755
+--- a/t/t4068-diff-symmetric.sh
++++ b/t/t4068-diff-symmetric.sh
+@@ -64,27 +64,27 @@ test_expect_success 'diff with two merge bases' '
+ '
+ 
+ test_expect_success 'diff with no merge bases' '
+-	test_must_fail git diff br2...br3 >tmp 2>err &&
++	test_must_fail git diff br2...br3 2>err &&
+ 	test_i18ngrep "fatal: br2...br3: no merge base" err
+ '
+ 
+ test_expect_success 'diff with too many symmetric differences' '
+-	test_must_fail git diff br1...master br2...br3 >tmp 2>err &&
++	test_must_fail git diff br1...master br2...br3 2>err &&
+ 	test_i18ngrep "usage" err
+ '
+ 
+ test_expect_success 'diff with symmetric difference and extraneous arg' '
+-	test_must_fail git diff master br1...master >tmp 2>err &&
++	test_must_fail git diff master br1...master 2>err &&
+ 	test_i18ngrep "usage" err
+ '
+ 
+ test_expect_success 'diff with two ranges' '
+-	test_must_fail git diff master br1..master br2..br3 >tmp 2>err &&
++	test_must_fail git diff master br1..master br2..br3 2>err &&
+ 	test_i18ngrep "usage" err
+ '
+ 
+ test_expect_success 'diff with ranges and extra arg' '
+-	test_must_fail git diff master br1..master commit-D >tmp 2>err &&
++	test_must_fail git diff master br1..master commit-D 2>err &&
+ 	test_i18ngrep "usage" err
+ '
+ 
+-- 
+2.28.0.618.gf4bc123cb7
+
