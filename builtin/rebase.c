@@ -1938,6 +1938,8 @@ int cmd_rebase(int argc, const char **argv, const char *prefix)
 						&options.orig_head);
 		options.restrict_revision =
 			get_fork_point(options.upstream_name, head);
+	} else if (keep_base) {
+		options.upstream = options.onto;
 	}
 
 	if (repo_read_index(the_repository) < 0)
