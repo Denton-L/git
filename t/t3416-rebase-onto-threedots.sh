@@ -159,4 +159,17 @@ test_expect_success 'rebase -i --keep-base master from side' '
 	test_must_fail git rebase -i --keep-base master
 '
 
+test_expect_success 'rebase --keep-base keeps cherry-picked commits' '
+	git reset --hard &&
+	git checkout topic &&
+	git reset --hard G &&
+
+	git cherry-pick E &&
+	test_commit after-cherry &&
+	git rev-list --count master.. >expect &&
+	git rebase --keep-base master &&
+	git rev-list --count master.. >actual &&
+	test_cmp expect actual
+'
+
 test_done

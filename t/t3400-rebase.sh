@@ -419,4 +419,16 @@ test_expect_success 'refuse to switch to branch checked out elsewhere' '
 	test_i18ngrep "already checked out" err
 '
 
+test_expect_success 'rebase --keep-base keeps cherry-picked commits' '
+	git checkout topic &&
+	git cherry-pick master &&
+	echo "after cherry pick" >>C &&
+	git add C &&
+	git commit -m "after cherry pick" &&
+	git rev-list --count master.. >expect &&
+	git rebase --keep-base master &&
+	git rev-list --count master.. >actual &&
+	! test_cmp expect actual
+'
+
 test_done
