@@ -1,0 +1,45 @@
+From 784135549f2fd23a5135cb2b6c2c5ba525885814 Mon Sep 17 00:00:00 2001
+Message-Id: <784135549f2fd23a5135cb2b6c2c5ba525885814.1600853895.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1600853895.git.liu.denton@gmail.com>
+References: <cover.1600427894.git.liu.denton@gmail.com>
+	<cover.1600853895.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Thu, 17 Sep 2020 02:07:51 -0700
+Subject: [PATCH v2 3/3] hooks--update.sample: use hash-agnostic zero OID
+To: Git Mailing List <git@vger.kernel.org>
+Cc: brian m. carlson <sandals@crustytoothpaste.net>,
+    Eric Sunshine <sunshine@sunshineco.com>,
+    Taylor Blau <me@ttaylorr.com>,
+    Junio C Hamano <gitster@pobox.com>,
+    Chris Torek <chris.torek@gmail.com>,
+    Andreas Schwab <schwab@linux-m68k.org>
+
+The update sample hook has the zero OID hardcoded as 40 zeros. However,
+with the introduction of SHA-256 support, this assumption no longer
+holds true. Replace the hardcoded $z40 with a call to
+
+	git hash-object --stdin </dev/null | tr '[0-9a-f]' '0'
+
+so the sample hook becomes hash-agnostic.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ templates/hooks--update.sample | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/templates/hooks--update.sample b/templates/hooks--update.sample
+index 5014c4b31c..c4d426bc6e 100755
+--- a/templates/hooks--update.sample
++++ b/templates/hooks--update.sample
+@@ -60,7 +60,7 @@ esac
+ 
+ # --- Check types
+ # if $newrev is 0000...0000, it's a commit to delete a ref.
+-zero="0000000000000000000000000000000000000000"
++zero=$(git hash-object --stdin </dev/null | tr '[0-9a-f]' '0')
+ if [ "$newrev" = "$zero" ]; then
+ 	newrev_type=delete
+ else
+-- 
+2.28.0.760.g8d73e04208
+

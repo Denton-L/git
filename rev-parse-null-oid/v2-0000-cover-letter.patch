@@ -1,0 +1,82 @@
+From 784135549f2fd23a5135cb2b6c2c5ba525885814 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1600853895.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1600427894.git.liu.denton@gmail.com>
+References: <cover.1600427894.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 23 Sep 2020 02:38:15 -0700
+Subject: [PATCH v2 0/3] sample hooks: become hash agnostic
+To: Git Mailing List <git@vger.kernel.org>
+Cc: brian m. carlson <sandals@crustytoothpaste.net>,
+    Eric Sunshine <sunshine@sunshineco.com>,
+    Taylor Blau <me@ttaylorr.com>,
+    Junio C Hamano <gitster@pobox.com>,
+    Chris Torek <chris.torek@gmail.com>,
+    Andreas Schwab <schwab@linux-m68k.org>
+
+There are currently two hooks that have hardcoded 40 zeros as the null
+OID and, thus, are not hash-agnostic. Rewrite these to get the zero OID using
+
+	git hash-object --stdin </dev/null | tr '[0-9a-f]' '0'
+
+so that the zero OID is hash-agnostic.
+
+This was initially done by introducing `git rev-parse --null-oid` to get the
+zero OID but that seems like overkill. From a cursory search of Github, the
+only instances of the zero OID being used come from clones of the git.git
+repository (tests and sample hooks). Since we don't want to introduce an option
+that no one will use, don't go this route and just do the easiest thing.
+
+If in the future, someone decides that `git rev-parse --zero-oid` is useful,
+they can also adjust these hooks accordingly.
+
+Changes since v1:
+
+* Don't implement `git rev-parse --null-oid`
+
+Denton Liu (3):
+  hooks--pre-push.sample: modernize script
+  hooks--pre-push.sample: use hash-agnostic zero OID
+  hooks--update.sample: use hash-agnostic zero OID
+
+ templates/hooks--pre-push.sample | 18 +++++++++---------
+ templates/hooks--update.sample   |  2 +-
+ 2 files changed, 10 insertions(+), 10 deletions(-)
+
+Range-diff against v1:
+1:  ed1ade7328 < -:  ---------- hooks--pre-push.sample: prefer $() for command substitution
+2:  004f2e4c92 < -:  ---------- builtin/rev-parse: learn --null-oid
+3:  9d6c2951ab < -:  ---------- hooks--pre-push.sample: use hash-agnostic null OID
+-:  ---------- > 1:  95dd0b19ba hooks--pre-push.sample: modernize script
+-:  ---------- > 2:  afb460d9fd hooks--pre-push.sample: use hash-agnostic zero OID
+4:  42d2829889 ! 3:  784135549f hooks--update.sample: use hash-agnostic null OID
+    @@ Metadata
+     Author: Denton Liu <liu.denton@gmail.com>
+     
+      ## Commit message ##
+    -    hooks--update.sample: use hash-agnostic null OID
+    +    hooks--update.sample: use hash-agnostic zero OID
+     
+    -    The update sample hook has the null OID hardcoded as 40 zeros. However,
+    +    The update sample hook has the zero OID hardcoded as 40 zeros. However,
+         with the introduction of SHA-256 support, this assumption no longer
+         holds true. Replace the hardcoded $z40 with a call to
+    -    `git rev-parse --null-oid` so the sample hook becomes hash-agnostic.
+    +
+    +            git hash-object --stdin </dev/null | tr '[0-9a-f]' '0'
+    +
+    +    so the sample hook becomes hash-agnostic.
+     
+      ## templates/hooks--update.sample ##
+     @@ templates/hooks--update.sample: esac
+    @@ templates/hooks--update.sample: esac
+      # --- Check types
+      # if $newrev is 0000...0000, it's a commit to delete a ref.
+     -zero="0000000000000000000000000000000000000000"
+    -+zero="$(git rev-list --null-oid)"
+    ++zero=$(git hash-object --stdin </dev/null | tr '[0-9a-f]' '0')
+      if [ "$newrev" = "$zero" ]; then
+      	newrev_type=delete
+      else
+-- 
+2.28.0.760.g8d73e04208
+

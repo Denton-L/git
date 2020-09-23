@@ -1,3 +1,8 @@
 [format]
 	outputDirectory = patches/rev-parse-null-oid
 	cc = "brian m. carlson" <sandals@crustytoothpaste.net>
+	cc = Eric Sunshine <sunshine@sunshineco.com>
+	cc = Taylor Blau <me@ttaylorr.com>
+	cc = Junio C Hamano <gitster@pobox.com>
+	cc = Chris Torek <chris.torek@gmail.com>
+	cc = Andreas Schwab <schwab@linux-m68k.org>
