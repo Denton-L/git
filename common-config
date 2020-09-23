@@ -67,3 +67,8 @@
 	description = sample hooks: become hash agnostic\n\nThere are currently two hooks that have hardcoded 40 zeros as the null\nOID and, thus, are not hash-agnostic. Rewrite these to get the zero OID using\n\n\tgit hash-object --stdin </dev/null | tr '[0-9a-f]' '0'\n\nso that the zero OID is hash-agnostic.\n\nThis was initially done by introducing `git rev-parse --null-oid` to get the\nzero OID but that seems like overkill. From a cursory search of Github, the\nonly instances of the zero OID being used come from clones of the git.git\nrepository (tests and sample hooks). Since we don't want to introduce an option\nthat no one will use, don't go this route and just do the easiest thing.\n\nIf in the future, someone decides that `git rev-parse --zero-oid` is useful,\nthey can also adjust these hooks accordingly.\n\nChanges since v1:\n\n* Don't implement `git rev-parse --null-oid`
 	remote = origin
 	merge = refs/heads/submitted/rev-parse-null-oid
+[includeIf "onbranch:pull-dont-warn-on-explicit/*"]
+	path = pull-dont-warn-on-explicit/config
+[branch "pull-dont-warn-on-explicit/v1"]
+	remote = origin
+	merge = refs/heads/pull-dont-warn-on-explicit/v1
