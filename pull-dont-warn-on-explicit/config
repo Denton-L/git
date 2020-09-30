@@ -1,3 +1,0 @@
-[format]
-	outputDirectory = patches/pull-dont-warn-on-explicit
-	cc = Alex Henrie <alexhenrie24@gmail.com>
