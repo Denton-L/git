@@ -61,9 +61,3 @@
 	remote = origin
 	merge = refs/heads/submitted/gitk-whitespace
 	description = gitk: fix mix of tabs and spaces in indentation\n\nThe source code of gitk has some funny indentation. It uses four spaces\nper level indent but uses tabs every other level (eight spaces).\nReindent gitk to just use spaces instead.\n\nThis series should be empty with `--ignore-all-space`.\n\nChanges since v1:\n\n* Instead of using tabs, just use spaces
-[includeIf "onbranch:submitted/rev-parse-null-oid"]
-	path = rev-parse-null-oid/config
-[branch "submitted/rev-parse-null-oid"]
-	description = sample hooks: become hash agnostic\n\nThere are currently two hooks that have hardcoded 40 zeros as the null\nOID and, thus, are not hash-agnostic. Rewrite these to get the zero OID using\n\n\tgit hash-object --stdin </dev/null | tr '[0-9a-f]' '0'\n\nso that the zero OID is hash-agnostic.\n\nThis was initially done by introducing `git rev-parse --null-oid` to get the\nzero OID but that seems like overkill. From a cursory search of Github, the\nonly instances of the zero OID being used come from clones of the git.git\nrepository (tests and sample hooks). Since we don't want to introduce an option\nthat no one will use, don't go this route and just do the easiest thing.\n\nIf in the future, someone decides that `git rev-parse --zero-oid` is useful,\nthey can also adjust these hooks accordingly.\n\nChanges since v1:\n\n* Don't implement `git rev-parse --null-oid`
-	remote = origin
-	merge = refs/heads/submitted/rev-parse-null-oid
