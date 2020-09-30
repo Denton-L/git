@@ -44,7 +44,7 @@ create)
 remove)
 	rm -r "$outdir"
 	git config --file="$patchdir/common-config" --remove-section includeIf."onbranch:$name/*".path
-	git for-each-ref --format="$(refname:short)" "refs/heads/$name" | while read b
+	git for-each-ref --format="%(refname:short)" "refs/heads/$name" | while read b
 	do
 		git config --file="$patchdir/common-config" --remove-section branch."$b"
 	done
