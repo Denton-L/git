@@ -56,6 +56,20 @@ sync)
 			git config --unset "$key"
 		done
 	;;
+next)
+	if test -z "$version"
+	then
+		die "no version number given"
+	fi
+
+	next_version=$(($version + 1))
+	next_branch="$name/v$next_version"
+	git branch "$next_branch"
+	git config --get-regexp --name-only 'branch\.'"$name/v$version"'\..*' | while read key
+		do
+			git config --file="$patchdir/common-config" "branch.$next_branch.${key##*.}" $(git config "$key")
+		done
+	;;
 *)
 	die "invalid subcomand: $subcommand"
 	;;
