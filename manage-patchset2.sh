@@ -44,19 +44,17 @@ create)
 remove)
 	rm -r "$outdir"
 	git config --file="$patchdir/common-config" --remove-section includeIf."onbranch:$name/*".path
-	git for-each-ref --format="%(refname:short)" "refs/heads/$name" | while read b
-	do
-		git config --file="$patchdir/common-config" --remove-section branch."$b"
-	done
+	git config --get-regexp --name-only 'branch\.'"$name"'/.*' | while read key
+		do
+			git config --file="$patchdir/common-config" --unset "$key"
+		done
 	;;
 sync)
-	git config --get-regexp --name-only branch\\."$branch"\\.\* |
-		while IFS='
-' read key
+	git config --get-regexp --name-only 'branch\.'"$name"'/.*' | while read key
 		do
 			git config --file="$patchdir/common-config" "$key" "$(git config "$key")"
+			git config --unset "$key"
 		done
-	git config --remove-section branch."$branch"
 	;;
 *)
 	die "invalid subcomand: $subcommand"
