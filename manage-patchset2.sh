@@ -1,15 +1,36 @@
 #!/bin/sh
 
-subcommand="$1"
-branch="$2"
-
-name=
-version=
-
 die () {
 	echo "$@"
 	exit 1
 }
+
+while test $# != 0
+do
+	case "$1" in
+	--branch)
+		branch="$2"
+		shift
+		;;
+	--*)
+		die "invalid option: $1"
+		;;
+	*)
+		break
+		;;
+	esac
+	shift
+done
+
+if test $# = 0
+then
+	die "no subcommand given"
+fi
+subcommand="$1"
+shift
+
+name=
+version=
 
 if test -z "$branch"
 then
