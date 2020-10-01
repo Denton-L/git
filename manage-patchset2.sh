@@ -69,6 +69,7 @@ remove)
 		do
 			git config --file="$patchdir/common-config" --unset "$key"
 		done
+	git for-each-ref --format='delete %(refname)' "refs/heads/$name/*" | git update-ref --stdin
 	;;
 sync)
 	git config --get-regexp --name-only 'branch\.'"$name"'/.*' | while read key
