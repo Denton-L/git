@@ -1,4 +1,0 @@
-[format]
-	outputDirectory = patches/gitk-use-pretty-reference
-	to = Paul Mackerras <paulus@ozlabs.org>
-	cc = Beat Bolli <dev+git@drbeat.li>

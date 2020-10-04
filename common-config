@@ -37,8 +37,6 @@
 	path = better-apply-error/config
 [includeIf "onbranch:gitk-use-pretty-reference/*"]
 	path = gitk-use-pretty-reference/config
-[branch "gitk-use-pretty-reference/v2"]
-	description = gitk: match Git's 'reference' pretty format\n\nRecently, the 'reference' pretty format was implemented in Git, which\nhas the same function as the 'Copy commit summary' feature in gitk.\nSince Git now has a canonical way of doing this, update gitk to match\nthis.
 [includeIf "onbranch:format-output-relative-gitdir/*"]
 	path = format-output-relative-gitdir/config
 [includeIf "onbranch:fix-warnings/*"]
