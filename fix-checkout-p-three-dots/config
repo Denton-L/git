@@ -1,0 +1,2 @@
+[format]
+	outputDirectory = patches/fix-checkout-p-three-dots
