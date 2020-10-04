@@ -30,16 +30,12 @@
 [includeIf "onbranch:branch-specific-format-patch/*"]
 	path = branch-specific-format-patch/config
 [branch "branch-specific-format-patch/v3"]
-	remote = origin
-	merge = refs/heads/submitted/branch-specific-format-patch
 	description = teach branch-specific options for format-patch\n\nChanges since v2:\n\n* Replaced `format.<branch-name>.coverSubject` and `--cover-subject`\n  with `format.inferCoverSubject` and `--infer-cover-subject` which\n  reads the subject from the branch description\n* Do not let `git branch -d` delete `format.<branch-name>.*` configs\n* More documentation cleanup\n* Taught format-patch to read `format.<branch-name>.outputDirectory` as\n  well\n\nChanges since v1:\n\n* Used format.<branch-name>.* variables instead of branch.<branch-name>.*\n
 [includeIf "onbranch:better-apply-error/*"]
 	path = better-apply-error/config
 [includeIf "onbranch:gitk-use-pretty-reference/*"]
 	path = gitk-use-pretty-reference/config
 [branch "gitk-use-pretty-reference/v2"]
-	remote = origin
-	merge = refs/heads/submitted/gitk-use-pretty-reference
 	description = gitk: match Git's 'reference' pretty format\n\nRecently, the 'reference' pretty format was implemented in Git, which\nhas the same function as the 'Copy commit summary' feature in gitk.\nSince Git now has a canonical way of doing this, update gitk to match\nthis.
 [includeIf "onbranch:format-output-relative-gitdir/*"]
 	path = format-output-relative-gitdir/config
@@ -50,18 +46,12 @@
 [includeIf "onbranch:checkout-worktree/*"]
 	path = checkout-worktree/config
 [branch "refactor-4/v3"]
-	remote = origin
-	merge = refs/heads/submitted/refactor-4
 	description = pkt-line: war on magical `4` literal\n\nThere are many instances of the literal `4` in packet line-related code.\nThis series replaces these instances with either functions that can\ngenerate the number or an appropriately-named constant.\n\nChanges since v1:\n\n* Introduce patch 1-2 so that the string length is used to generate the\n  `4` where appropriate\n\nChanges since v2:\n\n* Replace some a couple of inline functions with macros that ensure they\n  are string constants\n\n* Use strlen() in one more instance over the PACKET_HEADER_SIZE
 [includeIf "onbranch:diff-merge-base/*"]
 	path = diff-merge-base/config
 [branch "diff-merge-base/v4"]
 	description = "builtin/diff: learn --merge-base\n\nThe range-notation in `git diff` has been cited as a mistake since diff\ncompares two endpoints, not whole ranges.[0]  In fact, the ranges seem\nto take on the opposite meanings when compared to range notation in\n`git log`.\n\nIn an effort to reduce the use of range notation as much as possible,\nintroduce the `--merge-base` flag, slightly modified from a suggestion\nby Jonathan Nieder.[1] This flag allows us to replace the first commit\ngiven on the command-line with its merge base between the first and\nsecond commits.\n\nOne additional bonus is that this flag allows the \"after\" side to be not\njust constrained to a commit (like with `...` notation). It can now be\nthe working tree or the index as well.\n\nThe `--merge-base` name isn't very satisfying. If anyone has any better\nsuggestions, please let me know.\n\nChanges since v1:\n\n* Implement Junio's documentation suggestions\n\n* Update git diff's usage to include this option\n\nChanges since v2:\n\n* Teach diff-index and diff-tree the --merge-base option as well\n\nChanges since v3:\n\n* Don't use bitfields directly; extract them to an intermediate variable\n\n* Use explicit literals in diff_get_merge_base() for clarity\n\n* Fix xstrdup() leak\n\n* I misunderstood and thought we wanted to deprecate `...` notation;\n  this is not the case so remove all references to \"gentle deprecation\"\n  and don't remove usage text that references it\n\n[0]: https://lore.kernel.org/git/xmqqy2v26hu0.fsf@gitster-ct.c.googlers.com/\n[1]: https://lore.kernel.org/git/20191223215928.GB38316@google.com/"
-	remote = origin
-	merge = refs/heads/submitted/diff-merge-base
 [includeIf "onbranch:gitk-whitespace/*"]
 	path = gitk-whitespace/config
 [branch "gitk-whitespace/v2"]
-	remote = origin
-	merge = refs/heads/submitted/gitk-whitespace
 	description = gitk: fix mix of tabs and spaces in indentation\n\nThe source code of gitk has some funny indentation. It uses four spaces\nper level indent but uses tabs every other level (eight spaces).\nReindent gitk to just use spaces instead.\n\nThis series should be empty with `--ignore-all-space`.\n\nChanges since v1:\n\n* Instead of using tabs, just use spaces
