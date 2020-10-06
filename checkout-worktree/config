@@ -1,3 +1,0 @@
-[format]
-	outputDirectory = patches/checkout-worktree
-	cc = Eric Sunshine <sunshine@sunshineco.com>
