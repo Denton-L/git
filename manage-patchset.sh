@@ -89,7 +89,7 @@ next)
 	git branch "$next_branch"
 	git config --get-regexp --name-only 'branch\.'"$name/v$version"'\..*' | while read key
 		do
-			git config --file="$patchdir/common-config" "branch.$next_branch.${key##*.}" $(git config "$key")
+			git config --file="$patchdir/common-config" "branch.$next_branch.${key##*.}" "$(git config "$key")"
 		done
 	;;
 format-patch)
