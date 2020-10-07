@@ -60,11 +60,9 @@ case "$subcommand" in
 create)
 	mkdir -p "$outdir"
 	git config --file="$outdir/config" format.outputDirectory "patches/$name"
-	git config --file="$patchdir/common-config" includeIf."onbranch:$name/*".path "$name/config"
 	;;
 remove)
 	rm -r "$outdir"
-	git config --file="$patchdir/common-config" --remove-section includeIf."onbranch:$name/*".path
 	git config --get-regexp --name-only 'branch\.'"$name"'/.*' | while read key
 		do
 			git config --file="$patchdir/common-config" --unset "$key"
