@@ -1,0 +1,74 @@
+From 2678680a08e025e9652c6769501dbc604560394b Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1602047333.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1601810233.git.liu.denton@gmail.com>
+References: <cover.1601810233.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 6 Oct 2020 22:08:53 -0700
+Subject: [PATCH v2 0/2] checkout: learn the checkout.guess config variable
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>
+
+If a user does not wish to use DWIM behaviour, they must manually
+specify git checkout --no-guess each time. Teach checkout and switch to
+honour the checkout.guess config variable instead.
+
+Changes since v1:
+
+* Replace enumerated priority list with bullet points
+
+Denton Liu (2):
+  Documentation/config/checkout: replace sq with backticks
+  checkout: learn to respect checkout.guess
+
+ Documentation/config/checkout.txt      | 21 +++++++----
+ Documentation/git-checkout.txt         |  3 ++
+ Documentation/git-switch.txt           |  3 ++
+ builtin/checkout.c                     |  7 +++-
+ contrib/completion/git-completion.bash | 25 ++++++++-----
+ t/t2024-checkout-dwim.sh               | 11 ++++++
+ t/t2060-switch.sh                      |  5 ++-
+ t/t9902-completion.sh                  | 52 ++++++++++++++++++++++++++
+ 8 files changed, 108 insertions(+), 19 deletions(-)
+
+Range-diff against v1:
+1:  f08d3f796a = 1:  f08d3f796a Documentation/config/checkout: replace sq with backticks
+2:  8172602f6f ! 2:  2678680a08 checkout: learn to respect checkout.guess
+    @@ builtin/checkout.c: static int switch_branches(const struct checkout_opts *opts,
+     
+      ## contrib/completion/git-completion.bash ##
+     @@ contrib/completion/git-completion.bash: _git_bundle ()
+    - # To decide between the following rules in priority order
+    - # 1) the last provided of "--guess" or "--no-guess" explicitly enable or
+    - #    disable completion of DWIM logic respectively.
+    + # Helper function to decide whether or not we should enable DWIM logic for
+    + # git-switch and git-checkout.
+    + #
+    +-# To decide between the following rules in priority order
+    +-# 1) the last provided of "--guess" or "--no-guess" explicitly enable or
+    +-#    disable completion of DWIM logic respectively.
+     -# 2) If the --no-track option is provided, take this as a hint to disable the
+    -+# 2) If checkout.guess is false, disable completion of DWIM logic.
+    -+# 3) If the --no-track option is provided, take this as a hint to disable the
+    - #    DWIM completion logic
+    +-#    DWIM completion logic
+     -# 3) If GIT_COMPLETION_CHECKOUT_NO_GUESS is set, disable the DWIM completion
+    -+# 4) If GIT_COMPLETION_CHECKOUT_NO_GUESS is set, disable the DWIM completion
+    - #    logic, as requested by the user.
+    +-#    logic, as requested by the user.
+     -# 4) Enable DWIM logic otherwise.
+    -+# 5) Enable DWIM logic otherwise.
+    ++# To decide between the following rules in decreasing priority order:
+    ++# - the last provided of "--guess" or "--no-guess" explicitly enable or
+    ++#   disable completion of DWIM logic respectively.
+    ++# - If checkout.guess is false, disable completion of DWIM logic.
+    ++# - If the --no-track option is provided, take this as a hint to disable the
+    ++#   DWIM completion logic
+    ++# - If GIT_COMPLETION_CHECKOUT_NO_GUESS is set, disable the DWIM completion
+    ++#   logic, as requested by the user.
+    ++# - Enable DWIM logic otherwise.
+      #
+      __git_checkout_default_dwim_mode ()
+      {
+-- 
+2.28.0.942.g77c4c6094c
+
