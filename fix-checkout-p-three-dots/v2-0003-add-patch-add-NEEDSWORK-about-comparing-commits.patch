@@ -1,0 +1,63 @@
+From 44ee78450e1cfe26b47cc4343c5d445df2b96d7b Mon Sep 17 00:00:00 2001
+Message-Id: <44ee78450e1cfe26b47cc4343c5d445df2b96d7b.1602057332.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1602057332.git.liu.denton@gmail.com>
+References: <cover.1601814601.git.liu.denton@gmail.com>
+	<cover.1602057332.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 6 Oct 2020 22:21:42 -0700
+Subject: [PATCH v2 3/4] add-patch: add NEEDSWORK about comparing commits
+To: Git Mailing List <git@vger.kernel.org>
+
+The two versions of add-patch has special-casing for the literal
+revision "HEAD". However, we want to handle other ways of saying "HEAD"
+in the same way.[0] Add a NEEDSWORK to the add-patch code that does this
+so that it can be addressed later.
+
+[0]: https://lore.kernel.org/git/xmqqsgat7ttf.fsf@gitster.c.googlers.com/
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ add-patch.c               | 8 ++++++++
+ git-add--interactive.perl | 7 +++++++
+ 2 files changed, 15 insertions(+)
+
+diff --git a/add-patch.c b/add-patch.c
+index bd94bd3a7c..be4cf6e9e5 100644
+--- a/add-patch.c
++++ b/add-patch.c
+@@ -1695,6 +1695,14 @@ int run_add_p(struct repository *r, enum add_p_mode mode,
+ 	if (mode == ADD_P_STASH)
+ 		s.mode = &patch_mode_stash;
+ 	else if (mode == ADD_P_RESET) {
++		/*
++		 * NEEDSWORK: Instead of comparing to the literal "HEAD",
++		 * compare the commit objects instead so that other ways of
++		 * saying the same thing (such as "@") are also handled
++		 * appropriately.
++		 *
++		 * This applies to the cases below too.
++		 */
+ 		if (!revision || !strcmp(revision, "HEAD"))
+ 			s.mode = &patch_mode_reset_head;
+ 		else
+diff --git a/git-add--interactive.perl b/git-add--interactive.perl
+index 8a72018712..e713fe3d02 100755
+--- a/git-add--interactive.perl
++++ b/git-add--interactive.perl
+@@ -1830,6 +1830,13 @@ sub process_args {
+ 				$arg = shift @ARGV or die __("missing --");
+ 				if ($arg ne '--') {
+ 					$patch_mode_revision = $arg;
++
++					# NEEDSWORK: Instead of comparing to the literal "HEAD",
++					# compare the commit objects instead so that other ways of
++					# saying the same thing (such as "@") are also handled
++					# appropriately.
++					#
++					# This applies to the cases below too.
+ 					$patch_mode = ($arg eq 'HEAD' ?
+ 						       'reset_head' : 'reset_nothead');
+ 					$arg = shift @ARGV or die __("missing --");
+-- 
+2.28.0.942.g77c4c6094c
+
