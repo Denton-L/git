@@ -137,7 +137,9 @@ format-patch)
 		in_reply_to=--in-reply-to="$reply_to"
 	fi
 
-	git -c "include.path=$PWD/$outdir/config" format-patch ${reroll_count:+"$reroll_count"} ${range_diff:+"$range_diff"} ${in_reply_to:+"$in_reply_to"} "$base"
+	git -c "include.path=$PWD/$outdir/config" format-patch \
+		--output-directory="$outdir" \
+		${reroll_count:+"$reroll_count"} ${range_diff:+"$range_diff"} ${in_reply_to:+"$in_reply_to"} "$base"
 	;;
 *)
 	die "invalid subcomand: $subcommand"
