@@ -1,0 +1,41 @@
+From 9e5a8625cab217bd6aaba68da081bc801354b903 Mon Sep 17 00:00:00 2001
+Message-Id: <9e5a8625cab217bd6aaba68da081bc801354b903.1602059508.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 19 Aug 2019 02:26:19 -0400
+Subject: [PATCH] compat/mingw.h: drop extern from function declaration
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Johannes Schindelin <johannes.schindelin@gmx.de>
+
+In 554544276a (*.[ch]: remove extern from function declarations using
+spatch, 2019-04-29), `extern` on function declarations were declared to
+be redundant and thus removed from the codebase. An `extern` was
+accidentally reintroduced in 08809c09aa (mingw: add a helper function to
+attach GDB to the current process, 2020-02-13).
+
+Remove this spurious `extern`.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+
+Notes:
+    This patch is based on 554544276a, formerly 'js/mingw-open-in-gdb'.
+
+ compat/mingw.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/compat/mingw.h b/compat/mingw.h
+index 88c07c4520..5c34547539 100644
+--- a/compat/mingw.h
++++ b/compat/mingw.h
+@@ -599,7 +599,7 @@ int main(int argc, const char **argv);
+  * Call this function to open a new MinTTY (this assumes you are in Git for
+  * Windows' SDK) with a GDB that attaches to the current process right away.
+  */
+-extern void open_in_gdb(void);
++void open_in_gdb(void);
+ 
+ /*
+  * Used by Pthread API implementation for Windows
+-- 
+2.28.0.942.g77c4c6094c
+
