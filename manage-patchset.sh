@@ -69,13 +69,6 @@ remove)
 		done
 	git for-each-ref --format='delete %(refname)' "refs/heads/$name/*" | git update-ref --stdin
 	;;
-sync)
-	git config --get-regexp --name-only 'branch\.'"$name"'/.*' | while read key
-		do
-			git config --file="$patchdir/common-config" "$key" "$(git config "$key")"
-			git config --unset "$key"
-		done
-	;;
 next)
 	if test -z "$version"
 	then
@@ -140,6 +133,12 @@ format-patch)
 	git -c "include.path=$PWD/$outdir/config" format-patch \
 		--output-directory="$outdir" \
 		${reroll_count:+"$reroll_count"} ${range_diff:+"$range_diff"} ${in_reply_to:+"$in_reply_to"} "$base"
+
+	git config --get-regexp --name-only 'branch\.'"$name"'/.*' | while read key
+		do
+			git config --file="$patchdir/common-config" "$key" "$(git config "$key")"
+			git config --unset "$key"
+		done
 	;;
 *)
 	die "invalid subcomand: $subcommand"
