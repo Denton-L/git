@@ -1,0 +1,55 @@
+From eb9daf4bcdf1d296aae924844f58848eee1798d5 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1602136063.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1602047333.git.liu.denton@gmail.com>
+References: <cover.1602047333.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 7 Oct 2020 22:47:43 -0700
+Subject: [PATCH v3 0/2] checkout: learn the checkout.guess config variable
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>
+
+If a user does not wish to use DWIM behaviour, they must manually
+specify git checkout --no-guess each time. Teach checkout and switch to
+honour the checkout.guess config variable instead.
+
+Changes since v1:
+
+* Replace enumerated priority list with bullet points
+
+Changes since v2:
+
+* Clarify that `--guess` is the default for checkout in the docs
+
+Denton Liu (2):
+  Documentation/config/checkout: replace sq with backticks
+  checkout: learn to respect checkout.guess
+
+ Documentation/config/checkout.txt      | 21 +++++++----
+ Documentation/git-checkout.txt         |  5 ++-
+ Documentation/git-switch.txt           |  3 ++
+ builtin/checkout.c                     |  7 +++-
+ contrib/completion/git-completion.bash | 25 ++++++++-----
+ t/t2024-checkout-dwim.sh               | 11 ++++++
+ t/t2060-switch.sh                      |  5 ++-
+ t/t9902-completion.sh                  | 52 ++++++++++++++++++++++++++
+ 8 files changed, 109 insertions(+), 20 deletions(-)
+
+Range-diff against v2:
+1:  f08d3f796a = 1:  f08d3f796a Documentation/config/checkout: replace sq with backticks
+2:  2678680a08 ! 2:  eb9daf4bcd checkout: learn to respect checkout.guess
+    @@ Documentation/config/checkout.txt: will checkout the `<something>` branch on ano
+     
+      ## Documentation/git-checkout.txt ##
+     @@ Documentation/git-checkout.txt: branches from there if `<branch>` is ambiguous but exists on the
+    + 'origin' remote. See also `checkout.defaultRemote` in
+      linkgit:git-config[1].
+      +
+    - Use `--no-guess` to disable this.
+    +-Use `--no-guess` to disable this.
+    ++`--guess` is the default behavior. Use `--no-guess` to disable it.
+     ++
+     +The default behavior can be set via the `checkout.guess` configuration
+     +variable.
+-- 
+2.28.0.942.g77c4c6094c
+
