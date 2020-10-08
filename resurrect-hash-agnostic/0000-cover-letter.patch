@@ -1,0 +1,26 @@
+From 6fad1fc7fdad98c3dda1ec334a10a6a9e311fef8 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1602139448.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 7 Oct 2020 23:44:08 -0700
+Subject: [PATCH 0/2] contrib/git-resurrect.sh: make it hash-agnostic
+To: Git Mailing List <git@vger.kernel.org>
+
+Since Git supports hashes other than SHA-1, the hardcoded $_x40 used to
+match OIDs is no longer correct. Replace it with a hash-agnostic
+version.
+
+While we're at it fix some indent issues.
+
+There are some other style issues in the script but I'll leave those as
+out-of-scope.
+
+Denton Liu (2):
+  contrib/git-resurrect.sh: indent with tabs
+  contrib/git-resurrect.sh: use hash-agnostic OID pattern
+
+ contrib/git-resurrect.sh | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
+
+-- 
+2.29.0.rc0.261.g7178c9af9c
+

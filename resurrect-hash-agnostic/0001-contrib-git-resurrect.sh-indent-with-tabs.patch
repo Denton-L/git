@@ -1,0 +1,46 @@
+From 5f5f1763043e80cbae6f9d4286aa5ba1960d32e0 Mon Sep 17 00:00:00 2001
+Message-Id: <5f5f1763043e80cbae6f9d4286aa5ba1960d32e0.1602139448.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1602139448.git.liu.denton@gmail.com>
+References: <cover.1602139448.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 7 Oct 2020 23:30:44 -0700
+Subject: [PATCH 1/2] contrib/git-resurrect.sh: indent with tabs
+To: Git Mailing List <git@vger.kernel.org>
+
+In the git-resurrect script, there are a few lines that are mistakenly
+indented with spaces. Replace these lines with tabs.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ contrib/git-resurrect.sh | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/contrib/git-resurrect.sh b/contrib/git-resurrect.sh
+index 8c171dd959..57a77c03f9 100755
+--- a/contrib/git-resurrect.sh
++++ b/contrib/git-resurrect.sh
+@@ -27,7 +27,7 @@ n,dry-run            don't recreate the branch"
+ 
+ search_reflog () {
+ 	sed -ne 's~^\([^ ]*\) .*	checkout: moving from '"$1"' .*~\1~p' \
+-                < "$GIT_DIR"/logs/HEAD
++		< "$GIT_DIR"/logs/HEAD
+ }
+ 
+ search_reflog_merges () {
+@@ -41,9 +41,9 @@ _x40="[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]"
+ _x40="$_x40$_x40$_x40$_x40$_x40$_x40$_x40$_x40"
+ 
+ search_merges () {
+-        git rev-list --all --grep="Merge branch '$1'" \
+-                --pretty=tformat:"%P %s" |
+-        sed -ne "/^$_x40 \($_x40\) Merge .*/ {s//\1/p;$early_exit}"
++	git rev-list --all --grep="Merge branch '$1'" \
++		--pretty=tformat:"%P %s" |
++	sed -ne "/^$_x40 \($_x40\) Merge .*/ {s//\1/p;$early_exit}"
+ }
+ 
+ search_merge_targets () {
+-- 
+2.29.0.rc0.261.g7178c9af9c
+
