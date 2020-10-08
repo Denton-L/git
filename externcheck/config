@@ -1,0 +1,4 @@
+[format]
+	outputDirectory = patches/externcheck
+	cc = Junio C Hamano <gitster@pobox.com>
+	cc = Johannes Schindelin <Johannes.Schindelin@gmx.de>

@@ -1,0 +1,45 @@
+From 1c2ee1c40ccde18a008262aeaf23a17da2064eae Mon Sep 17 00:00:00 2001
+Message-Id: <1c2ee1c40ccde18a008262aeaf23a17da2064eae.1602142232.git.liu.denton@gmail.com>
+In-Reply-To: <9e5a8625cab217bd6aaba68da081bc801354b903.1602059508.git.liu.denton@gmail.com>
+References: <9e5a8625cab217bd6aaba68da081bc801354b903.1602059508.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Fri, 22 Nov 2019 15:22:58 -0800
+Subject: [RFC PATCH] Makefile: create externcheck target
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>,
+    Johannes Schindelin <Johannes.Schindelin@gmx.de>
+
+In b199d7147a (*.[ch]: remove extern from function declarations using
+sed, 2019-04-29), we used sed to remove extern from function
+definitions. In order to help find and remove future instances of this,
+teach Makefile the `externcheck` target which runs the sed script
+included in that commit on all applicable source files.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+
+Notes:
+    I run this target periodically to ensure that no new instances of extern
+    function definitions are introduced. Is this something that we want to
+    consider adding for real?
+
+ Makefile | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/Makefile b/Makefile
+index 5311b1d2c4..791faa24cf 100644
+--- a/Makefile
++++ b/Makefile
+@@ -2885,6 +2885,9 @@ COCCI_SOURCES = $(filter-out $(THIRD_PARTY_SOURCES),$(FOUND_C_SOURCES))
+ 	fi
+ coccicheck: $(addsuffix .patch,$(filter-out %.pending.cocci,$(wildcard contrib/coccinelle/*.cocci)))
+ 
++externcheck: $(filter-out $(THIRD_PARTY_SOURCES),$(filter %.c %.h,$(shell $(FIND_SOURCE_FILES))))
++	sed -i 's/^\(\s*\)extern \([^(]*([^*]\)/\1\2/' $^
++
+ # See contrib/coccinelle/README
+ coccicheck-pending: $(addsuffix .patch,$(wildcard contrib/coccinelle/*.pending.cocci))
+ 
+-- 
+2.29.0.rc0.261.g7178c9af9c
+
