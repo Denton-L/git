@@ -24,10 +24,14 @@
 	coverFromDescription = subject
 	notes = true
 	to = Git Mailing List <git@vger.kernel.org>
+[sendemail]
+	aliasFileType = mutt
 [notes]
 	rewriteRef = refs/notes/commits
 [push]
 	default = matching
+[include]
+	path = local-config
 
 [branch "branch-specific-format-patch/v3"]
 	description = teach branch-specific options for format-patch\n\nChanges since v2:\n\n* Replaced `format.<branch-name>.coverSubject` and `--cover-subject`\n  with `format.inferCoverSubject` and `--infer-cover-subject` which\n  reads the subject from the branch description\n* Do not let `git branch -d` delete `format.<branch-name>.*` configs\n* More documentation cleanup\n* Taught format-patch to read `format.<branch-name>.outputDirectory` as\n  well\n\nChanges since v1:\n\n* Used format.<branch-name>.* variables instead of branch.<branch-name>.*\n
