@@ -1,4 +1,0 @@
-[format]
-	outputDirectory = patches/diff-merge-base
-	cc = Junio C Hamano <gitster@pobox.com>
-	cc = Jeff King <peff@peff.net>
