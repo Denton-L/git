@@ -1,3 +1,0 @@
-[format]
-	outputDirectory = patches/fix-checkout-p-three-dots
-	cc = Junio C Hamano <gitster@pobox.com>
