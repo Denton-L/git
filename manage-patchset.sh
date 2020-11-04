@@ -38,7 +38,7 @@ then
 fi
 
 case "$branch" in
-*/*)
+*/v*)
 	name="${branch%/*}"
 	version="${branch##*/v}"
 	;;
