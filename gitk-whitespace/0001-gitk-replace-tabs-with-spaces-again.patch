@@ -1,0 +1,77 @@
+From 4c58637d96fe22747cd301e0f2e34d8c8b8f1f93 Mon Sep 17 00:00:00 2001
+Message-Id: <4c58637d96fe22747cd301e0f2e34d8c8b8f1f93.1604452145.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Thu, 10 Sep 2020 21:36:33 -0700
+Subject: [PATCH] gitk: replace tabs with spaces (again)
+To: Git Mailing List <git@vger.kernel.org>,
+    Paul Mackerras <paulus@ozlabs.org>
+
+In e244588eb6 (gitk: replace tabs with spaces, 2020-09-10), tabs were
+replaced with spaces so that indents consistently use spaces. However,
+in 6cd80496e9 (gitk: Resize panes correctly when reducing window size,
+2020-10-03), some tabs were erroneously reintroduced.
+
+Convert these tabs back into spaces.
+
+This was done mechanically by running:
+
+	$ expand -i gitk >gitk.new
+	$ mv gitk.new gitk
+	$ chmod +x gitk
+
+This patch should be empty with `--ignore-all-space`.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ gitk | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/gitk b/gitk
+index 23d9dd1fe0..c31a8b4e2f 100755
+--- a/gitk
++++ b/gitk
+@@ -2955,9 +2955,9 @@ proc savestuff {w} {
+ proc resizeclistpanes {win w} {
+     global oldwidth oldsash use_ttk
+     if {[info exists oldwidth($win)]} {
+-	if {[info exists oldsash($win)]} {
+-	    set s0 [lindex $oldsash($win) 0]
+-	    set s1 [lindex $oldsash($win) 1]
++        if {[info exists oldsash($win)]} {
++            set s0 [lindex $oldsash($win) 0]
++            set s1 [lindex $oldsash($win) 1]
+         } elseif {$use_ttk} {
+             set s0 [$win sashpos 0]
+             set s1 [$win sashpos 1]
+@@ -2992,7 +2992,7 @@ proc resizeclistpanes {win w} {
+             $win sash place 0 $sash0 [lindex $s0 1]
+             $win sash place 1 $sash1 [lindex $s1 1]
+         }
+-	set oldsash($win) [list $sash0 $sash1]
++        set oldsash($win) [list $sash0 $sash1]
+     }
+     set oldwidth($win) $w
+ }
+@@ -3000,8 +3000,8 @@ proc resizeclistpanes {win w} {
+ proc resizecdetpanes {win w} {
+     global oldwidth oldsash use_ttk
+     if {[info exists oldwidth($win)]} {
+-	if {[info exists oldsash($win)]} {
+-	    set s0 $oldsash($win)
++        if {[info exists oldsash($win)]} {
++            set s0 $oldsash($win)
+         } elseif {$use_ttk} {
+             set s0 [$win sashpos 0]
+         } else {
+@@ -3024,7 +3024,7 @@ proc resizecdetpanes {win w} {
+         } else {
+             $win sash place 0 $sash0 [lindex $s0 1]
+         }
+-	set oldsash($win) $sash0
++        set oldsash($win) $sash0
+     }
+     set oldwidth($win) $w
+ }
+-- 
+2.29.2.286.g8a58376a31
+
