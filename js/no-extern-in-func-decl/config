@@ -1,3 +1,0 @@
-[format]
-	outputDirectory = patches/js/no-extern-in-func-decl
-	cc = Johannes Schindelin <johannes.schindelin@gmx.de>
