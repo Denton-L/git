@@ -1,3 +1,0 @@
-[format]
-	outputDirectory = patches/checkout-guess-config
-	cc = Junio C Hamano <gitster@pobox.com>
