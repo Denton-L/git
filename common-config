@@ -30,6 +30,8 @@
 	rewriteRef = refs/notes/commits
 [push]
 	default = matching
+[checkout]
+	guess = false
 [include]
 	path = local-config
 
