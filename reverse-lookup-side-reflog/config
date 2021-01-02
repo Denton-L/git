@@ -1,0 +1,2 @@
+[format]
+	outputDirectory = patches/reverse-lookup-side-reflog
