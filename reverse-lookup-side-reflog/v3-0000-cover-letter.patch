@@ -1,0 +1,105 @@
+From c88c997eab2b3405cce20f719bf07d5bba7aa18e Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1610015769.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1609923643.git.liu.denton@gmail.com>
+References: <cover.1609923643.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Thu, 7 Jan 2021 02:36:09 -0800
+Subject: [PATCH v3 0/2] refs: allow @{n} to work with n-sized reflog
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Martin Ågren <martin.agren@gmail.com>,
+    SZEDER Gábor <szeder.dev@gmail.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+When there is only one reflog entry (perhaps caused by expiring the
+reflog and then making a single commit) @{1} errors out even though
+there is technically enough information to do the lookup. Look at the
+old side of the reflog instead of the new side so that this does not
+fail. This is explained in more detail in the commit of the last patch.
+
+This idea was given by Junio at [0].
+
+[0]: https://lore.kernel.org/git/xmqqzh8zgcfp.fsf@gitster.c.googlers.com/
+
+Changes since v1:
+
+* Factor out set_read_ref_cutoffs()
+
+* Check the output of rev-parse to ensure that the intended commit is
+  returned
+
+Changes since v2:
+
+* Rename at_indexed_ent -> reached_count
+
+* Add an in-code comment to document that cb->cnt can't be 0 in the first
+  iteration of read_ref_at_ent()
+
+* Make test cases use test_cmp_rev() for brevity and better errors
+
+Denton Liu (2):
+  refs: factor out set_read_ref_cutoffs()
+  refs: allow @{n} to work with n-sized reflog
+
+ refs.c                      | 122 +++++++++++++++++++++---------------
+ t/t1503-rev-parse-verify.sh |   4 +-
+ t/t1508-at-combinations.sh  |  12 ++++
+ 3 files changed, 84 insertions(+), 54 deletions(-)
+
+Range-diff against v2:
+1:  8f14ec3997 = 1:  8f14ec3997 refs: factor out set_read_ref_cutoffs()
+2:  18a35506b8 ! 2:  c88c997eab refs: allow @{n} to work with n-sized reflog
+    @@ refs.c: static int read_ref_at_ent(struct object_id *ooid, struct object_id *noi
+      		const char *message, void *cb_data)
+      {
+      	struct read_ref_at_cb *cb = cb_data;
+    -+	int at_indexed_ent;
+    ++	int reached_count;
+      
+      	cb->tz = tz;
+      	cb->date = timestamp;
+      
+     -	if (timestamp <= cb->at_time || cb->cnt == 0) {
+    ++	/*
+    ++	 * It is not possible for cb->cnt == 0 on the first itertion because
+    ++	 * that special case is handled in read_ref_at().
+    ++	 */
+     +	if (cb->cnt > 0)
+     +		cb->cnt--;
+    -+	at_indexed_ent = cb->cnt == 0 && !is_null_oid(ooid);
+    -+	if (timestamp <= cb->at_time || at_indexed_ent) {
+    ++	reached_count = cb->cnt == 0 && !is_null_oid(ooid);
+    ++	if (timestamp <= cb->at_time || reached_count) {
+      		set_read_ref_cutoffs(cb, timestamp, tz, message);
+      		/*
+      		 * we have not yet updated cb->[n|o]oid so they still
+    @@ refs.c: static int read_ref_at_ent(struct object_id *ooid, struct object_id *noi
+      					cb->refname, show_date(cb->date, cb->tz, DATE_MODE(RFC2822)));
+     -		}
+     -		else if (cb->date == cb->at_time)
+    -+		if (at_indexed_ent)
+    ++		if (reached_count)
+     +			oidcpy(cb->oid, ooid);
+     +		else if (!is_null_oid(&cb->ooid) || cb->date == cb->at_time)
+      			oidcpy(cb->oid, noid);
+    @@ t/t1508-at-combinations.sh: test_expect_success 'create path with @' '
+     +	git checkout -B newbranch master &&
+     +	git reflog expire --expire=now refs/heads/newbranch &&
+     +	git commit --allow-empty -m "first after expiration" &&
+    -+	git rev-parse newbranch~ >expect &&
+    -+	git rev-parse newbranch@{1} >actual &&
+    -+	test_cmp expect actual
+    ++	test_cmp_rev newbranch~ newbranch@{1}
+     +'
+     +
+     +test_expect_success '@{0} works with empty reflog' '
+     +	git checkout -B newbranch master &&
+     +	git reflog expire --expire=now refs/heads/newbranch &&
+    -+	git rev-parse newbranch >expect &&
+    -+	git rev-parse newbranch@{0} >actual &&
+    -+	test_cmp expect actual
+    ++	test_cmp_rev newbranch newbranch@{0}
+     +'
+      test_done
+-- 
+2.30.0
+
