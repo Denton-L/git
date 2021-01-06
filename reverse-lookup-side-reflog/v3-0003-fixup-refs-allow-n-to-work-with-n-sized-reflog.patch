@@ -1,0 +1,27 @@
+From 8ce0071bbf8373ed00cccc797f83c4d30d72ae6e Mon Sep 17 00:00:00 2001
+Message-Id: <8ce0071bbf8373ed00cccc797f83c4d30d72ae6e.1610016122.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1609923643.git.liu.denton@gmail.com>
+References: <cover.1609923643.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Thu, 7 Jan 2021 02:40:49 -0800
+Subject: [PATCH v3 3/2] fixup! refs: allow @{n} to work with n-sized reflog
+To: Git Mailing List <git@vger.kernel.org>
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t1508-at-combinations.sh | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/t/t1508-at-combinations.sh b/t/t1508-at-combinations.sh
+index 528a77287c..e4521b7b97 100755
+--- a/t/t1508-at-combinations.sh
++++ b/t/t1508-at-combinations.sh
+@@ -111,4 +111,5 @@ test_expect_success '@{0} works with empty reflog' '
+ 	git reflog expire --expire=now refs/heads/newbranch &&
+ 	test_cmp_rev newbranch newbranch@{0}
+ '
++
+ test_done
+-- 
+2.30.0
+
