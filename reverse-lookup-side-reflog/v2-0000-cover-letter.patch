@@ -1,0 +1,134 @@
+From 18a35506b87356c1ae844d2686b2be6bd04567b2 Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1609923643.git.liu.denton@gmail.com>
+In-Reply-To: <0c6885f15f5ce0be28142d9c69724362e72481a9.1609551262.git.liu.denton@gmail.com>
+References: <0c6885f15f5ce0be28142d9c69724362e72481a9.1609551262.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 6 Jan 2021 01:00:43 -0800
+Subject: [PATCH v2 0/2] refs: allow @{n} to work with n-sized reflog
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Martin Ågren <martin.agren@gmail.com>,
+    SZEDER Gábor <szeder.dev@gmail.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+When there is only one reflog entry (perhaps caused by expiring the
+reflog and then making a single commit) @{1} errors out even though
+there is technically enough information to do the lookup. Look at the
+old side of the reflog instead of the new side so that this does not
+fail. This is explained in more detail in the commit of the last patch.
+
+This idea was given by Junio at [0].
+
+[0]: https://lore.kernel.org/git/xmqqzh8zgcfp.fsf@gitster.c.googlers.com/
+
+Changes since v1:
+
+* Factor out set_read_ref_cutoffs()
+
+* Check the output of rev-parse to ensure that the intended commit is
+  returned
+
+Denton Liu (2):
+  refs: factor out set_read_ref_cutoffs()
+  refs: allow @{n} to work with n-sized reflog
+
+ refs.c                      | 118 ++++++++++++++++++++----------------
+ t/t1503-rev-parse-verify.sh |   4 +-
+ t/t1508-at-combinations.sh  |  16 +++++
+ 3 files changed, 84 insertions(+), 54 deletions(-)
+
+Range-diff against v1:
+-:  ---------- > 1:  8f14ec3997 refs: factor out set_read_ref_cutoffs()
+1:  0c6885f15f ! 2:  18a35506b8 refs: allow @{n} to work with n-sized reflog
+    @@ refs.c: static int read_ref_at_ent(struct object_id *ooid, struct object_id *noi
+      	struct read_ref_at_cb *cb = cb_data;
+     +	int at_indexed_ent;
+      
+    - 	cb->reccnt++;
+      	cb->tz = tz;
+      	cb->date = timestamp;
+      
+    @@ refs.c: static int read_ref_at_ent(struct object_id *ooid, struct object_id *noi
+     +		cb->cnt--;
+     +	at_indexed_ent = cb->cnt == 0 && !is_null_oid(ooid);
+     +	if (timestamp <= cb->at_time || at_indexed_ent) {
+    - 		if (cb->msg)
+    - 			*cb->msg = xstrdup(message);
+    - 		if (cb->cutoff_time)
+    -@@ refs.c: static int read_ref_at_ent(struct object_id *ooid, struct object_id *noid,
+    + 		set_read_ref_cutoffs(cb, timestamp, tz, message);
+    + 		/*
+      		 * we have not yet updated cb->[n|o]oid so they still
+      		 * hold the values for the previous record.
+      		 */
+    @@ refs.c: static int read_ref_at_ent(struct object_id *ooid, struct object_id *noi
+      			warning(_("log for ref %s unexpectedly ended on %s"),
+      				cb->refname, show_date(cb->date, cb->tz,
+      						       DATE_MODE(RFC2822)));
+    +-		cb->reccnt++;
+     -		oidcpy(&cb->ooid, ooid);
+     -		oidcpy(&cb->noid, noid);
+      		cb->found_it = 1;
+     -		return 1;
+      	}
+    + 	cb->reccnt++;
+      	oidcpy(&cb->ooid, ooid);
+      	oidcpy(&cb->noid, noid);
+     -	if (cb->cnt > 0)
+    @@ refs.c: static int read_ref_at_ent(struct object_id *ooid, struct object_id *noi
+     +{
+     +	struct read_ref_at_cb *cb = cb_data;
+     +
+    -+	if (cb->msg)
+    -+		*cb->msg = xstrdup(message);
+    -+	if (cb->cutoff_time)
+    -+		*cb->cutoff_time = timestamp;
+    -+	if (cb->cutoff_tz)
+    -+		*cb->cutoff_tz = tz;
+    -+	if (cb->cutoff_cnt)
+    -+		*cb->cutoff_cnt = cb->reccnt;
+    ++	set_read_ref_cutoffs(cb, timestamp, tz, message);
+     +	oidcpy(cb->oid, noid);
+     +	/* We just want the first entry */
+     +	return 1;
+    @@ t/t1503-rev-parse-verify.sh: test_expect_success 'fails silently when using -q'
+      	test_must_be_empty error
+      '
+      
+    -@@ t/t1503-rev-parse-verify.sh: test_expect_success 'master@{n} for various n' '
+    - 	test_must_fail git rev-parse --verify master@{$Np1}
+    - '
+    +
+    + ## t/t1508-at-combinations.sh ##
+    +@@ t/t1508-at-combinations.sh: test_expect_success 'create path with @' '
+    + check "@:normal" blob content
+    + check "@:fun@ny" blob content
+      
+     +test_expect_success '@{1} works with only one reflog entry' '
+    -+	git checkout -B newbranch &&
+    ++	git checkout -B newbranch master &&
+     +	git reflog expire --expire=now refs/heads/newbranch &&
+    -+	git commit --allow-empty -mexpired &&
+    -+	git rev-parse --verify newbranch@{1}
+    ++	git commit --allow-empty -m "first after expiration" &&
+    ++	git rev-parse newbranch~ >expect &&
+    ++	git rev-parse newbranch@{1} >actual &&
+    ++	test_cmp expect actual
+     +'
+     +
+     +test_expect_success '@{0} works with empty reflog' '
+    -+	git checkout -B newbranch &&
+    ++	git checkout -B newbranch master &&
+     +	git reflog expire --expire=now refs/heads/newbranch &&
+    -+	git rev-parse --verify newbranch@{0}
+    ++	git rev-parse newbranch >expect &&
+    ++	git rev-parse newbranch@{0} >actual &&
+    ++	test_cmp expect actual
+     +'
+    -+
+    - test_expect_success SYMLINKS 'ref resolution not confused by broken symlinks' '
+    - 	ln -s does-not-exist .git/refs/heads/broken &&
+    - 	test_must_fail git rev-parse --verify broken
+    + test_done
+-- 
+2.30.0
+

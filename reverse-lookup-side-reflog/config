@@ -1,2 +1,5 @@
 [format]
 	outputDirectory = patches/reverse-lookup-side-reflog
+	cc = "Martin Ågren" <martin.agren@gmail.com>
+	cc = "SZEDER Gábor" <szeder.dev@gmail.com>
+	cc = Junio C Hamano <gitster@pobox.com>
