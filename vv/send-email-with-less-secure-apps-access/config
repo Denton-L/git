@@ -1,0 +1,5 @@
+[format]
+	outputDirectory = patches/vv/send-email-with-less-secure-apps-access
+	cc = Vasyl Vavrychuk <vvavrychuk@gmail.com>
+	cc = Eric Sunshine <sunshine@sunshineco.com>
+	cc = Junio C Hamano <gitster@pobox.com>
