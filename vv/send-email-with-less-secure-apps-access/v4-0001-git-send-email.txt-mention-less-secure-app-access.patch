@@ -1,0 +1,74 @@
+From 4303fab303fb59b67b8fda036256ae61a528dfc1 Mon Sep 17 00:00:00 2001
+Message-Id: <4303fab303fb59b67b8fda036256ae61a528dfc1.1610079311.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Sat, 29 Aug 2020 18:39:20 +0300
+Subject: [PATCH v4] git-send-email.txt: mention less secure app access with
+ Gmail
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Vasyl Vavrychuk <vvavrychuk@gmail.com>,
+    Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+From: Vasyl Vavrychuk <vvavrychuk@gmail.com>
+
+Google may have changed Gmail security and now less secure app access
+needs to be explicitly enabled if two-factor authentication is not in
+place, otherwise send-email fails with:
+
+	5.7.8 Username and Password not accepted. Learn more at
+	5.7.8  https://support.google.com/mail/?p=BadCredentials
+
+Document steps required to make this work.
+
+Signed-off-by: Vasyl Vavrychuk <vvavrychuk@gmail.com>
+Signed-off-by: Junio C Hamano <gitster@pobox.com>
+[dl: Clean up commit message and incorporate suggestions into patch.]
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+Range-diff against v3:
+1:  274475559a ! 1:  4303fab303 git-send-email.txt: mention less secure app access with Gmail
+    @@
+      ## Metadata ##
+    -Author: Denton Liu <liu.denton@gmail.com>
+    +Author: Vasyl Vavrychuk <vvavrychuk@gmail.com>
+     
+      ## Commit message ##
+         git-send-email.txt: mention less secure app access with Gmail
+    @@ Commit message
+     
+         Document steps required to make this work.
+     
+    -    Original-patch-by: Vasyl Vavrychuk <vvavrychuk@gmail.com>
+    +    Signed-off-by: Vasyl Vavrychuk <vvavrychuk@gmail.com>
+    +    Signed-off-by: Junio C Hamano <gitster@pobox.com>
+    +    [dl: Clean up commit message and incorporate suggestions into patch.]
+     
+      ## Documentation/git-send-email.txt ##
+     @@ Documentation/git-send-email.txt: edit ~/.gitconfig to specify your account settings:
+
+ Documentation/git-send-email.txt | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/git-send-email.txt b/Documentation/git-send-email.txt
+index 0a69810147..0db0783f2f 100644
+--- a/Documentation/git-send-email.txt
++++ b/Documentation/git-send-email.txt
+@@ -494,10 +494,14 @@ edit ~/.gitconfig to specify your account settings:
+ 	smtpServerPort = 587
+ ----
+ 
+-If you have multifactor authentication setup on your gmail account, you will
++If you have multi-factor authentication set up on your Gmail account, you will
+ need to generate an app-specific password for use with 'git send-email'. Visit
+ https://security.google.com/settings/security/apppasswords to create it.
+ 
++If you do not have multi-factor authentication set up on your Gmail account,
++you will need to allow less secure app access. Visit
++https://myaccount.google.com/lesssecureapps to enable it.
++
+ Once your commits are ready to be sent to the mailing list, run the
+ following commands:
+ 
+-- 
+2.30.0.284.gd98b1dd5ea
+
