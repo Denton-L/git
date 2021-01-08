@@ -75,7 +75,7 @@ next)
 		die "no version number given"
 	fi
 
-	next_version=$(($version + 1))
+	next_version=$((version + 1))
 	next_branch="$name/v$next_version"
 	git branch "$next_branch"
 	git config --get-regexp --name-only 'branch\.'"$name/v$version"'\..*' | while read key
@@ -121,7 +121,7 @@ format-patch)
 
 	if test "$version" -gt 1
 	then
-		prev_version=$(($version - 1))
+		prev_version=$((version - 1))
 		reroll_count="--reroll-count=$version"
 		range_diff="--range-diff=$base..$name/v$prev_version"
 	fi
