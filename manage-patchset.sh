@@ -90,12 +90,12 @@ format-patch)
 	fi
 
 	base=
-	reply_to=
+	in_reply_to=
 	while test $# != 0
 	do
 		case "$1" in
 			--in-reply-to)
-				reply_to="$2"
+				in_reply_to="$2"
 				shift
 				;;
 			--*)
@@ -122,17 +122,13 @@ format-patch)
 	if test "$version" -gt 1
 	then
 		prev_version=$((version - 1))
-		reroll_count="--reroll-count=$version"
-		range_diff="--range-diff=$base..$name/v$prev_version"
-	fi
-	if test -n "$reply_to"
-	then
-		in_reply_to=--in-reply-to="$reply_to"
+		reroll_count="$version"
+		range_diff="$base..$name/v$prev_version"
 	fi
 
 	git -c "include.path=$PWD/$outdir/config" format-patch \
 		--output-directory="$outdir" \
-		${reroll_count:+"$reroll_count"} ${range_diff:+"$range_diff"} ${in_reply_to:+"$in_reply_to"} "$base"
+		${reroll_count:+--reroll-count "$reroll_count"} ${range_diff:+--range-diff "$range_diff"} ${in_reply_to:+--in-reply-to "$in_reply_to"} "$base"
 
 	git config --get-regexp --name-only 'branch\.'"$name"'/.*' | while read key
 		do
