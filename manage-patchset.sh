@@ -60,9 +60,11 @@ case "$subcommand" in
 create)
 	mkdir -p "$outdir"
 	git config --file="$outdir/config" format.outputDirectory "patches/$name"
+	git config --file="$patchdir/common-config" "includeIf.onbranch:$name/.path" "$name/config"
 	;;
 remove)
 	rm -r "$outdir"
+	git config --file="$patchdir/common-config" --unset "includeIf.onbranch:$name/.path"
 	git config --get-regexp --name-only 'branch\.'"$name"'/.*' | while read key
 		do
 			git config --file="$patchdir/common-config" --unset "$key"
@@ -115,10 +117,15 @@ format-patch)
 	base="$1"
 	shift
 
+	include_path=
 	reroll_count=
 	range_diff=
 	in_reply_to=
 
+	if ! git config format.outputDirectory >/dev/null
+	then
+		include_path="include.path=$PWD/$outdir/config"
+	fi
 	if test "$version" -gt 1
 	then
 		prev_version=$((version - 1))
@@ -126,7 +133,7 @@ format-patch)
 		range_diff="$base..$name/v$prev_version"
 	fi
 
-	git -c "include.path=$PWD/$outdir/config" format-patch \
+	git ${include_path:+-c "$include_path"} format-patch \
 		--output-directory="$outdir" \
 		${reroll_count:+--reroll-count "$reroll_count"} ${range_diff:+--range-diff "$range_diff"} ${in_reply_to:+--in-reply-to "$in_reply_to"} "$base"
 

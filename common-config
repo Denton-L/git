@@ -43,3 +43,23 @@
 	description = refs: allow @{n} to work with n-sized reflog\n\nWhen there is only one reflog entry (perhaps caused by expiring the\nreflog and then making a single commit) @{1} errors out even though\nthere is technically enough information to do the lookup. Look at the\nold side of the reflog instead of the new side so that this does not\nfail. This is explained in more detail in the commit of the last patch.\n\nThis idea was given by Junio at [0].\n\n[0]: https://lore.kernel.org/git/xmqqzh8zgcfp.fsf@gitster.c.googlers.com/\n\nChanges since v1:\n\n* Factor out set_read_ref_cutoffs()\n\n* Check the output of rev-parse to ensure that the intended commit is\n  returned
 [branch "reverse-lookup-side-reflog/v3"]
 	description = refs: allow @{n} to work with n-sized reflog\n\nWhen there is only one reflog entry (perhaps caused by expiring the\nreflog and then making a single commit) @{1} errors out even though\nthere is technically enough information to do the lookup. Look at the\nold side of the reflog instead of the new side so that this does not\nfail. This is explained in more detail in the commit of the last patch.\n\nThis idea was given by Junio at [0].\n\n[0]: https://lore.kernel.org/git/xmqqzh8zgcfp.fsf@gitster.c.googlers.com/\n\nChanges since v1:\n\n* Factor out set_read_ref_cutoffs()\n\n* Check the output of rev-parse to ensure that the intended commit is\n  returned\n\nChanges since v2:\n\n* Rename at_indexed_ent -> reached_count\n\n* Add an in-code comment to document that cb->cnt can't be 0 in the first\n  iteration of read_ref_at_ent()\n\n* Make test cases use test_cmp_rev() for brevity and better errors
+[includeIf "onbranch:refactor-4/"]
+	path = refactor-4/config
+[includeIf "onbranch:sort-makefile/"]
+	path = sort-makefile/config
+[includeIf "onbranch:gitk-whitespace/"]
+	path = gitk-whitespace/config
+[includeIf "onbranch:format-output-relative-gitdir/"]
+	path = format-output-relative-gitdir/config
+[includeIf "onbranch:reverse-lookup-side-reflog/"]
+	path = reverse-lookup-side-reflog/config
+[includeIf "onbranch:better-apply-error/"]
+	path = better-apply-error/config
+[includeIf "onbranch:vv/send-email-with-less-secure-apps-access/"]
+	path = vv/send-email-with-less-secure-apps-access/config
+[includeIf "onbranch:branch-specific-format-patch/"]
+	path = branch-specific-format-patch/config
+[includeIf "onbranch:externcheck/"]
+	path = externcheck/config
+[includeIf "onbranch:fix-warnings/"]
+	path = fix-warnings/config
