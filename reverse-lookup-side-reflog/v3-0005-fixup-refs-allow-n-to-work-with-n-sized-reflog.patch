@@ -1,0 +1,34 @@
+From d51c9ccca7c58524d5c735c596c142583029a36c Mon Sep 17 00:00:00 2001
+Message-Id: <d51c9ccca7c58524d5c735c596c142583029a36c.1610432037.git.liu.denton@gmail.com>
+In-Reply-To: <X/tkFuESnia/n35e@ruderich.org>
+References: <X/tkFuESnia/n35e@ruderich.org>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 11 Jan 2021 22:10:57 -0800
+Subject: [PATCH v3] fixup! refs: allow @{n} to work with n-sized reflog
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Martin Ågren <martin.agren@gmail.com>,
+    SZEDER Gábor <szeder.dev@gmail.com>,
+    Junio C Hamano <gitster@pobox.com>,
+    Simon Ruderich <simon@ruderich.org>
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ refs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/refs.c b/refs.c
+index e70dcd33f7..03968ad787 100644
+--- a/refs.c
++++ b/refs.c
+@@ -906,7 +906,7 @@ static int read_ref_at_ent(struct object_id *ooid, struct object_id *noid,
+ 	cb->date = timestamp;
+ 
+ 	/*
+-	 * It is not possible for cb->cnt == 0 on the first itertion because
++	 * It is not possible for cb->cnt == 0 on the first iteration because
+ 	 * that special case is handled in read_ref_at().
+ 	 */
+ 	if (cb->cnt > 0)
+-- 
+2.30.0.284.gd98b1dd5ea
+
