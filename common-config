@@ -55,8 +55,6 @@
 	path = reverse-lookup-side-reflog/config
 [includeIf "onbranch:better-apply-error/"]
 	path = better-apply-error/config
-[includeIf "onbranch:vv/send-email-with-less-secure-apps-access/"]
-	path = vv/send-email-with-less-secure-apps-access/config
 [includeIf "onbranch:branch-specific-format-patch/"]
 	path = branch-specific-format-patch/config
 [includeIf "onbranch:externcheck/"]
