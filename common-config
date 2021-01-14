@@ -55,3 +55,9 @@
 	path = externcheck/config
 [includeIf "onbranch:fix-warnings/"]
 	path = fix-warnings/config
+[includeIf "onbranch:ab/mailmap/"]
+	path = ab/mailmap/config
+[branch "ab/mailmap/v1"]
+	remote = upstream
+	merge = refs/heads/ab/mailmap
+	description = mailmap: test cleanup\n\nA couple of small test cleanups that can be applied on top of\n'ab/mailmap'.
