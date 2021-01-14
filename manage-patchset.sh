@@ -120,7 +120,6 @@ format-patch)
 	include_path=
 	reroll_count=
 	range_diff=
-	in_reply_to=
 
 	if ! git config format.outputDirectory >/dev/null
 	then
