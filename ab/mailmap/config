@@ -1,7 +1,0 @@
-[format]
-	outputDirectory = patches/ab/mailmap
-	cc = "Junio C Hamano" <gitster@pobox.com>
-	cc = "Johannes Sixt" <j6t@kdbg.org>
-	cc = "Johannes Schindelin" <Johannes.Schindelin@gmx.de>
-	cc = "brian m . carlson" <sandals@crustytoothpaste.net>
-	cc = "Ævar Arnfjörð Bjarmason" <avarab@gmail.com>
