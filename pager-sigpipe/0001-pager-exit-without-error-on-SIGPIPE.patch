@@ -22,6 +22,8 @@ output. Without the change to pager.c, the newly introduced test fails.
 Reported-by: Vincent Lefevre <vincent@vinc17.net>
 Signed-off-by: Denton Liu <liu.denton@gmail.com>
 ---
+Sorry for the resend, it seems like vger has dropped the first patch.
+
  Makefile              |  1 +
  pager.c               |  2 ++
  t/helper/test-pager.c | 12 ++++++++++++
