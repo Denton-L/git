@@ -55,3 +55,8 @@
 	path = externcheck/config
 [includeIf "onbranch:fix-warnings/"]
 	path = fix-warnings/config
+[includeIf "onbranch:pager-sigpipe/"]
+	path = pager-sigpipe/config
+[branch "pager-sigpipe/v1"]
+	remote = upstream
+	merge = refs/heads/master
