@@ -1,0 +1,39 @@
+From 2c5d5d9dd47f1c6ba49312204d155d404d5fdc4f Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1612258145.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 2 Feb 2021 01:29:05 -0800
+Subject: [PATCH 0/9] stash show: learn --include-untracked and
+ --only-untracked
+To: Git Mailing List <git@vger.kernel.org>
+
+A blindspot that I've noticed in git is that it's not possible to
+properly view a stash entry that has untracked files via `git stash
+show`. Teach `git stash show --include-untracked` which should do this.
+In addition, this series also teaches `--only-untracked` and the
+`stash.showIncludeUntracked` config option.
+
+The first seven patches of this series are just some clean up that I've
+done prior to working (because it bothers me). The remaining two patches
+should be the meat of the change.
+
+Denton Liu (9):
+  git-stash.txt: be explicit about subcommand options
+  t3905: remove spaces after redirect operators
+  t3905: move all commands into test cases
+  t3905: remove nested git in command substitution
+  t3905: replace test -s with test_file_not_empty
+  t3905: use test_cmp() to check file contents
+  stash: declare ref_stash as an array
+  stash show: teach --include-tracked and --only-untracked
+  stash show: learn stash.showIncludeUntracked
+
+ Documentation/config/stash.txt         |   5 +
+ Documentation/git-stash.txt            |  22 +-
+ builtin/stash.c                        |  30 ++-
+ contrib/completion/git-completion.bash |   2 +-
+ t/t3905-stash-include-untracked.sh     | 278 +++++++++++++++++--------
+ 5 files changed, 235 insertions(+), 102 deletions(-)
+
+-- 
+2.30.0.478.g8a0d178c01
+

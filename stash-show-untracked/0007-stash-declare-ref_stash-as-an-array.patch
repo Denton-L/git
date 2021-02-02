@@ -1,0 +1,33 @@
+From b5f22de3fc320d23ba2c5342776b56770266ca5f Mon Sep 17 00:00:00 2001
+Message-Id: <b5f22de3fc320d23ba2c5342776b56770266ca5f.1612258145.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1612258145.git.liu.denton@gmail.com>
+References: <cover.1612258145.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 26 Jan 2021 16:39:58 -0800
+Subject: [PATCH 7/9] stash: declare ref_stash as an array
+To: Git Mailing List <git@vger.kernel.org>
+
+Save sizeof(const char *) bytes by declaring ref_stash as an array
+instead of having a redundant pointer to an array.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ builtin/stash.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/builtin/stash.c b/builtin/stash.c
+index 9bc85f91cd..6f2b58f6ab 100644
+--- a/builtin/stash.c
++++ b/builtin/stash.c
+@@ -87,7 +87,7 @@ static const char * const git_stash_save_usage[] = {
+ 	NULL
+ };
+ 
+-static const char *ref_stash = "refs/stash";
++static const char ref_stash[] = "refs/stash";
+ static struct strbuf stash_index_path = STRBUF_INIT;
+ 
+ /*
+-- 
+2.30.0.478.g8a0d178c01
+

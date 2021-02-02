@@ -1,0 +1,103 @@
+From 2c5d5d9dd47f1c6ba49312204d155d404d5fdc4f Mon Sep 17 00:00:00 2001
+Message-Id: <2c5d5d9dd47f1c6ba49312204d155d404d5fdc4f.1612258145.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1612258145.git.liu.denton@gmail.com>
+References: <cover.1612258145.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 26 Jan 2021 21:44:32 -0800
+Subject: [PATCH 9/9] stash show: learn stash.showIncludeUntracked
+To: Git Mailing List <git@vger.kernel.org>
+
+The previous commit teaches `git stash show --include-untracked`. It
+may be desirable for a user to be able to always enable the
+--include-untracked behavior. Teach the stash.showIncludeUntracked
+config option which allows users to do this in a similar manner to
+stash.showPatch.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Documentation/config/stash.txt     | 5 +++++
+ Documentation/git-stash.txt        | 4 ++--
+ builtin/stash.c                    | 8 ++++++++
+ t/t3905-stash-include-untracked.sh | 2 ++
+ 4 files changed, 17 insertions(+), 2 deletions(-)
+
+diff --git a/Documentation/config/stash.txt b/Documentation/config/stash.txt
+index 00eb35434e..413f907cba 100644
+--- a/Documentation/config/stash.txt
++++ b/Documentation/config/stash.txt
+@@ -5,6 +5,11 @@ stash.useBuiltin::
+ 	is always used. Setting this will emit a warning, to alert any
+ 	remaining users that setting this now does nothing.
+ 
++stash.showIncludeUntracked::
++	If this is set to true, the `git stash show` command without an
++	option will show the untracked files of a stash entry.  Defaults to
++	false. See description of 'show' command in linkgit:git-stash[1].
++
+ stash.showPatch::
+ 	If this is set to true, the `git stash show` command without an
+ 	option will show the stash entry in patch form.  Defaults to false.
+diff --git a/Documentation/git-stash.txt b/Documentation/git-stash.txt
+index a9956e5c51..e18c1deb97 100644
+--- a/Documentation/git-stash.txt
++++ b/Documentation/git-stash.txt
+@@ -91,8 +91,8 @@ show [-u|--include-untracked|--only-untracked] [<diff options>] [<stash>]::
+ 	By default, the command shows the diffstat, but it will accept any
+ 	format known to 'git diff' (e.g., `git stash show -p stash@{1}`
+ 	to view the second most recent entry in patch form).
+-	You can use stash.showStat and/or stash.showPatch config variables
+-	to change the default behavior.
++	You can use stash.showIncludeUntracked, stash.showStat, and
++	stash.showPatch config variables to change the default behavior.
+ 
+ pop [--index] [-q|--quiet] [<stash>]::
+ 
+diff --git a/builtin/stash.c b/builtin/stash.c
+index 7a8770676b..784fb518be 100644
+--- a/builtin/stash.c
++++ b/builtin/stash.c
+@@ -768,6 +768,7 @@ static int list_stash(int argc, const char **argv, const char *prefix)
+ 
+ static int show_stat = 1;
+ static int show_patch;
++static int show_include_untracked;
+ static int use_legacy_stash;
+ 
+ static int git_stash_config(const char *var, const char *value, void *cb)
+@@ -780,6 +781,10 @@ static int git_stash_config(const char *var, const char *value, void *cb)
+ 		show_patch = git_config_bool(var, value);
+ 		return 0;
+ 	}
++	if (!strcmp(var, "stash.showincludeuntracked")) {
++		show_include_untracked = git_config_bool(var, value);
++		return 0;
++	}
+ 	if (!strcmp(var, "stash.usebuiltin")) {
+ 		use_legacy_stash = !git_config_bool(var, value);
+ 		return 0;
+@@ -842,6 +847,9 @@ static int show_stash(int argc, const char **argv, const char *prefix)
+ 		if (show_patch)
+ 			rev.diffopt.output_format |= DIFF_FORMAT_PATCH;
+ 
++		if (show_include_untracked)
++			show_untracked = UNTRACKED_INCLUDE;
++
+ 		if (!show_stat && !show_patch) {
+ 			free_stash_info(&info);
+ 			return 0;
+diff --git a/t/t3905-stash-include-untracked.sh b/t/t3905-stash-include-untracked.sh
+index 978bc97baf..8bcd4c5ca8 100755
+--- a/t/t3905-stash-include-untracked.sh
++++ b/t/t3905-stash-include-untracked.sh
+@@ -318,6 +318,8 @@ test_expect_success 'stash show --include-untracked shows untracked files' '
+ 	test_cmp expect actual &&
+ 	git stash show --only-untracked --include-untracked >actual &&
+ 	test_cmp expect actual &&
++	git -c stash.showIncludeUntracked=true stash show >actual &&
++	test_cmp expect actual &&
+ 
+ 	cat >expect <<-EOF &&
+ 	diff --git a/tracked b/tracked
+-- 
+2.30.0.478.g8a0d178c01
+
