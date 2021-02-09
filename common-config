@@ -62,3 +62,7 @@
 	merge = refs/heads/master
 [branch "stash-show-untracked/v1"]
 	description = stash show: learn --include-untracked and --only-untracked\n\nA blindspot that I've noticed in git is that it's not possible to\nproperly view a stash entry that has untracked files via `git stash\nshow`. Teach `git stash show --include-untracked` which should do this.\nIn addition, this series also teaches `--only-untracked` and the\n`stash.showIncludeUntracked` config option.\n\nThe first seven patches of this series are just some clean up that I've\ndone prior to working (because it bothers me). The remaining two patches\nshould be the meat of the change.
+[branch "stash-show-untracked/v2"]
+	description = stash show: learn --include-untracked and --only-untracked\n\nA blindspot that I've noticed in git is that it's not possible to\nproperly view a stash entry that has untracked files via `git stash\nshow`. Teach `git stash show --include-untracked` which should do this.\nIn addition, this series also teaches `--only-untracked` and the\n`stash.showIncludeUntracked` config option.\n\nThe first seven patches of this series are just some clean up that I've\ndone prior to working (because it bothers me). The remaining two patches\nshould be the meat of the change.\n\nChanges since v1:\n\n* Add a dash for <log-options> and <diff-options>\n\n* Fix the misspelling of --include-untracked in a commit message\n\n* Change the approach from concatenating diffs to using `git read-tree`
+[includeIf "onbranch:stash-show-untracked/"]
+	path = stash-show-untracked/config
