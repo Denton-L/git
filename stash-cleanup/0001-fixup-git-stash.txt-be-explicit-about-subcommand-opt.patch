@@ -1,0 +1,34 @@
+From 54f6fe119c61517d92a0aa43921ef9c1a52bb080 Mon Sep 17 00:00:00 2001
+Message-Id: <54f6fe119c61517d92a0aa43921ef9c1a52bb080.1613070418.git.liu.denton@gmail.com>
+In-Reply-To: <xmqqv9b04cil.fsf@gitster.c.googlers.com>
+References: <xmqqv9b04cil.fsf@gitster.c.googlers.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Thu, 11 Feb 2021 11:04:06 -0800
+Subject: [PATCH] fixup! git-stash.txt: be explicit about subcommand options
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>,
+    Eric Sunshine <sunshine@sunshineco.com>
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Documentation/git-stash.txt | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Documentation/git-stash.txt b/Documentation/git-stash.txt
+index 04e55eb826..f1197d641b 100644
+--- a/Documentation/git-stash.txt
++++ b/Documentation/git-stash.txt
+@@ -8,8 +8,8 @@ git-stash - Stash the changes in a dirty working directory away
+ SYNOPSIS
+ --------
+ [verse]
+-'git stash' list [<options>]
+-'git stash' show [<options>] [<stash>]
++'git stash' list [<log-options>]
++'git stash' show [<diff-options>] [<stash>]
+ 'git stash' drop [-q|--quiet] [<stash>]
+ 'git stash' ( pop | apply ) [--index] [-q|--quiet] [<stash>]
+ 'git stash' branch <branchname> [<stash>]
+-- 
+2.30.0.478.g8a0d178c01
+

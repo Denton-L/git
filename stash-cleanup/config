@@ -1,0 +1,4 @@
+[format]
+	outputDirectory = patches/stash-cleanup
+	cc = Junio C Hamano <gitster@pobox.com>
+	cc = Eric Sunshine <sunshine@sunshineco.com>
