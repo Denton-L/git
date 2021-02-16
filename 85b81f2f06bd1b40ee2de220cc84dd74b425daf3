@@ -1,0 +1,4 @@
+I am not familiar with the read-tree code so this is my attempt at
+replacing the call to git read-tree with native function calls.
+
+I could not figure out how to deal with the case where TODO
