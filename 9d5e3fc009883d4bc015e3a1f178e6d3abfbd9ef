@@ -1,0 +1,7 @@
+I am not familiar with the read-tree code so this attempt at replicating
+the read-tree code may in diff_include_untracked() may be incorrect
+(particularly the use of the_index?).
+
+Also, I could not figure out how to make unpack_trees() error out in the
+case where untracked tree entry contains duplicate entries with the
+worktree entry.
