@@ -1,0 +1,112 @@
+From 1ab7ca7fc0928b40c47b53d97695ae911ba93c39 Mon Sep 17 00:00:00 2001
+Message-Id: <1ab7ca7fc0928b40c47b53d97695ae911ba93c39.1614062288.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1614062288.git.liu.denton@gmail.com>
+References: <cover.1614062288.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 22 Feb 2021 22:28:35 -0800
+Subject: [PATCH 2/3] git-cat-file.txt: monospace args and placeholders
+To: Git Mailing List <git@vger.kernel.org>
+
+In modern documentation, args and placeholders are monospaced. Format
+all remaining args and placeholders as monospace.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Documentation/git-cat-file.txt | 42 +++++++++++++++++-----------------
+ 1 file changed, 21 insertions(+), 21 deletions(-)
+
+diff --git a/Documentation/git-cat-file.txt b/Documentation/git-cat-file.txt
+index 8e192d87db..987d170506 100644
+--- a/Documentation/git-cat-file.txt
++++ b/Documentation/git-cat-file.txt
+@@ -35,42 +35,42 @@ OPTIONS
+ 
+ -t::
+ 	Instead of the content, show the object type identified by
+-	<object>.
++	`<object>`.
+ 
+ -s::
+ 	Instead of the content, show the object size identified by
+-	<object>.
++	`<object>`.
+ 
+ -e::
+-	Exit with zero status if <object> exists and is a valid
+-	object. If <object> is of an invalid format exit with non-zero and
++	Exit with zero status if `<object>` exists and is a valid
++	object. If `<object>` is of an invalid format exit with non-zero and
+ 	emits an error on stderr.
+ 
+ -p::
+-	Pretty-print the contents of <object> based on its type.
++	Pretty-print the contents of `<object>` based on its type.
+ 
+ <type>::
+-	Typically this matches the real type of <object> but asking
++	Typically this matches the real type of `<object>` but asking
+ 	for a type that can trivially be dereferenced from the given
+-	<object> is also permitted.  An example is to ask for a
+-	"tree" with <object> being a commit object that contains it,
+-	or to ask for a "blob" with <object> being a tag object that
++	`<object>` is also permitted.  An example is to ask for a
++	"tree" with `<object>` being a commit object that contains it,
++	or to ask for a "blob" with `<object>` being a tag object that
+ 	points at it.
+ 
+ --textconv::
+ 	Show the content as transformed by a textconv filter. In this case,
+-	<object> has to be of the form <tree-ish>:<path>, or :<path> in
++	`<object>` has to be of the form `<tree-ish>:<path>`, or `:<path>` in
+ 	order to apply the filter to the content recorded in the index at
+-	<path>.
++	`<path>`.
+ 
+ --filters::
+ 	Show the content as converted by the filters configured in
+-	the current working tree for the given <path> (i.e. smudge filters,
+-	end-of-line conversion, etc). In this case, <object> has to be of
+-	the form <tree-ish>:<path>, or :<path>.
++	the current working tree for the given `<path>` (i.e. smudge filters,
++	end-of-line conversion, etc). In this case, `<object>` has to be of
++	the form `<tree-ish>:<path>`, or `:<path>`.
+ 
+ --path=<path>::
+-	For use with --textconv or --filters, to allow specifying an object
++	For use with `--textconv` or `--filters`, to allow specifying an object
+ 	name and a path separately, e.g. when it is difficult to figure out
+ 	the revision from which the blob came.
+ 
+@@ -115,7 +115,7 @@ OPTIONS
+ 	repository.
+ 
+ --allow-unknown-type::
+-	Allow -s or -t to query broken/corrupt objects of unknown type.
++	Allow `-s` or `-t` to query broken/corrupt objects of unknown type.
+ 
+ --follow-symlinks::
+ 	With --batch or --batch-check, follow symlinks inside the
+@@ -175,15 +175,15 @@ respectively print:
+ 
+ OUTPUT
+ ------
+-If `-t` is specified, one of the <type>.
++If `-t` is specified, one of the `<type>`.
+ 
+-If `-s` is specified, the size of the <object> in bytes.
++If `-s` is specified, the size of the `<object>` in bytes.
+ 
+-If `-e` is specified, no output, unless the <object> is malformed.
++If `-e` is specified, no output, unless the `<object>` is malformed.
+ 
+-If `-p` is specified, the contents of <object> are pretty-printed.
++If `-p` is specified, the contents of `<object>` are pretty-printed.
+ 
+-If <type> is specified, the raw (though uncompressed) contents of the <object>
++If `<type>` is specified, the raw (though uncompressed) contents of the `<object>`
+ will be returned.
+ 
+ BATCH OUTPUT
+-- 
+2.30.0.478.g8a0d178c01
+
