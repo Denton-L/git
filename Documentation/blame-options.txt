@@ -1,6 +1,6 @@
 -b::
 	Show blank SHA-1 for boundary commits.  This can also
-	be controlled via the `blame.blankboundary` config option.
+	be controlled via the `blame.blankBoundary` config option.
 
 --root::
 	Do not treat root commits as boundaries.  This can also be
@@ -72,8 +72,8 @@ include::line-range-format.txt[]
 
 --date <format>::
 	Specifies the format used to output dates. If --date is not
-	provided, the value of the blame.date config variable is
-	used. If the blame.date config variable is also not set, the
+	provided, the value of the `blame.date` config variable is
+	used. If the `blame.date` config variable is also not set, the
 	iso format is used. For supported values, see the discussion
 	of the --date option at linkgit:git-log[1].
 
