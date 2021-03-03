@@ -69,3 +69,5 @@
 	path = misc-doc-cleanup/config
 [branch "misc-doc-cleanup/v1"]
 	description = docs: misc cleanup\n\nJust a couple of documentation fixes that I noticed in passing today.\nNothing too controversial.\n\nThis branch is based on 'maint'.
+[includeIf "onbranch:cat-file-docs-cleanup/"]
+	path = cat-file-docs-cleanup/config

@@ -1,0 +1,66 @@
+From 1b57fdad9767a3b63c359e1663e5a045b4964320 Mon Sep 17 00:00:00 2001
+Message-Id: <1b57fdad9767a3b63c359e1663e5a045b4964320.1614763281.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1614763281.git.liu.denton@gmail.com>
+References: <cover.1614062288.git.liu.denton@gmail.com>
+	<cover.1614763281.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 22 Feb 2021 22:33:05 -0800
+Subject: [PATCH v2 2/2] git-cat-file.txt: remove references to "sha1"
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Eric Sunshine <sunshine@sunshineco.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+As part of the hash-transition, git can operate on more than just SHA-1
+repositories. Replace "sha1"-specific documentation with hash-agnostic
+terminology.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Documentation/git-cat-file.txt | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/Documentation/git-cat-file.txt b/Documentation/git-cat-file.txt
+index a1c37a9e81..4eb0421b3f 100644
+--- a/Documentation/git-cat-file.txt
++++ b/Documentation/git-cat-file.txt
+@@ -200,7 +200,7 @@ object, with placeholders of the form `%(atom)` expanded, followed by a
+ newline. The available atoms are:
+ 
+ `objectname`::
+-	The 40-hex object name of the object.
++	The full hex representation of the object name.
+ 
+ `objecttype`::
+ 	The type of the object (the same as `cat-file -t` reports).
+@@ -215,8 +215,9 @@ newline. The available atoms are:
+ 
+ `deltabase`::
+ 	If the object is stored as a delta on-disk, this expands to the
+-	40-hex sha1 of the delta base object. Otherwise, expands to the
+-	null sha1 (40 zeroes). See `CAVEATS` below.
++	full hex representation of the delta base object name.
++	Otherwise, expands to the null OID (all zeroes). See `CAVEATS`
++	below.
+ 
+ `rest`::
+ 	If this atom is used in the output string, input lines are split
+@@ -235,14 +236,14 @@ newline.
+ For example, `--batch` without a custom format would produce:
+ 
+ ------------
+-<sha1> SP <type> SP <size> LF
++<oid> SP <type> SP <size> LF
+ <contents> LF
+ ------------
+ 
+ Whereas `--batch-check='%(objectname) %(objecttype)'` would produce:
+ 
+ ------------
+-<sha1> SP <type> LF
++<oid> SP <type> LF
+ ------------
+ 
+ If a name is specified on stdin that cannot be resolved to an object in
+-- 
+2.30.1.823.g0a3b79fd18
+
