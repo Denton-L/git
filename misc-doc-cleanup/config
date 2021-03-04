@@ -1,3 +1,0 @@
-[format]
-	outputDirectory = patches/misc-doc-cleanup
-	cc = Eric Sunshine <sunshine@sunshineco.com>
