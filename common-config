@@ -41,8 +41,6 @@
 	description = pkt-line: war on magical `4` literal\n\nThere are many instances of the literal `4` in packet line-related code.\nThis series replaces these instances with either functions that can\ngenerate the number or an appropriately-named constant.\n\nChanges since v1:\n\n* Introduce patch 1-2 so that the string length is used to generate the\n  `4` where appropriate\n\nChanges since v2:\n\n* Replace some a couple of inline functions with macros that ensure they\n  are string constants\n\n* Use strlen() in one more instance over the PACKET_HEADER_SIZE
 [includeIf "onbranch:refactor-4/"]
 	path = refactor-4/config
-[includeIf "onbranch:sort-makefile/"]
-	path = sort-makefile/config
 [includeIf "onbranch:gitk-whitespace/"]
 	path = gitk-whitespace/config
 [includeIf "onbranch:format-output-relative-gitdir/"]
