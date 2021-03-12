@@ -3240,6 +3240,31 @@ check-docs::
 check-builtins::
 	./check-builtins.sh
 
+.PHONY: check-sort
+check-sort::
+	./check-sort.perl \
+		'ALL_COMMANDS \+=' \
+		'ALL_COMMANDS_TO_INSTALL \+=' \
+		'BINDIR_PROGRAMS_NEED_X \+=' \
+		'BINDIR_PROGRAMS_NO_X \+=' \
+		'BUILTIN_OBJS \+=' \
+		'BUILT_INS \+=' \
+		'FUZZ_OBJS \+=' \
+		'GENERATED_H \+=' \
+		'LIB_OBJS \+=' \
+		'SCRIPT_LIB \+=' \
+		'SCRIPT_PERL \+=' \
+		'SCRIPT_PYTHON \+=' \
+		'SCRIPT_SH \+=' \
+		'TEST_BUILTINS_OBJS \+=' \
+		'TEST_PROGRAMS_NEED_X \+=' \
+		'THIRD_PARTY_SOURCES \+=' \
+		'XDIFF_OBJS \+=' \
+		<Makefile
+	./check-sort.perl 'int cmd_[^(]*\(' <builtin.h
+	./check-sort.perl 'int cmd__[^(]*\(' <t/helper/test-tool.h
+	./check-sort.perl '\t\{ "[^"]*",' <git.c
+
 ### Test suite coverage testing
 #
 .PHONY: coverage coverage-clean coverage-compile coverage-test coverage-report
