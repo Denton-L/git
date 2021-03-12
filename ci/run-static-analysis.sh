@@ -26,7 +26,7 @@ then
 	exit 1
 fi
 
-make hdr-check ||
+make hdr-check check-builtins ||
 exit 1
 
 save_good_tree
