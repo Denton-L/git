@@ -3236,6 +3236,7 @@ check-docs::
 
 ### Make sure built-ins do not have dups and listed in git.c
 #
+.PHONY: check-builtins
 check-builtins::
 	./check-builtins.sh
 
