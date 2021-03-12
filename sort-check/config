@@ -1,0 +1,4 @@
+[format]
+	outputDirectory = patches/sort-check
+	cc = Johannes Schindelin <Johannes.Schindelin@gmx.de>
+	cc = Junio C Hamano <gitster@pobox.com>
