@@ -1,0 +1,35 @@
+From 09c993a8f78d67bcff196c5b8173a8e5f6fd805b Mon Sep 17 00:00:00 2001
+Message-Id: <09c993a8f78d67bcff196c5b8173a8e5f6fd805b.1615856156.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1615856156.git.liu.denton@gmail.com>
+References: <cover.1615856156.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Fri, 12 Mar 2021 02:14:07 -0800
+Subject: [PATCH 7/7] ci/run-static-analysis.sh: make check-sort
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Johannes Schindelin <Johannes.Schindelin@gmx.de>,
+    Junio C Hamano <gitster@pobox.com>
+
+To ensure that lists in some files remain in sorted order, run the
+'check-sort' target as part of static-analysis.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ ci/run-static-analysis.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/ci/run-static-analysis.sh b/ci/run-static-analysis.sh
+index 1ae122fc70..92437c09df 100755
+--- a/ci/run-static-analysis.sh
++++ b/ci/run-static-analysis.sh
+@@ -26,7 +26,7 @@ then
+ 	exit 1
+ fi
+ 
+-make hdr-check check-builtins ||
++make hdr-check check-builtins check-sort ||
+ exit 1
+ 
+ save_good_tree
+-- 
+2.31.0.rc2.261.g7f71774620
+

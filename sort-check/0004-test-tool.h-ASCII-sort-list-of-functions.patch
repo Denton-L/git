@@ -1,0 +1,69 @@
+From b817541c2754ec8fc4edc1ae774e460912e7c0a8 Mon Sep 17 00:00:00 2001
+Message-Id: <b817541c2754ec8fc4edc1ae774e460912e7c0a8.1615856156.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1615856156.git.liu.denton@gmail.com>
+References: <cover.1615856156.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Fri, 12 Mar 2021 01:41:39 -0800
+Subject: [PATCH 4/7] test-tool.h: ASCII-sort list of functions
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Johannes Schindelin <Johannes.Schindelin@gmx.de>,
+    Junio C Hamano <gitster@pobox.com>
+
+The list of test-tool functions have, over time, gotten slightly out of
+ASCII order. Sort this list to bring them back into order.
+
+ASCII sorting was chosen over strict alphabetical order for the same
+reason as 805d9eaf5e (Makefile: ASCII-sort += lists, 2020-03-21): the
+purpose of maintaining the sorted list is to ensure line insertions are
+deterministic. By using ASCII ordering, it is more easily mechanically
+reproducible in the future, such as by using :sort in Vim.
+
+This patch is best viewed with `--color-moved`.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/helper/test-tool.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/t/helper/test-tool.h b/t/helper/test-tool.h
+index 28072c0ad5..9856e84149 100644
+--- a/t/helper/test-tool.h
++++ b/t/helper/test-tool.h
+@@ -22,14 +22,15 @@ int cmd__example_decorate(int argc, const char **argv);
+ int cmd__fast_rebase(int argc, const char **argv);
+ int cmd__genrandom(int argc, const char **argv);
+ int cmd__genzeros(int argc, const char **argv);
+-int cmd__hashmap(int argc, const char **argv);
+ int cmd__hash_speed(int argc, const char **argv);
++int cmd__hashmap(int argc, const char **argv);
+ int cmd__index_version(int argc, const char **argv);
+ int cmd__json_writer(int argc, const char **argv);
+ int cmd__lazy_init_name_hash(int argc, const char **argv);
+ int cmd__match_trees(int argc, const char **argv);
+ int cmd__mergesort(int argc, const char **argv);
+ int cmd__mktemp(int argc, const char **argv);
++int cmd__oid_array(int argc, const char **argv);
+ int cmd__oidmap(int argc, const char **argv);
+ int cmd__online_cpus(int argc, const char **argv);
+ int cmd__parse_options(int argc, const char **argv);
+@@ -52,7 +53,6 @@ int cmd__run_command(int argc, const char **argv);
+ int cmd__scrap_cache_tree(int argc, const char **argv);
+ int cmd__serve_v2(int argc, const char **argv);
+ int cmd__sha1(int argc, const char **argv);
+-int cmd__oid_array(int argc, const char **argv);
+ int cmd__sha256(int argc, const char **argv);
+ int cmd__sigchain(int argc, const char **argv);
+ int cmd__strcmp_offset(int argc, const char **argv);
+@@ -62,8 +62,8 @@ int cmd__submodule_nested_repo_config(int argc, const char **argv);
+ int cmd__subprocess(int argc, const char **argv);
+ int cmd__trace2(int argc, const char **argv);
+ int cmd__urlmatch_normalization(int argc, const char **argv);
+-int cmd__xml_encode(int argc, const char **argv);
+ int cmd__wildmatch(int argc, const char **argv);
++int cmd__xml_encode(int argc, const char **argv);
+ #ifdef GIT_WINDOWS_NATIVE
+ int cmd__windows_named_pipe(int argc, const char **argv);
+ #endif
+-- 
+2.31.0.rc2.261.g7f71774620
+

@@ -1,0 +1,107 @@
+From 5088e93d76e44de9d079b7b2296b8c810828a2f5 Mon Sep 17 00:00:00 2001
+Message-Id: <5088e93d76e44de9d079b7b2296b8c810828a2f5.1615856156.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1615856156.git.liu.denton@gmail.com>
+References: <cover.1615856156.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Fri, 12 Mar 2021 01:33:18 -0800
+Subject: [PATCH 5/7] Makefile: add 'check-sort' target
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Johannes Schindelin <Johannes.Schindelin@gmx.de>,
+    Junio C Hamano <gitster@pobox.com>
+
+In the previous few commits, we sorted many lists into ASCII-order. In
+order to ensure that they remain that way, add the 'check-sort' target.
+
+The check-sort.perl program ensures that consecutive lines that match
+the same regex are sorted in ASCII-order. The 'check-sort' target runs
+the check-sort.perl program on some files which are known to contain
+sorted lists.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+
+Notes:
+    Full disclaimer: this is the first time I've written anything in Perl.
+    Please let me know if I'm doing anything unconventional :)
+
+ Makefile        | 25 +++++++++++++++++++++++++
+ check-sort.perl | 31 +++++++++++++++++++++++++++++++
+ 2 files changed, 56 insertions(+)
+ create mode 100755 check-sort.perl
+
+diff --git a/Makefile b/Makefile
+index 5832aa33da..b23dff384d 100644
+--- a/Makefile
++++ b/Makefile
+@@ -3240,6 +3240,31 @@ check-docs::
+ check-builtins::
+ 	./check-builtins.sh
+ 
++.PHONY: check-sort
++check-sort::
++	./check-sort.perl \
++		'ALL_COMMANDS \+=' \
++		'ALL_COMMANDS_TO_INSTALL \+=' \
++		'BINDIR_PROGRAMS_NEED_X \+=' \
++		'BINDIR_PROGRAMS_NO_X \+=' \
++		'BUILTIN_OBJS \+=' \
++		'BUILT_INS \+=' \
++		'FUZZ_OBJS \+=' \
++		'GENERATED_H \+=' \
++		'LIB_OBJS \+=' \
++		'SCRIPT_LIB \+=' \
++		'SCRIPT_PERL \+=' \
++		'SCRIPT_PYTHON \+=' \
++		'SCRIPT_SH \+=' \
++		'TEST_BUILTINS_OBJS \+=' \
++		'TEST_PROGRAMS_NEED_X \+=' \
++		'THIRD_PARTY_SOURCES \+=' \
++		'XDIFF_OBJS \+=' \
++		<Makefile
++	./check-sort.perl 'int cmd_[^(]*\(' <builtin.h
++	./check-sort.perl 'int cmd__[^(]*\(' <t/helper/test-tool.h
++	./check-sort.perl '\t\{ "[^"]*",' <git.c
++
+ ### Test suite coverage testing
+ #
+ .PHONY: coverage coverage-clean coverage-compile coverage-test coverage-report
+diff --git a/check-sort.perl b/check-sort.perl
+new file mode 100755
+index 0000000000..cd723db14d
+--- /dev/null
++++ b/check-sort.perl
+@@ -0,0 +1,31 @@
++#!/usr/bin/perl
++
++use strict;
++use warnings;
++
++my @regexes = map { qr/^$_/ } @ARGV;
++my $last_regex = 0;
++my $last_line = '';
++
++while (<STDIN>) {
++	my $matched = 0;
++	chomp;
++
++	for my $regex (@regexes) {
++		next unless $_ =~ $regex;
++
++		if ($last_regex == $regex) {
++			die "duplicate lines: '$_'\n" unless $last_line ne $_;
++			die "unsorted lines: '$last_line' before '$_'\n" unless $last_line lt $_;
++		}
++
++		$matched = 1;
++		$last_regex = $regex;
++		$last_line = $_;
++	}
++
++	unless ($matched) {
++		$last_regex = 0;
++		$last_line = '';
++	}
++}
+-- 
+2.31.0.rc2.261.g7f71774620
+

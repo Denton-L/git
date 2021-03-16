@@ -1,0 +1,50 @@
+From 1d31e6aee77d374b00696597cf727d6e0d494632 Mon Sep 17 00:00:00 2001
+Message-Id: <1d31e6aee77d374b00696597cf727d6e0d494632.1615856156.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1615856156.git.liu.denton@gmail.com>
+References: <cover.1615856156.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Fri, 12 Mar 2021 01:32:54 -0800
+Subject: [PATCH 2/7] Makefile: ASCII-sort LIB_OBJS
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Johannes Schindelin <Johannes.Schindelin@gmx.de>,
+    Junio C Hamano <gitster@pobox.com>
+
+In 805d9eaf5e (Makefile: ASCII-sort += lists, 2020-03-21), the += lists
+in the Makefile were sorted into ASCII order. Since then, more out of
+order elements have been introduced. Sort these lists back into ASCII
+order.
+
+This patch is best viewed with `--color-moved`.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 6dbecdb606..5832aa33da 100644
+--- a/Makefile
++++ b/Makefile
+@@ -858,8 +858,8 @@ LIB_OBJS += date.o
+ LIB_OBJS += decorate.o
+ LIB_OBJS += delta-islands.o
+ LIB_OBJS += diff-delta.o
+-LIB_OBJS += diff-merges.o
+ LIB_OBJS += diff-lib.o
++LIB_OBJS += diff-merges.o
+ LIB_OBJS += diff-no-index.o
+ LIB_OBJS += diff.o
+ LIB_OBJS += diffcore-break.o
+@@ -910,8 +910,8 @@ LIB_OBJS += mailmap.o
+ LIB_OBJS += match-trees.o
+ LIB_OBJS += mem-pool.o
+ LIB_OBJS += merge-blobs.o
+-LIB_OBJS += merge-ort.o
+ LIB_OBJS += merge-ort-wrappers.o
++LIB_OBJS += merge-ort.o
+ LIB_OBJS += merge-recursive.o
+ LIB_OBJS += merge.o
+ LIB_OBJS += mergesort.o
+-- 
+2.31.0.rc2.261.g7f71774620
+
