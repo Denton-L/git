@@ -1,0 +1,2 @@
+[format]
+	outputDirectory = patches/stash-builtin-completion
