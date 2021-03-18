@@ -53,8 +53,6 @@
 	path = externcheck/config
 [includeIf "onbranch:fix-warnings/"]
 	path = fix-warnings/config
-[includeIf "onbranch:cat-file-docs-cleanup/"]
-	path = cat-file-docs-cleanup/config
 [includeIf "onbranch:sort-check/"]
 	path = sort-check/config
 [branch "sort-check/v1"]
