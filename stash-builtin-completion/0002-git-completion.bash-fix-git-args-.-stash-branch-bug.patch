@@ -1,10 +1,12 @@
 From be727d0171b16e488a357a959176e60bf9210d40 Mon Sep 17 00:00:00 2001
-Message-Id: <be727d0171b16e488a357a959176e60bf9210d40.1615855962.git.liu.denton@gmail.com>
-In-Reply-To: <cover.1615855962.git.liu.denton@gmail.com>
+Message-Id: <be727d0171b16e488a357a959176e60bf9210d40.1616060793.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1616060793.git.liu.denton@gmail.com>
 References: <cover.1615855962.git.liu.denton@gmail.com>
+	<cover.1616060793.git.liu.denton@gmail.com>
 From: Denton Liu <liu.denton@gmail.com>
 Date: Sat, 13 Mar 2021 03:48:13 -0800
-Subject: [PATCH 2/3] git-completion.bash: fix `git <args>... stash branch` bug
+Subject: [RESEND PATCH 2/3] git-completion.bash: fix `git <args>... stash
+ branch` bug
 To: Git Mailing List <git@vger.kernel.org>
 
 When completions are offered for `git stash branch<TAB>`, the user is

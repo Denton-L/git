@@ -1,10 +1,11 @@
 From d6deaecc1feb771b245f50bc8b9cb197bf693405 Mon Sep 17 00:00:00 2001
-Message-Id: <d6deaecc1feb771b245f50bc8b9cb197bf693405.1615855962.git.liu.denton@gmail.com>
-In-Reply-To: <cover.1615855962.git.liu.denton@gmail.com>
+Message-Id: <d6deaecc1feb771b245f50bc8b9cb197bf693405.1616060793.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1616060793.git.liu.denton@gmail.com>
 References: <cover.1615855962.git.liu.denton@gmail.com>
+	<cover.1616060793.git.liu.denton@gmail.com>
 From: Denton Liu <liu.denton@gmail.com>
 Date: Sat, 13 Mar 2021 03:30:09 -0800
-Subject: [PATCH 3/3] git-completion.bash: use __gitcomp_builtin() in
+Subject: [RESEND PATCH 3/3] git-completion.bash: use __gitcomp_builtin() in
  _git_stash()
 To: Git Mailing List <git@vger.kernel.org>
 
