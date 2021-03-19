@@ -596,6 +596,16 @@ THIRD_PARTY_SOURCES =
 # interactive shell sessions without exporting it.
 unexport CDPATH
 
+# usage: $(call check-sort,VAR)
+# If this complains, then make sure the contents of VAR are ASCII-sorted.
+define check-sort-template
+SORTED_$1 = $$(sort $$($1))
+ifneq ($$($1),$$(SORTED_$1))
+$$(error "please sort and de-duplicate $1!")
+endif
+endef
+check-sort = $(eval $(call check-sort-template,$1))
+
 SCRIPT_SH += git-bisect.sh
 SCRIPT_SH += git-difftool--helper.sh
 SCRIPT_SH += git-filter-branch.sh
@@ -607,11 +617,13 @@ SCRIPT_SH += git-quiltimport.sh
 SCRIPT_SH += git-request-pull.sh
 SCRIPT_SH += git-submodule.sh
 SCRIPT_SH += git-web--browse.sh
+$(call check-sort,SCRIPT_SH)
 
 SCRIPT_LIB += git-mergetool--lib
 SCRIPT_LIB += git-rebase--preserve-merges
 SCRIPT_LIB += git-sh-i18n
 SCRIPT_LIB += git-sh-setup
+$(call check-sort,SCRIPT_LIB)
 
 SCRIPT_PERL += git-add--interactive.perl
 SCRIPT_PERL += git-archimport.perl
@@ -620,8 +632,10 @@ SCRIPT_PERL += git-cvsimport.perl
 SCRIPT_PERL += git-cvsserver.perl
 SCRIPT_PERL += git-send-email.perl
 SCRIPT_PERL += git-svn.perl
+$(call check-sort,SCRIPT_PERL)
 
 SCRIPT_PYTHON += git-p4.py
+$(call check-sort,SCRIPT_PYTHON)
 
 # Generated files for scripts
 SCRIPT_SH_GEN = $(patsubst %.sh,%,$(SCRIPT_SH))
@@ -679,6 +693,7 @@ PROGRAM_OBJS += http-backend.o
 PROGRAM_OBJS += imap-send.o
 PROGRAM_OBJS += sh-i18n--envsubst.o
 PROGRAM_OBJS += shell.o
+$(call check-sort,PROGRAM_OBJS)
 
 # Binary suffix, set to .exe for Windows builds
 X =
@@ -748,18 +763,18 @@ TEST_BUILTINS_OBJS += test-wildmatch.o
 TEST_BUILTINS_OBJS += test-windows-named-pipe.o
 TEST_BUILTINS_OBJS += test-write-cache.o
 TEST_BUILTINS_OBJS += test-xml-encode.o
+$(call check-sort,TEST_BUILTINS_OBJS)
 
 # Do not add more tests here unless they have extra dependencies. Add
 # them in TEST_BUILTINS_OBJS above.
 TEST_PROGRAMS_NEED_X += test-fake-ssh
 TEST_PROGRAMS_NEED_X += test-tool
+$(call check-sort,TEST_PROGRAMS_NEED_X)
 
 TEST_PROGRAMS = $(patsubst %,t/helper/%$X,$(TEST_PROGRAMS_NEED_X))
 
 # List built-in command $C whose implementation cmd_$C() is not in
 # builtin/$C.o but is linked in as part of some other command.
-BUILT_INS += $(patsubst builtin/%.o,git-%$X,$(BUILTIN_OBJS))
-
 BUILT_INS += git-cherry$X
 BUILT_INS += git-cherry-pick$X
 BUILT_INS += git-format-patch$X
@@ -773,6 +788,9 @@ BUILT_INS += git-stage$X
 BUILT_INS += git-status$X
 BUILT_INS += git-switch$X
 BUILT_INS += git-whatchanged$X
+$(call check-sort,BUILT_INS)
+
+BUILT_INS += $(patsubst builtin/%.o,git-%$X,$(BUILTIN_OBJS))
 
 # what 'all' will build but not install in gitexecdir
 OTHER_PROGRAMS = git$X
@@ -783,8 +801,10 @@ BINDIR_PROGRAMS_NEED_X += git-receive-pack
 BINDIR_PROGRAMS_NEED_X += git-shell
 BINDIR_PROGRAMS_NEED_X += git-upload-archive
 BINDIR_PROGRAMS_NEED_X += git-upload-pack
+$(call check-sort,BINDIR_PROGRAMS_NEED_X)
 
 BINDIR_PROGRAMS_NO_X += git-cvsserver
+$(call check-sort,BINDIR_PROGRAMS_NO_X)
 
 # Set paths to tools early so that they can be used for version tests.
 ifndef SHELL_PATH
@@ -807,6 +827,7 @@ XDIFF_LIB = xdiff/lib.a
 
 GENERATED_H += command-list.h
 GENERATED_H += config-list.h
+$(call check-sort,GENERATED_H)
 
 LIB_H := $(sort $(patsubst ./%,%,$(shell git ls-files '*.h' ':!t/' ':!Documentation/' 2>/dev/null || \
 	$(FIND) . \
@@ -1037,6 +1058,7 @@ LIB_OBJS += ws.o
 LIB_OBJS += wt-status.o
 LIB_OBJS += xdiff-interface.o
 LIB_OBJS += zlib.o
+$(call check-sort,LIB_OBJS)
 
 BUILTIN_OBJS += builtin/add.o
 BUILTIN_OBJS += builtin/am.o
@@ -1157,6 +1179,7 @@ BUILTIN_OBJS += builtin/verify-pack.o
 BUILTIN_OBJS += builtin/verify-tag.o
 BUILTIN_OBJS += builtin/worktree.o
 BUILTIN_OBJS += builtin/write-tree.o
+$(call check-sort,BUILTIN_OBJS)
 
 # THIRD_PARTY_SOURCES is a list of patterns compatible with the
 # $(filter) and $(filter-out) family of functions. They specify source
@@ -1171,6 +1194,7 @@ THIRD_PARTY_SOURCES += compat/poll/%
 THIRD_PARTY_SOURCES += compat/regex/%
 THIRD_PARTY_SOURCES += sha1collisiondetection/%
 THIRD_PARTY_SOURCES += sha1dc/%
+$(call check-sort,THIRD_PARTY_SOURCES)
 
 GITLIBS = common-main.o $(LIB_FILE) $(XDIFF_LIB)
 EXTLIBS =
