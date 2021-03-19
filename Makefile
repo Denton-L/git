@@ -588,6 +588,8 @@ SCRIPT_SH =
 SCRIPT_LIB =
 TEST_BUILTINS_OBJS =
 TEST_PROGRAMS_NEED_X =
+BINDIR_PROGRAMS_NEED_X =
+BINDIR_PROGRAMS_NO_X =
 THIRD_PARTY_SOURCES =
 
 # Having this variable in your environment would break pipelines because
