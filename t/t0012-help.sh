@@ -77,6 +77,11 @@ test_expect_success 'generate builtin list' '
 	git --list-cmds=builtins >builtins
 '
 
+test_expect_success 'list of builtins in git.c should be sorted' '
+       sort builtins >sorted &&
+       test_cmp sorted builtins
+'
+
 while read builtin
 do
 	test_expect_success "$builtin can handle -h" '
