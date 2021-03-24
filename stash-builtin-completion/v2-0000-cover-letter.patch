@@ -1,0 +1,92 @@
+From 680f3a3146355e6b09aa2e0f59471c7695954a1b Mon Sep 17 00:00:00 2001
+Message-Id: <cover.1616574955.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1615855962.git.liu.denton@gmail.com>
+References: <cover.1615855962.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 24 Mar 2021 01:35:55 -0700
+Subject: [PATCH v2 0/3] git-completion.bash: improvements to _git_stash()
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>
+
+This series modernises the _git_stash() completion handler by letting it
+take advantage of __gitcomp_builtin(). Also, it fixes a bug with how
+completions are offered when arguments are provided to the main git
+command.
+
+Changes since v1:
+
+* Fix the hardcoded $cword comparisons in a more generic way
+
+Denton Liu (3):
+  git-completion.bash: pass $__git_subcommand_idx from __git_main()
+  git-completion.bash: extract from else in _git_stash()
+  git-completion.bash: use __gitcomp_builtin() in _git_stash()
+
+ contrib/completion/git-completion.bash | 122 ++++++++++++-------------
+ 1 file changed, 60 insertions(+), 62 deletions(-)
+
+Range-diff against v1:
+-:  ---------- > 1:  e4aa3e8cd7 git-completion.bash: pass $__git_subcommand_idx from __git_main()
+1:  a2d9bc4a66 ! 2:  430d5acf97 git-completion.bash: extract from else in _git_stash()
+    @@ contrib/completion/git-completion.bash: _git_stash ()
+     -		branch,--*)
+     -			;;
+     -		branch,*)
+    --			if [ $cword -eq 3 ]; then
+    +-			if [ $cword -eq $((__git_subcommand_idx+2)) ]; then
+     -				__git_complete_refs
+     -			else
+     -				__gitcomp_nl "$(__git stash list \
+    @@ contrib/completion/git-completion.bash: _git_stash ()
+     +	branch,--*)
+     +		;;
+     +	branch,*)
+    -+		if [ $cword -eq 3 ]; then
+    ++		if [ $cword -eq $((__git_subcommand_idx+2)) ]; then
+     +			__git_complete_refs
+     +		else
+      			__gitcomp_nl "$(__git stash list \
+2:  be727d0171 < -:  ---------- git-completion.bash: fix `git <args>... stash branch` bug
+3:  d6deaecc1f ! 3:  680f3a3146 git-completion.bash: use __gitcomp_builtin() in _git_stash()
+    @@ Commit message
+         subcommand is given, it automatically defaults to `git stash push`. This
+         means that we can simplify the logic for when no subcommands have been
+         given yet. We only have to offer subcommand completions when we're
+    -    completing the word after "stash". Unfortunately, this does not work
+    -    100% correctly. For example, in the case of something like `git -C stash
+    -    stash<TAB>`, this will incorrectly identify the first "stash" as the
+    -    command. This seems to be an edge-case that we can ignore, though, as
+    -    other functions, such as _git_worktree(), suffer from the same problem.
+    +    completing a non-option after "stash".
+     
+         One area that this patch could improve upon is that the `git stash list`
+         command accepts log-options. It would be nice if the completion for this
+    @@ contrib/completion/git-completion.bash: _git_sparse_checkout ()
+     -	local save_opts='--all --keep-index --no-keep-index --quiet --patch --include-untracked'
+      	local subcommands='push list show apply clear drop pop create branch'
+      	local subcommand="$(__git_find_on_cmdline "$subcommands save")"
+    - 	local stash_idx="$(__git_find_on_cmdline --show-idx stash)"
+    - 	stash_idx="${stash_idx% *}"
+    - 
+     -	if [ -z "$subcommand" -a -n "$(__git_find_on_cmdline "-p")" ]; then
+     -		subcommand="push"
+     -	fi
+    ++
+      	if [ -z "$subcommand" ]; then
+     -		case "$cur" in
+     -		--*)
+     -			__gitcomp "$save_opts"
+    -+		case "$((cword - stash_idx)),$cur" in
+    ++		case "$((cword - __git_subcommand_idx)),$cur" in
+     +		*,--*)
+     +			__gitcomp_builtin stash_push
+      			;;
+    @@ contrib/completion/git-completion.bash: _git_stash ()
+     +		__gitcomp_builtin stash_branch
+      		;;
+      	branch,*)
+    - 		if [ $((cword - stash_idx)) -eq 2 ]; then
+    + 		if [ $cword -eq $((__git_subcommand_idx+2)) ]; then
+-- 
+2.31.0.rc2.261.g7f71774620
+
