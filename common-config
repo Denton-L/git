@@ -57,15 +57,5 @@
 	path = sort-check/config
 [branch "sort-check/v1"]
 	description = Sort lists and add static-analysis\n\nAs a follow-up to [0], sort some file lists and create a static-analysis\ncheck to ensure that those lists don't ever become un-sorted.\n\n[0]: https://lore.kernel.org/git/nycvar.QRO.7.76.6.2010081156350.50@tvgsbejvaqbjf.bet/
-[includeIf "onbranch:stash-builtin-completion/"]
-	path = stash-builtin-completion/config
-[branch "stash-builtin-completion/v1"]
-	remote = origin
-	merge = refs/heads/master
-	description = git-completion.bash: improvements to _git_stash()\n\nThis series modernises the _git_stash() completion handler by letting it\ntake advantage of __gitcomp_builtin(). Also, it fixes a bug with how it\noffers completions when arguments are provided to the main git command.
 [branch "sort-check/v2"]
 	description = Sort lists and add static-analysis\n\nAs a follow-up to [0], sort some file lists and create a static-analysis\ncheck to ensure that those lists don't ever become un-sorted.\n\n[0]: https://lore.kernel.org/git/nycvar.QRO.7.76.6.2010081156350.50@tvgsbejvaqbjf.bet/
-[branch "stash-builtin-completion/v2"]
-	remote = origin
-	merge = refs/heads/master
-	description = git-completion.bash: improvements to _git_stash()\n\nThis series modernises the _git_stash() completion handler by letting it\ntake advantage of __gitcomp_builtin(). Also, it fixes a bug with how\ncompletions are offered when arguments are provided to the main git\ncommand.\n\nChanges since v1:\n\n* Fix the hardcoded $cword comparisons in a more generic way

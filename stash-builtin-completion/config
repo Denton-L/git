@@ -1,3 +1,0 @@
-[format]
-	outputDirectory = patches/stash-builtin-completion
-	cc = Junio C Hamano <gitster@pobox.com>
