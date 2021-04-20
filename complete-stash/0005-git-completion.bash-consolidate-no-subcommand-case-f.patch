@@ -1,0 +1,79 @@
+From b4a9b0afa7ab28b701499982f5a8fc66eb7e19e8 Mon Sep 17 00:00:00 2001
+Message-Id: <b4a9b0afa7ab28b701499982f5a8fc66eb7e19e8.1618910364.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1618910364.git.liu.denton@gmail.com>
+References: <cover.1618910364.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 20 Apr 2021 02:01:29 -0700
+Subject: [PATCH 5/5] git-completion.bash: consolidate no-subcommand case for
+ _git_stash()
+To: Git Mailing List <git@vger.kernel.org>
+Cc: SZEDER Gábor <szeder.dev@gmail.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+We have a separate if case for when no subcommand is given. It is
+simpler to just consolidate this logic into the case statement below.
+
+It would be nice to complete remove the magic that deals with indices
+and replace it with what was originally there,
+
+	if [ -z "$subcommand" -a -n "$(__git_find_on_cmdline "-p")" ]; then
+	        subcommand="push"
+	fi
+
+but this gives a slightly incorrect completion. In the case where we're
+attempting to complete `git stash -a <TAB>` we will get the subcommands
+back as a respose instead of the completions for `git stash push`, which
+is what we'd expect. We could potentially hardcode all of the short
+options but that would be too much work to maintain so we stick with the
+index solution.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ contrib/completion/git-completion.bash | 30 +++++++++++++-------------
+ 1 file changed, 15 insertions(+), 15 deletions(-)
+
+diff --git a/contrib/completion/git-completion.bash b/contrib/completion/git-completion.bash
+index 7bce9a0112..060adc0ed7 100644
+--- a/contrib/completion/git-completion.bash
++++ b/contrib/completion/git-completion.bash
+@@ -3016,22 +3016,22 @@ _git_stash ()
+ 	local subcommands='push list show apply clear drop pop create branch'
+ 	local subcommand="$(__git_find_on_cmdline "$subcommands save")"
+ 
+-	if [ -z "$subcommand" ]; then
+-		case "$((cword - __git_cmd_idx)),$cur" in
+-		*,--*)
+-			__gitcomp_builtin stash_push
+-			;;
+-		1,sa*)
+-			__gitcomp "save"
+-			;;
+-		1,*)
+-			__gitcomp "$subcommands"
+-			;;
+-		esac
+-		return
+-	fi
+-
+ 	case "$subcommand,$cur" in
++	,--*)
++		__gitcomp_builtin stash_save
++		;;
++	,sa*)
++		__git_init_builtin_opts stash_save
++		if ((cword - __git_cmd_idx == 1)); then
++			__gitcomp "save"
++		fi
++		;;
++	,*)
++		__git_init_builtin_opts stash_save
++		if ((cword - __git_cmd_idx == 1)); then
++			__gitcomp "$subcommands"
++		fi
++		;;
+ 	list,--*)
+ 		# NEEDSWORK: can we somehow unify this with the options in _git_log() and _git_show()
+ 		__gitcomp_builtin stash_list "$__git_log_common_options $__git_diff_common_options"
+-- 
+2.31.1.424.g95a8dafae5
+

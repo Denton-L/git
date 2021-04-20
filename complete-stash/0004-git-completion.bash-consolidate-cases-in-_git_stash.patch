@@ -1,0 +1,69 @@
+From 4f8d015d54376af277883f57e8b4cf2c63ed8a03 Mon Sep 17 00:00:00 2001
+Message-Id: <4f8d015d54376af277883f57e8b4cf2c63ed8a03.1618910364.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1618910364.git.liu.denton@gmail.com>
+References: <cover.1618910364.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 19 Apr 2021 23:56:25 -0700
+Subject: [PATCH 4/5] git-completion.bash: consolidate cases in _git_stash()
+To: Git Mailing List <git@vger.kernel.org>
+Cc: SZEDER Gábor <szeder.dev@gmail.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+The $subcommand case statement in _git_stash() is quite repetitive.
+Consolidate the cases together into one catch-all case to reduce the
+repetition.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ contrib/completion/git-completion.bash | 21 ++-------------------
+ 1 file changed, 2 insertions(+), 19 deletions(-)
+
+diff --git a/contrib/completion/git-completion.bash b/contrib/completion/git-completion.bash
+index 30c9a97616..7bce9a0112 100644
+--- a/contrib/completion/git-completion.bash
++++ b/contrib/completion/git-completion.bash
+@@ -3032,21 +3032,6 @@ _git_stash ()
+ 	fi
+ 
+ 	case "$subcommand,$cur" in
+-	push,--*)
+-		__gitcomp_builtin stash_push
+-		;;
+-	save,--*)
+-		__gitcomp_builtin stash_save
+-		;;
+-	pop,--*)
+-		__gitcomp_builtin stash_pop
+-		;;
+-	apply,--*)
+-		__gitcomp_builtin stash_apply
+-		;;
+-	drop,--*)
+-		__gitcomp_builtin stash_drop
+-		;;
+ 	list,--*)
+ 		# NEEDSWORK: can we somehow unify this with the options in _git_log() and _git_show()
+ 		__gitcomp_builtin stash_list "$__git_log_common_options $__git_diff_common_options"
+@@ -3054,8 +3039,8 @@ _git_stash ()
+ 	show,--*)
+ 		__gitcomp_builtin stash_show "$__git_diff_common_options"
+ 		;;
+-	branch,--*)
+-		__gitcomp_builtin stash_branch
++	*,--*)
++		__gitcomp_builtin "stash_$subcommand"
+ 		;;
+ 	branch,*)
+ 		if [ $cword -eq $((__git_cmd_idx+2)) ]; then
+@@ -3069,8 +3054,6 @@ _git_stash ()
+ 		__gitcomp_nl "$(__git stash list \
+ 				| sed -n -e 's/:.*//p')"
+ 		;;
+-	*)
+-		;;
+ 	esac
+ }
+ 
+-- 
+2.31.1.424.g95a8dafae5
+

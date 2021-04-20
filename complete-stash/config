@@ -1,0 +1,4 @@
+[format]
+	outputDirectory = patches/complete-stash
+	cc = "SZEDER Gábor" <szeder.dev@gmail.com>
+	cc = Junio C Hamano <gitster@pobox.com>
