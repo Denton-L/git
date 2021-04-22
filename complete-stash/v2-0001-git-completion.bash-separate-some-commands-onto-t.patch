@@ -1,0 +1,87 @@
+From 65c485ea0c1726c96d292d7d7385def8d2f19f25 Mon Sep 17 00:00:00 2001
+Message-Id: <65c485ea0c1726c96d292d7d7385def8d2f19f25.1619085387.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1619085387.git.liu.denton@gmail.com>
+References: <cover.1618910364.git.liu.denton@gmail.com>
+	<cover.1619085387.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Thu, 15 Apr 2021 02:24:42 -0700
+Subject: [PATCH v2 1/4] git-completion.bash: separate some commands onto their
+ own line
+To: Git Mailing List <git@vger.kernel.org>
+Cc: SZEDER Gábor <szeder.dev@gmail.com>,
+    Junio C Hamano <gitster@pobox.com>
+
+In e94fb44042 (git-completion.bash: pass $__git_subcommand_idx from
+__git_main(), 2021-03-24), a line was introduced which contained
+multiple statements. This is difficult to read so break it into multiple
+lines.
+
+While we're at it, follow this convention for the rest of the
+__git_main() and break up lines that contain multiple statements.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ contrib/completion/git-completion.bash | 37 +++++++++++++++++++-------
+ 1 file changed, 28 insertions(+), 9 deletions(-)
+
+diff --git a/contrib/completion/git-completion.bash b/contrib/completion/git-completion.bash
+index c926ca26c6..1dedb14b47 100644
+--- a/contrib/completion/git-completion.bash
++++ b/contrib/completion/git-completion.bash
+@@ -3400,17 +3400,35 @@ __git_main ()
+ 	while [ $c -lt $cword ]; do
+ 		i="${words[c]}"
+ 		case "$i" in
+-		--git-dir=*) __git_dir="${i#--git-dir=}" ;;
+-		--git-dir)   ((c++)) ; __git_dir="${words[c]}" ;;
+-		--bare)      __git_dir="." ;;
+-		--help) command="help"; break ;;
+-		-c|--work-tree|--namespace) ((c++)) ;;
+-		-C)	__git_C_args[C_args_count++]=-C
++		--git-dir=*)
++			__git_dir="${i#--git-dir=}"
++			;;
++		--git-dir)
++			((c++))
++			__git_dir="${words[c]}"
++			;;
++		--bare)
++			__git_dir="."
++			;;
++		--help)
++			command="help"
++			break
++			;;
++		-c|--work-tree|--namespace)
++			((c++))
++			;;
++		-C)
++			__git_C_args[C_args_count++]=-C
+ 			((c++))
+ 			__git_C_args[C_args_count++]="${words[c]}"
+ 			;;
+-		-*) ;;
+-		*) command="$i"; __git_subcommand_idx="$c"; break ;;
++		-*)
++			;;
++		*)
++			command="$i"
++			__git_subcommand_idx="$c"
++			break
++			;;
+ 		esac
+ 		((c++))
+ 	done
+@@ -3432,7 +3450,8 @@ __git_main ()
+ 			;;
+ 		esac
+ 		case "$cur" in
+-		--*)   __gitcomp "
++		--*)
++			__gitcomp "
+ 			--paginate
+ 			--no-pager
+ 			--git-dir=
+-- 
+2.31.1.499.g90b4fd31cd
+

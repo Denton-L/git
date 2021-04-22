@@ -65,3 +65,7 @@
 	remote = upstream
 	merge = refs/heads/dl/complete-stash
 	description = git-completion.bash: fixes on top of 'dl/complete-stash'\n\nGábor pointed out some potential fixes what's currently queued in\n'dl/complete-stash'[0][1][2][3]. This series addresses those concerns.\n\nSorry for the long wait, I've been quite busy over the past month.\n\n[0]: https://lore.kernel.org/git/20210327183554.GD2271@szeder.dev/\n[1]: https://lore.kernel.org/git/20210328103134.GF2271@szeder.dev/\n[2]: https://lore.kernel.org/git/20210328103057.GE2271@szeder.dev/\n[3]: https://lore.kernel.org/git/20210328110427.GG2271@szeder.dev/
+[branch "complete-stash/v2"]
+	remote = upstream
+	merge = refs/heads/dl/complete-stash
+	description = git-completion.bash: fixes on top of 'dl/complete-stash'\n\nGábor pointed out some potential fixes what's currently queued in\n'dl/complete-stash'[0][1][2][3]. This series addresses those concerns.\n\nChanges since v1:\n\n* Make the commit message for \"git-completion.bash: rename to\n  $__git_cmd_idx\" descriptive and accurate\n\n* Drop \"git-completion.bash: consolidate no-subcommand case for\n  _git_stash()\"\n\n[0]: https://lore.kernel.org/git/20210327183554.GD2271@szeder.dev/\n[1]: https://lore.kernel.org/git/20210328103134.GF2271@szeder.dev/\n[2]: https://lore.kernel.org/git/20210328103057.GE2271@szeder.dev/\n[3]: https://lore.kernel.org/git/20210328110427.GG2271@szeder.dev/
