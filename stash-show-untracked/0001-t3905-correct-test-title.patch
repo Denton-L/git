@@ -1,0 +1,36 @@
+From 1f554261a57fd7e379d5d7fa81be871a55ed5ec5 Mon Sep 17 00:00:00 2001
+Message-Id: <1f554261a57fd7e379d5d7fa81be871a55ed5ec5.1620850247.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1620850247.git.liu.denton@gmail.com>
+References: <cover.1620850247.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Wed, 12 May 2021 12:59:59 -0700
+Subject: [PATCH 1/2] t3905: correct test title
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>,
+    Eric Sunshine <sunshine@sunshineco.com>
+
+We reference the non-existent option `git stash show --show-untracked`
+when we really meant `--only-untracked`. Correct the test title
+accordingly.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ t/t3905-stash-include-untracked.sh | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/t/t3905-stash-include-untracked.sh b/t/t3905-stash-include-untracked.sh
+index b470db7ef7..2e6796725b 100755
+--- a/t/t3905-stash-include-untracked.sh
++++ b/t/t3905-stash-include-untracked.sh
+@@ -367,7 +367,7 @@ test_expect_success 'stash show --only-untracked only shows untracked files' '
+ 	test_cmp expect actual
+ '
+ 
+-test_expect_success 'stash show --no-include-untracked cancels --{include,show}-untracked' '
++test_expect_success 'stash show --no-include-untracked cancels --{include,only}-untracked' '
+ 	git reset --hard &&
+ 	git clean -xf &&
+ 	>untracked &&
+-- 
+2.31.1.751.gd2f1c929bd
+
