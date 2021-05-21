@@ -1,4 +1,0 @@
-[format]
-	outputDirectory = patches/stash-show-untracked-fixup
-	cc = Junio C Hamano <gitster@pobox.com>
-	cc = Eric Sunshine <sunshine@sunshineco.com>

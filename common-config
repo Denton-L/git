@@ -59,8 +59,3 @@
 	description = Sort lists and add static-analysis\n\nAs a follow-up to [0], sort some file lists and create a static-analysis\ncheck to ensure that those lists don't ever become un-sorted.\n\n[0]: https://lore.kernel.org/git/nycvar.QRO.7.76.6.2010081156350.50@tvgsbejvaqbjf.bet/
 [branch "sort-check/v2"]
 	description = Sort lists and add static-analysis\n\nAs a follow-up to [0], sort some file lists and create a static-analysis\ncheck to ensure that those lists don't ever become un-sorted.\n\n[0]: https://lore.kernel.org/git/nycvar.QRO.7.76.6.2010081156350.50@tvgsbejvaqbjf.bet/
-[includeIf "onbranch:stash-show-untracked-fixup/"]
-	path = stash-show-untracked-fixup/config
-[branch "stash-show-untracked-fixup/v1"]
-	remote = upstream
-	merge = refs/heads/dl/stash-show-untracked-fixup
