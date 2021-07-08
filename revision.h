@@ -267,7 +267,8 @@ struct rev_info {
 			missing_newline:1,
 			date_mode_explicit:1,
 			preserve_subject:1,
-			encode_email_headers:1;
+			encode_email_headers:1,
+			include_header:1;
 	/* --show-linear-break */
 	unsigned int	track_linear:1,
 			track_first_time:1,

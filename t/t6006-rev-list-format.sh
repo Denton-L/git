@@ -54,9 +54,15 @@ test_expect_success 'setup' '
 
 # usage: test_format name format_string [failure] <expected_output
 test_format () {
+	local header_arg=
+	if test "$1" = "--no-commit-header"
+	then
+		header_arg="--no-commit-header"
+		shift
+	fi
 	cat >expect.$1
 	test_expect_${3:-success} "format $1" "
-		git rev-list --pretty=format:'$2' main >output.$1 &&
+		git rev-list $header_arg --pretty=format:'$2' main >output.$1 &&
 		test_cmp expect.$1 output.$1
 	"
 }
@@ -92,6 +98,14 @@ commit $head1
 $head1
 $head1_short
 EOF
+
+test_format --no-commit-header hash-no-header %H%n%h <<EOF
+$head2
+$head2_short
+$head1
+$head1_short
+EOF
+
 
 test_format tree %T%n%t <<EOF
 commit $head2
@@ -177,6 +191,13 @@ commit $head2
 $changed
 
 commit $head1
+$added
+
+EOF
+
+test_format --no-commit-header raw-body-no-header %B <<EOF
+$changed
+
 $added
 
 EOF
