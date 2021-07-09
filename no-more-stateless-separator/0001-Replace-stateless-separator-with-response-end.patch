@@ -1,0 +1,65 @@
+From 9c834801c85d873738577a45c87d4404a23666d6 Mon Sep 17 00:00:00 2001
+Message-Id: <9c834801c85d873738577a45c87d4404a23666d6.1625797617.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Thu, 8 Jul 2021 19:20:48 -0700
+Subject: [PATCH] Replace "stateless separator" with "response end"
+To: Git Mailing List <git@vger.kernel.org>
+
+In 0181b600a6 (pkt-line: define PACKET_READ_RESPONSE_END, 2020-05-19),
+the Response End packet was defined for Git's network protocol. When the
+patch was sent, it included an oversight where the error messages
+referenced "stateless separator", the work-in-progress name, over
+"response end", the final name chosen.
+
+Correct these error messages by having them correctly reference
+a "response end" packet.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ pkt-line.c    | 2 +-
+ remote-curl.c | 2 +-
+ serve.c       | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/pkt-line.c b/pkt-line.c
+index 98304ce374..9f63eae2e6 100644
+--- a/pkt-line.c
++++ b/pkt-line.c
+@@ -103,7 +103,7 @@ void packet_response_end(int fd)
+ {
+ 	packet_trace("0002", 4, 1);
+ 	if (write_in_full(fd, "0002", 4) < 0)
+-		die_errno(_("unable to write stateless separator packet"));
++		die_errno(_("unable to write response end packet"));
+ }
+ 
+ int packet_flush_gently(int fd)
+diff --git a/remote-curl.c b/remote-curl.c
+index 9d432c299a..6c320d5704 100644
+--- a/remote-curl.c
++++ b/remote-curl.c
+@@ -653,7 +653,7 @@ static int rpc_read_from_out(struct rpc_state *rpc, int options,
+ 			memcpy(buf - 4, "0000", 4);
+ 			break;
+ 		case PACKET_READ_RESPONSE_END:
+-			die(_("remote server sent stateless separator"));
++			die(_("remote server sent unexpected response end packet"));
+ 		}
+ 	}
+ 
+diff --git a/serve.c b/serve.c
+index aa8209f147..f11c0e07c4 100644
+--- a/serve.c
++++ b/serve.c
+@@ -258,7 +258,7 @@ static int process_request(void)
+ 			state = PROCESS_REQUEST_DONE;
+ 			break;
+ 		case PACKET_READ_RESPONSE_END:
+-			BUG("unexpected stateless separator packet");
++			BUG("unexpected response end packet");
+ 		}
+ 	}
+ 
+-- 
+2.32.0.rc1.186.g3cb6fa43cd
+

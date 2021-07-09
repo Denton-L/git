@@ -1,0 +1,2 @@
+[format]
+	outputDirectory = patches/no-more-stateless-separator
