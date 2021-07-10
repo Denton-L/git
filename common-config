@@ -64,3 +64,8 @@
 [branch "no-more-stateless-separator/v1"]
 	remote = origin
 	merge = refs/heads/master
+[includeIf "onbranch:diff-merge-base-fixes/"]
+	path = diff-merge-base-fixes/config
+[branch "diff-merge-base-fixes/v1"]
+	remote = origin
+	merge = refs/heads/master
