@@ -77,7 +77,9 @@ this mailing list after each feature release is made.
 
  - Usually 'master' contains all of 'maint' and 'next' contains all
    of 'master'.  'seen' contains all the topics merged to 'next', but
-   is rebuilt directly on 'master'.
+   is rebuilt directly on 'master'.  This is done because the history
+   of 'next' can become quite messy.  By rebuilding the topics
+   directly on top of 'master', 
 
  - The tip of 'master' is meant to be more stable than any
    tagged releases, and the users are encouraged to follow it.
