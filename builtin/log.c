@@ -826,6 +826,7 @@ static const char *config_output_directory;
 static enum cover_from_description cover_from_description_mode = COVER_FROM_MESSAGE;
 static int show_notes;
 static struct display_notes_opt notes_opt;
+static const char *in_reply_to;
 
 static enum cover_from_description parse_cover_from_description(const char *arg)
 {
@@ -1720,13 +1721,13 @@ int cmd_format_patch(int argc, const char **argv, const char *prefix)
 	int no_binary_diff = 0;
 	int zero_commit = 0;
 	struct commit *origin = NULL;
-	const char *in_reply_to = NULL;
 	struct patch_ids ids;
 	struct strbuf buf = STRBUF_INIT;
 	int use_patch_format = 0;
 	int quiet = 0;
 	const char *reroll_count = NULL;
 	char *cover_from_description_arg = NULL;
+	char *from_cover_letter_arg = NULL;
 	char *branch_name = NULL;
 	char *base_commit = NULL;
 	struct base_tree_info bases;
@@ -1769,6 +1770,10 @@ int cmd_format_patch(int argc, const char **argv, const char *prefix)
 		OPT_STRING(0, "cover-from-description", &cover_from_description_arg,
 			    N_("cover-from-description-mode"),
 			    N_("generate parts of a cover letter based on a branch's description")),
+		OPT_CALLBACK_F(0, "from-cover-letter", &from_cover_letter_arg,
+                               N_("filename of the cover letter"),
+			       N_("use the previous cover letter to populate fields"),
+			       PARSE_OPT_NONEG),
 		OPT_CALLBACK_F(0, "subject-prefix", &rev, N_("prefix"),
 			    N_("use [<prefix>] instead of [PATCH]"),
 			    PARSE_OPT_NONEG, subject_prefix_callback),
