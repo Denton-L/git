@@ -1,0 +1,62 @@
+From 3eb95731ea07c5f25ed7a47cc639f53b4b18e113 Mon Sep 17 00:00:00 2001
+Message-ID: <3eb95731ea07c5f25ed7a47cc639f53b4b18e113.1754300389.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1754300389.git.liu.denton@gmail.com>
+References: <cover.1754300389.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 4 Aug 2025 02:08:20 -0700
+Subject: [PATCH 2/2] remote.c: remove BUG in
+ show_push_unqualified_ref_name_error()
+To: Git Mailing List <git@vger.kernel.org>
+
+In the case where a non-existent oid is given as the <src> for a
+refspec and the destination is unqualified, we end up hitting the BUG in
+show_push_unqualified_ref_name_error().
+
+This is because before hitting this advise message, the <src> is passed
+through repo_get_oid() which, upon receiving a fully qualified oid,
+doesn't actually check the existence of the object and just returns
+found. This means that it's actually possible for the
+odb_read_object_info() call to return not found under normal usage and
+thus, it's not actually a bug.
+
+Replace the BUG() with an advise() displaying a helpful message about
+the oid possibly not existing.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ remote.c              | 5 +++--
+ t/t5516-fetch-push.sh | 2 +-
+ 2 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/remote.c b/remote.c
+index e965f022f1..9fb76049d2 100644
+--- a/remote.c
++++ b/remote.c
+@@ -1218,8 +1218,9 @@ static void show_push_unqualified_ref_name_error(const char *dst_value,
+ 			 "'%s:refs/tags/%s'?"),
+ 		       matched_src_name, dst_value);
+ 	} else {
+-		BUG("'%s' should be commit/tag/tree/blob, is '%d'",
+-		    matched_src_name, type);
++		advise(_("The <src> part of the refspec is an oid that doesn't exist.\n"
++			 "Please ensure that the oid '%s' is correct."),
++		       matched_src_name);
+ 	}
+ }
+ 
+diff --git a/t/t5516-fetch-push.sh b/t/t5516-fetch-push.sh
+index c2fcfeca92..e064ea7433 100755
+--- a/t/t5516-fetch-push.sh
++++ b/t/t5516-fetch-push.sh
+@@ -509,7 +509,7 @@ test_expect_success 'push ref expression with non-existent, incomplete dest' '
+ 
+ '
+ 
+-test_expect_failure 'push ref expression with non-existent oid src' '
++test_expect_success 'push ref expression with non-existent oid src' '
+ 
+ 	mk_test testrepo &&
+ 	test_must_fail git push testrepo $(test_oid 001):branch
+-- 
+2.50.1
+

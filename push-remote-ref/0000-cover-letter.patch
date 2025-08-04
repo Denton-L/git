@@ -1,0 +1,37 @@
+From 3eb95731ea07c5f25ed7a47cc639f53b4b18e113 Mon Sep 17 00:00:00 2001
+Message-ID: <cover.1754300389.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 4 Aug 2025 02:39:49 -0700
+Subject: [PATCH 0/2] remote.c: remove erroneous BUG case
+To: Git Mailing List <git@vger.kernel.org>
+
+In the case where one pushes a non-existent oid to an unqualified
+destination, we encounter the following BUG
+
+	error: The destination you provided is not a full refname (i.e.,
+	starting with "refs/"). We tried to guess what you meant by:
+
+	- Looking for a ref that matches 'branch' on the remote side.
+	- Checking if the <src> being pushed ('0000000000000000000000000000000000000001')
+	  is a ref in "refs/{heads,tags}/". If so we add a corresponding
+	  refs/{heads,tags}/ prefix on the remote side.
+
+	Neither worked, so we gave up. You must fully qualify the ref.
+	BUG: remote.c:1221: '0000000000000000000000000000000000000001' should be commit/tag/tree/blob, is '-1'
+	fatal: the remote end hung up unexpectedly
+	Aborted (core dumped)
+
+However, this isn't actually a bug so replace it with an advise()
+message.
+
+Denton Liu (2):
+  t5516: introduce 'push ref expression with non-existent oid src'
+  remote.c: remove BUG in show_push_unqualified_ref_name_error()
+
+ remote.c              | 5 +++--
+ t/t5516-fetch-push.sh | 7 +++++++
+ 2 files changed, 10 insertions(+), 2 deletions(-)
+
+-- 
+2.50.1
+
