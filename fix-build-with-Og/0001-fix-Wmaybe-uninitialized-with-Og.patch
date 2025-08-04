@@ -1,0 +1,52 @@
+From d03308e9474f5e26fd4a5494ec243a278e971443 Mon Sep 17 00:00:00 2001
+Message-ID: <d03308e9474f5e26fd4a5494ec243a278e971443.1754302009.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 4 Aug 2025 02:46:45 -0700
+Subject: [PATCH] fix -Wmaybe-uninitialized with -Og
+To: Git Mailing List <git@vger.kernel.org>
+
+When building with -Og on gcc 15.1.1, the build produces two warnings.
+Even though in practice, these codepaths can't actually be hit while the
+variables are uninitialized, satisfy the compiler by initializing the
+variables.
+
+This also acts as defensive programming since these codepaths are a
+little bit spaghetti. If someone in the future makes a mistake and
+causes the branch with the uninitialized variable to be hit, at least we
+won't experience undefined behaviour.
+
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ builtin/remote.c         | 2 +-
+ t/unit-tests/clar/clar.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/builtin/remote.c b/builtin/remote.c
+index 5dd6cbbaee..cc462677e1 100644
+--- a/builtin/remote.c
++++ b/builtin/remote.c
+@@ -1463,7 +1463,7 @@ static int set_head(int argc, const char **argv, const char *prefix,
+ 		b_local_head = STRBUF_INIT;
+ 	char *head_name = NULL;
+ 	struct ref_store *refs = get_main_ref_store(the_repository);
+-	struct remote *remote;
++	struct remote *remote = NULL;
+ 
+ 	struct option options[] = {
+ 		OPT_BOOL('a', "auto", &opt_a,
+diff --git a/t/unit-tests/clar/clar.c b/t/unit-tests/clar/clar.c
+index d54e455367..03a3aa8e87 100644
+--- a/t/unit-tests/clar/clar.c
++++ b/t/unit-tests/clar/clar.c
+@@ -350,7 +350,7 @@ static void
+ clar_run_suite(const struct clar_suite *suite, const char *filter)
+ {
+ 	const struct clar_func *test = suite->tests;
+-	size_t i, matchlen;
++	size_t i, matchlen = 0;
+ 	struct clar_report *report;
+ 	int exact = 0;
+ 
+-- 
+2.50.1
+
