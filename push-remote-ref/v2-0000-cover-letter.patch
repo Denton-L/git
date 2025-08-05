@@ -1,0 +1,71 @@
+From 2bd892b26c94133cd1a266d6ff4f2217418b0660 Mon Sep 17 00:00:00 2001
+Message-ID: <cover.1754375026.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1754300389.git.liu.denton@gmail.com>
+References: <cover.1754300389.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 4 Aug 2025 23:23:46 -0700
+Subject: [PATCH v2 0/2] *** SUBJECT HERE ***
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>
+
+*** BLURB HERE ***
+
+Denton Liu (2):
+  t5516: introduce 'push ref expression with non-existent oid src'
+  remote.c: remove BUG in show_push_unqualified_ref_name_error()
+
+ remote.c              | 3 +--
+ t/t5516-fetch-push.sh | 7 +++++++
+ 2 files changed, 8 insertions(+), 2 deletions(-)
+
+Range-diff against v1:
+1:  d26f355c19 = 1:  d26f355c19 t5516: introduce 'push ref expression with non-existent oid src'
+2:  3eb95731ea ! 2:  2bd892b26c remote.c: remove BUG in show_push_unqualified_ref_name_error()
+    @@ Metadata
+      ## Commit message ##
+         remote.c: remove BUG in show_push_unqualified_ref_name_error()
+     
+    -    In the case where a non-existent oid is given as the <src> for a
+    -    refspec and the destination is unqualified, we end up hitting the BUG in
+    -    show_push_unqualified_ref_name_error().
+    +    When "git push <remote> <src>:<dst>" does not spell out the
+    +    destination side of the ref fully, and when <src> is not given
+    +    as a reference but an object name, the code tries to give advice
+    +    messages based on the type of that object.
+     
+    -    This is because before hitting this advise message, the <src> is passed
+    -    through repo_get_oid() which, upon receiving a fully qualified oid,
+    -    doesn't actually check the existence of the object and just returns
+    -    found. This means that it's actually possible for the
+    -    odb_read_object_info() call to return not found under normal usage and
+    -    thus, it's not actually a bug.
+    +    The type is determined by calling odb_read_object_info() and
+    +    signalled by its return value.  The code however reported a
+    +    programming error with BUG() when this function said that there
+    +    is no such object, which happens when the object name is given
+    +    as a full hexadecimal (if the object name is given as a partial
+    +    hexadecimal or an non-existing ref, the function would have died
+    +    without returning, so this BUG() wouldn't have triggered).  This
+    +    is wrong.  It is an ordinary end-user mistake to give an object
+    +    name that does not exist and treated as such.
+     
+    -    Replace the BUG() with an advise() displaying a helpful message about
+    -    the oid possibly not existing.
+    +    Helped-by: Junio C Hamano <gitster@pobox.com>
+     
+      ## remote.c ##
+     @@ remote.c: static void show_push_unqualified_ref_name_error(const char *dst_value,
+    @@ remote.c: static void show_push_unqualified_ref_name_error(const char *dst_value
+      	} else {
+     -		BUG("'%s' should be commit/tag/tree/blob, is '%d'",
+     -		    matched_src_name, type);
+    -+		advise(_("The <src> part of the refspec is an oid that doesn't exist.\n"
+    -+			 "Please ensure that the oid '%s' is correct."),
+    -+		       matched_src_name);
+    ++		advise(_("The <src> part of the refspec is an oid that doesn't exist.\n"));
+      	}
+      }
+      
+-- 
+2.50.1
+
