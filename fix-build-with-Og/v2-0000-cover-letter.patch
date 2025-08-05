@@ -1,0 +1,111 @@
+From 8ed0ac14092e7ec979e53d2a3da84dfe884d6b3f Mon Sep 17 00:00:00 2001
+Message-ID: <cover.1754371649.git.liu.denton@gmail.com>
+In-Reply-To: <d03308e9474f5e26fd4a5494ec243a278e971443.1754302009.git.liu.denton@gmail.com>
+References: <d03308e9474f5e26fd4a5494ec243a278e971443.1754302009.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 4 Aug 2025 22:27:29 -0700
+Subject: [PATCH v2 0/2] fix -Wmaybe-uninitialized with -Og
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Jeff King <peff@peff.net>,
+    Junio C Hamano <gitster@pobox.com>,
+    Patrick Steinhardt <ps@pks.im>
+
+When compiled with -Og, the build emits -Wmaybe-uninitialized. Fix
+these.
+
+Denton Liu (1):
+  t/unit-tests/clar: fix -Wmaybe-uninitialized with -Og
+
+Jeff King (1):
+  remote: bail early from set_head() if missing remote name
+
+ builtin/remote.c         | 11 +++++++----
+ t/unit-tests/clar/clar.c |  2 +-
+ 2 files changed, 8 insertions(+), 5 deletions(-)
+
+Range-diff against v1:
+1:  d03308e947 ! 1:  458ec588b7 fix -Wmaybe-uninitialized with -Og
+    @@
+      ## Metadata ##
+    -Author: Denton Liu <liu.denton@gmail.com>
+    +Author: Jeff King <peff@peff.net>
+     
+      ## Commit message ##
+    -    fix -Wmaybe-uninitialized with -Og
+    +    remote: bail early from set_head() if missing remote name
+     
+    -    When building with -Og on gcc 15.1.1, the build produces two warnings.
+    -    Even though in practice, these codepaths can't actually be hit while the
+    -    variables are uninitialized, satisfy the compiler by initializing the
+    -    variables.
+    +    In "git remote set-head", we can take varying numbers of arguments
+    +    depending on whether we saw the "-d" or "-a" options. But the first
+    +    argument is always the remote name.
+     
+    -    This also acts as defensive programming since these codepaths are a
+    -    little bit spaghetti. If someone in the future makes a mistake and
+    -    causes the branch with the uninitialized variable to be hit, at least we
+    -    won't experience undefined behaviour.
+    +    The current code is somewhat awkward in that it conditionally handles
+    +    the remote name up-front like this:
+    +
+    +      if (argc)
+    +         remote = ...from argv[0]...
+    +
+    +    and then only later decides to bail if we do not have the right number
+    +    of arguments for the options we saw.
+    +
+    +    This makes it hard to figure out if "remote" is always set when it needs
+    +    to be. Both for humans, but also for compilers; with -Og, gcc complains
+    +    that "remote" can be accessed without being initialized (although this
+    +    is not true, as we'd always die with a usage message in that case).
+    +
+    +    Let's instead enforce the presence of the remote argument up front,
+    +    which fixes the compiler warning and is easier to understand. It does
+    +    mean duplicating the code to print a usage message, but it's a single
+    +    line.
+    +
+    +    Noticed-by: Denton Liu <liu.denton@gmail.com>
+    +    Signed-off-by: Jeff King <peff@peff.net>
+     
+      ## builtin/remote.c ##
+     @@ builtin/remote.c: static int set_head(int argc, const char **argv, const char *prefix,
+    - 		b_local_head = STRBUF_INIT;
+    - 	char *head_name = NULL;
+    - 	struct ref_store *refs = get_main_ref_store(the_repository);
+    --	struct remote *remote;
+    -+	struct remote *remote = NULL;
+    - 
+    - 	struct option options[] = {
+    - 		OPT_BOOL('a', "auto", &opt_a,
+    -
+    - ## t/unit-tests/clar/clar.c ##
+    -@@ t/unit-tests/clar/clar.c: static void
+    - clar_run_suite(const struct clar_suite *suite, const char *filter)
+    - {
+    - 	const struct clar_func *test = suite->tests;
+    --	size_t i, matchlen;
+    -+	size_t i, matchlen = 0;
+    - 	struct clar_report *report;
+    - 	int exact = 0;
+    + 	};
+    + 	argc = parse_options(argc, argv, prefix, options,
+    + 			     builtin_remote_sethead_usage, 0);
+    +-	if (argc) {
+    +-		strbuf_addf(&b_head, "refs/remotes/%s/HEAD", argv[0]);
+    +-		remote = remote_get(argv[0]);
+    +-	}
+    ++
+    ++	/* All modes require at least a remote name. */
+    ++	if (!argc)
+    ++		usage_with_options(builtin_remote_sethead_usage, options);
+    ++
+    ++	strbuf_addf(&b_head, "refs/remotes/%s/HEAD", argv[0]);
+    ++	remote = remote_get(argv[0]);
+      
+    + 	if (!opt_a && !opt_d && argc == 2) {
+    + 		head_name = xstrdup(argv[1]);
+-:  ---------- > 2:  8ed0ac1409 t/unit-tests/clar: fix -Wmaybe-uninitialized with -Og
+-- 
+2.50.1
+

@@ -80,3 +80,7 @@
 [branch "fix-build-with-Og/v1"]
 	remote = upstream
 	merge = refs/heads/master
+[branch "fix-build-with-Og/v2"]
+	remote = upstream
+	merge = refs/heads/master
+	description = fix -Wmaybe-uninitialized with -Og\n\nWhen compiled with -Og, the build emits -Wmaybe-uninitialized. Fix\nthese.

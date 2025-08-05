@@ -1,0 +1,74 @@
+From 458ec588b7fe4d40f834d535b8f7d83684f9935b Mon Sep 17 00:00:00 2001
+Message-ID: <458ec588b7fe4d40f834d535b8f7d83684f9935b.1754371650.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1754371649.git.liu.denton@gmail.com>
+References: <d03308e9474f5e26fd4a5494ec243a278e971443.1754302009.git.liu.denton@gmail.com>
+	<cover.1754371649.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Mon, 4 Aug 2025 11:53:29 -0400
+Subject: [PATCH v2 1/2] remote: bail early from set_head() if missing remote
+ name
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Jeff King <peff@peff.net>,
+    Junio C Hamano <gitster@pobox.com>,
+    Patrick Steinhardt <ps@pks.im>
+
+From: Jeff King <peff@peff.net>
+
+In "git remote set-head", we can take varying numbers of arguments
+depending on whether we saw the "-d" or "-a" options. But the first
+argument is always the remote name.
+
+The current code is somewhat awkward in that it conditionally handles
+the remote name up-front like this:
+
+  if (argc)
+     remote = ...from argv[0]...
+
+and then only later decides to bail if we do not have the right number
+of arguments for the options we saw.
+
+This makes it hard to figure out if "remote" is always set when it needs
+to be. Both for humans, but also for compilers; with -Og, gcc complains
+that "remote" can be accessed without being initialized (although this
+is not true, as we'd always die with a usage message in that case).
+
+Let's instead enforce the presence of the remote argument up front,
+which fixes the compiler warning and is easier to understand. It does
+mean duplicating the code to print a usage message, but it's a single
+line.
+
+Noticed-by: Denton Liu <liu.denton@gmail.com>
+Signed-off-by: Jeff King <peff@peff.net>
+Tested-by: Denton Liu <liu.denton@gmail.com>
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+Thanks Peff for writing this patch up
+
+ builtin/remote.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/builtin/remote.c b/builtin/remote.c
+index 5dd6cbbaee..f0e49a5681 100644
+--- a/builtin/remote.c
++++ b/builtin/remote.c
+@@ -1474,10 +1474,13 @@ static int set_head(int argc, const char **argv, const char *prefix,
+ 	};
+ 	argc = parse_options(argc, argv, prefix, options,
+ 			     builtin_remote_sethead_usage, 0);
+-	if (argc) {
+-		strbuf_addf(&b_head, "refs/remotes/%s/HEAD", argv[0]);
+-		remote = remote_get(argv[0]);
+-	}
++
++	/* All modes require at least a remote name. */
++	if (!argc)
++		usage_with_options(builtin_remote_sethead_usage, options);
++
++	strbuf_addf(&b_head, "refs/remotes/%s/HEAD", argv[0]);
++	remote = remote_get(argv[0]);
+ 
+ 	if (!opt_a && !opt_d && argc == 2) {
+ 		head_name = xstrdup(argv[1]);
+-- 
+2.50.1
+

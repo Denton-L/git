@@ -1,2 +1,5 @@
 [format]
 	outputDirectory = patches/fix-build-with-Og
+	cc = Jeff King <peff@peff.net>
+	cc = Junio C Hamano <gitster@pobox.com>
+	cc = Patrick Steinhardt <ps@pks.im>
