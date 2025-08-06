@@ -87,3 +87,7 @@
 [branch "push-remote-ref/v2"]
 	remote = upstream
 	merge = refs/heads/master
+[branch "push-remote-ref/v3"]
+	remote = upstream
+	merge = refs/heads/master
+	description = remote.c: remove erroneous BUG case\n\nIn the case where one pushes a non-existent oid to an unqualified\ndestination, we encounter the following BUG\n\n\terror: The destination you provided is not a full refname (i.e.,\n\tstarting with \"refs/\"). We tried to guess what you meant by:\n\n\t- Looking for a ref that matches 'branch' on the remote side.\n\t- Checking if the <src> being pushed ('0000000000000000000000000000000000000001')\n\t  is a ref in \"refs/{heads,tags}/\". If so we add a corresponding\n\t  refs/{heads,tags}/ prefix on the remote side.\n\n\tNeither worked, so we gave up. You must fully qualify the ref.\n\tBUG: remote.c:1221: '0000000000000000000000000000000000000001' should be commit/tag/tree/blob, is '-1'\n\tfatal: the remote end hung up unexpectedly\n\tAborted (core dumped)\n\nHowever, this isn't actually a bug so replace it with an advise()\nmessage.\n\nChanges since v2:\n\n* Add t5516 cleanup patch\n* Squash test creation patch into the patch that fixes it\n* Include the erroneous object ID in the advise message

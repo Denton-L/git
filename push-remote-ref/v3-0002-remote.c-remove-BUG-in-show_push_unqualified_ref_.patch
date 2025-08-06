@@ -1,0 +1,84 @@
+From 938dfb8d4e37ef962c811d6e0f32122a2522deb5 Mon Sep 17 00:00:00 2001
+Message-ID: <938dfb8d4e37ef962c811d6e0f32122a2522deb5.1754455931.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1754455931.git.liu.denton@gmail.com>
+References: <cover.1754375026.git.liu.denton@gmail.com>
+	<cover.1754455931.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Sun, 3 Aug 2025 04:07:56 -0700
+Subject: [PATCH v3 2/2] remote.c: remove BUG in
+ show_push_unqualified_ref_name_error()
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>,
+    Patrick Steinhardt <ps@pks.im>
+
+When "git push <remote> <src>:<dst>" does not spell out the
+destination side of the ref fully, and when <src> is not given
+as a reference but an object name, the code tries to give advice
+messages based on the type of that object.
+
+The type is determined by calling odb_read_object_info() and
+signalled by its return value.  The code however reported a
+programming error with BUG() when this function said that there
+is no such object, which happens when the object name is given
+as a full hexadecimal (if the object name is given as a partial
+hexadecimal or an non-existing ref, the function would have died
+without returning, so this BUG() wouldn't have triggered).  This
+is wrong.  It is an ordinary end-user mistake to give an object
+name that does not exist and treated as such.
+
+An example of the error message produced is as follows:
+
+	error: The destination you provided is not a full refname (i.e.,
+	starting with "refs/"). We tried to guess what you meant by:
+
+	- Looking for a ref that matches 'branch' on the remote side.
+	- Checking if the <src> being pushed ('0000000000000000000000000000000000000001')
+	  is a ref in "refs/{heads,tags}/". If so we add a corresponding
+	  refs/{heads,tags}/ prefix on the remote side.
+
+	Neither worked, so we gave up. You must fully qualify the ref.
+	BUG: remote.c:1221: '0000000000000000000000000000000000000001' should be commit/tag/tree/blob, is '-1'
+	fatal: the remote end hung up unexpectedly
+	Aborted (core dumped)
+
+Helped-by: Junio C Hamano <gitster@pobox.com>
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ remote.c              | 4 ++--
+ t/t5516-fetch-push.sh | 5 +++++
+ 2 files changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/remote.c b/remote.c
+index e965f022f1..465e0ea0eb 100644
+--- a/remote.c
++++ b/remote.c
+@@ -1218,8 +1218,8 @@ static void show_push_unqualified_ref_name_error(const char *dst_value,
+ 			 "'%s:refs/tags/%s'?"),
+ 		       matched_src_name, dst_value);
+ 	} else {
+-		BUG("'%s' should be commit/tag/tree/blob, is '%d'",
+-		    matched_src_name, type);
++		advise(_("The <src> part of the refspec ('%s') is an object ID that doesn't exist.\n"),
++		       matched_src_name);
+ 	}
+ }
+ 
+diff --git a/t/t5516-fetch-push.sh b/t/t5516-fetch-push.sh
+index 8eddf3e40d..46926e7bbd 100755
+--- a/t/t5516-fetch-push.sh
++++ b/t/t5516-fetch-push.sh
+@@ -471,6 +471,11 @@ test_expect_success 'push ref expression with non-existent, incomplete dest' '
+ 	test_must_fail git push testrepo main^:branch
+ '
+ 
++test_expect_success 'push ref expression with non-existent oid src' '
++	mk_test testrepo &&
++	test_must_fail git push testrepo $(test_oid 001):branch
++'
++
+ for head in HEAD @
+ do
+ 
+-- 
+2.50.1
+

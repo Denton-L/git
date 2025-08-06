@@ -1,0 +1,420 @@
+From 938dfb8d4e37ef962c811d6e0f32122a2522deb5 Mon Sep 17 00:00:00 2001
+Message-ID: <cover.1754455931.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1754375026.git.liu.denton@gmail.com>
+References: <cover.1754375026.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Tue, 5 Aug 2025 21:52:11 -0700
+Subject: [PATCH v3 0/2] remote.c: remove erroneous BUG case
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>,
+    Patrick Steinhardt <ps@pks.im>
+
+In the case where one pushes a non-existent oid to an unqualified
+destination, we encounter the following BUG
+
+	error: The destination you provided is not a full refname (i.e.,
+	starting with "refs/"). We tried to guess what you meant by:
+
+	- Looking for a ref that matches 'branch' on the remote side.
+	- Checking if the <src> being pushed ('0000000000000000000000000000000000000001')
+	  is a ref in "refs/{heads,tags}/". If so we add a corresponding
+	  refs/{heads,tags}/ prefix on the remote side.
+
+	Neither worked, so we gave up. You must fully qualify the ref.
+	BUG: remote.c:1221: '0000000000000000000000000000000000000001' should be commit/tag/tree/blob, is '-1'
+	fatal: the remote end hung up unexpectedly
+	Aborted (core dumped)
+
+However, this isn't actually a bug so replace it with an advise()
+message.
+
+Changes since v2:
+
+* Add t5516 cleanup patch
+* Squash test creation patch into the patch that fixes it
+* Include the erroneous object ID in the advise message
+
+Denton Liu (2):
+  t5516: remove surrounding empty lines in test bodies
+  remote.c: remove BUG in show_push_unqualified_ref_name_error()
+
+ remote.c              |  4 ++--
+ t/t5516-fetch-push.sh | 54 ++++---------------------------------------
+ 2 files changed, 6 insertions(+), 52 deletions(-)
+
+Range-diff against v2:
+1:  d26f355c19 ! 1:  82b09af4ca t5516: introduce 'push ref expression with non-existent oid src'
+    @@ Metadata
+     Author: Denton Liu <liu.denton@gmail.com>
+     
+      ## Commit message ##
+    -    t5516: introduce 'push ref expression with non-existent oid src'
+    +    t5516: remove surrounding empty lines in test bodies
+     
+    -    It is possible to trigger a Git bug by pushing a refspec where the
+    -    source is an oid that's non-existent. An example of the error message
+    -    produced is as follows:
+    -
+    -            error: The destination you provided is not a full refname (i.e.,
+    -            starting with "refs/"). We tried to guess what you meant by:
+    -
+    -            - Looking for a ref that matches 'branch' on the remote side.
+    -            - Checking if the <src> being pushed ('0000000000000000000000000000000000000001')
+    -              is a ref in "refs/{heads,tags}/". If so we add a corresponding
+    -              refs/{heads,tags}/ prefix on the remote side.
+    -
+    -            Neither worked, so we gave up. You must fully qualify the ref.
+    -            BUG: remote.c:1221: '0000000000000000000000000000000000000001' should be commit/tag/tree/blob, is '-1'
+    -            fatal: the remote end hung up unexpectedly
+    -            Aborted (core dumped)
+    -
+    -    Document this failure in a test case so that it can be confirmed fixed
+    -    later.
+    +    This style with the empty lines in test bodies was from when the test
+    +    suite was being developed. Remove the empty lines to match the modern
+    +    test style.
+     
+      ## t/t5516-fetch-push.sh ##
+    -@@ t/t5516-fetch-push.sh: test_expect_success 'push ref expression with non-existent, incomplete dest' '
+    +@@ t/t5516-fetch-push.sh: check_push_result () {
+    + }
+      
+    + test_expect_success setup '
+    +-
+    + 	>path1 &&
+    + 	git add path1 &&
+    + 	test_tick &&
+    +@@ t/t5516-fetch-push.sh: test_expect_success setup '
+    + 	test_tick &&
+    + 	git commit -a -m second &&
+    + 	the_commit=$(git show-ref -s --verify refs/heads/main)
+    +-
+      '
+      
+    -+test_expect_failure 'push ref expression with non-existent oid src' '
+    -+
+    -+	mk_test testrepo &&
+    -+	test_must_fail git push testrepo $(test_oid 001):branch
+    -+
+    -+'
+    -+
+    - for head in HEAD @
+    - do
+    + for cmd in push fetch
+    +@@ t/t5516-fetch-push.sh: test_expect_success 'push with pushInsteadOf and explicit pushurl (pushInsteadOf
+    + '
+      
+    + test_expect_success 'push with matching heads' '
+    +-
+    + 	mk_test testrepo heads/main &&
+    + 	git push testrepo : &&
+    + 	check_push_result testrepo $the_commit heads/main
+    +-
+    + '
+    + 
+    + test_expect_success 'push with matching heads on the command line' '
+    +-
+    + 	mk_test testrepo heads/main &&
+    + 	git push testrepo : &&
+    + 	check_push_result testrepo $the_commit heads/main
+    +-
+    + '
+    + 
+    + test_expect_success 'failed (non-fast-forward) push with matching heads' '
+    +-
+    + 	mk_test testrepo heads/main &&
+    + 	git push testrepo : &&
+    + 	git commit --amend -massaged &&
+    + 	test_must_fail git push testrepo &&
+    + 	check_push_result testrepo $the_commit heads/main &&
+    + 	git reset --hard $the_commit
+    +-
+    + '
+    + 
+    + test_expect_success 'push --force with matching heads' '
+    +-
+    + 	mk_test testrepo heads/main &&
+    + 	git push testrepo : &&
+    + 	git commit --amend -massaged &&
+    + 	git push --force testrepo : &&
+    + 	! check_push_result testrepo $the_commit heads/main &&
+    + 	git reset --hard $the_commit
+    +-
+    + '
+    + 
+    + test_expect_success 'push with matching heads and forced update' '
+    +-
+    + 	mk_test testrepo heads/main &&
+    + 	git push testrepo : &&
+    + 	git commit --amend -massaged &&
+    + 	git push testrepo +: &&
+    + 	! check_push_result testrepo $the_commit heads/main &&
+    + 	git reset --hard $the_commit
+    +-
+    + '
+    + 
+    + test_expect_success 'push with no ambiguity (1)' '
+    +-
+    + 	mk_test testrepo heads/main &&
+    + 	git push testrepo main:main &&
+    + 	check_push_result testrepo $the_commit heads/main
+    +-
+    + '
+    + 
+    + test_expect_success 'push with no ambiguity (2)' '
+    +-
+    + 	mk_test testrepo remotes/origin/main &&
+    + 	git push testrepo main:origin/main &&
+    + 	check_push_result testrepo $the_commit remotes/origin/main
+    +-
+    + '
+    + 
+    + test_expect_success 'push with colon-less refspec, no ambiguity' '
+    +-
+    + 	mk_test testrepo heads/main heads/t/main &&
+    + 	git branch -f t/main main &&
+    + 	git push testrepo main &&
+    + 	check_push_result testrepo $the_commit heads/main &&
+    + 	check_push_result testrepo $the_first_commit heads/t/main
+    +-
+    + '
+    + 
+    + test_expect_success 'push with weak ambiguity (1)' '
+    +-
+    + 	mk_test testrepo heads/main remotes/origin/main &&
+    + 	git push testrepo main:main &&
+    + 	check_push_result testrepo $the_commit heads/main &&
+    + 	check_push_result testrepo $the_first_commit remotes/origin/main
+    +-
+    + '
+    + 
+    + test_expect_success 'push with weak ambiguity (2)' '
+    +-
+    + 	mk_test testrepo heads/main remotes/origin/main remotes/another/main &&
+    + 	git push testrepo main:main &&
+    + 	check_push_result testrepo $the_commit heads/main &&
+    + 	check_push_result testrepo $the_first_commit remotes/origin/main remotes/another/main
+    +-
+    + '
+    + 
+    + test_expect_success 'push with ambiguity' '
+    +-
+    + 	mk_test testrepo heads/frotz tags/frotz &&
+    + 	test_must_fail git push testrepo main:frotz &&
+    + 	check_push_result testrepo $the_first_commit heads/frotz tags/frotz
+    +-
+    + '
+    + 
+    + test_expect_success 'push with onelevel ref' '
+    +@@ t/t5516-fetch-push.sh: test_expect_success 'push with onelevel ref' '
+    + '
+    + 
+    + test_expect_success 'push with colon-less refspec (1)' '
+    +-
+    + 	mk_test testrepo heads/frotz tags/frotz &&
+    + 	git branch -f frotz main &&
+    + 	git push testrepo frotz &&
+    + 	check_push_result testrepo $the_commit heads/frotz &&
+    + 	check_push_result testrepo $the_first_commit tags/frotz
+    +-
+    + '
+    + 
+    + test_expect_success 'push with colon-less refspec (2)' '
+    +-
+    + 	mk_test testrepo heads/frotz tags/frotz &&
+    + 	if git show-ref --verify -q refs/heads/frotz
+    + 	then
+    +@@ t/t5516-fetch-push.sh: test_expect_success 'push with colon-less refspec (2)' '
+    + 	git push -f testrepo frotz &&
+    + 	check_push_result testrepo $the_commit tags/frotz &&
+    + 	check_push_result testrepo $the_first_commit heads/frotz
+    +-
+    + '
+    + 
+    + test_expect_success 'push with colon-less refspec (3)' '
+    +@@ t/t5516-fetch-push.sh: test_expect_success 'push with colon-less refspec (3)' '
+    + '
+    + 
+    + test_expect_success 'push with colon-less refspec (4)' '
+    +-
+    + 	mk_test testrepo &&
+    + 	if git show-ref --verify -q refs/heads/frotz
+    + 	then
+    +@@ t/t5516-fetch-push.sh: test_expect_success 'push with colon-less refspec (4)' '
+    + 	git push testrepo frotz &&
+    + 	check_push_result testrepo $the_commit tags/frotz &&
+    + 	test 1 = $( cd testrepo && git show-ref | wc -l )
+    +-
+    + '
+    + 
+    + test_expect_success 'push head with non-existent, incomplete dest' '
+    +-
+    + 	mk_test testrepo &&
+    + 	git push testrepo main:branch &&
+    + 	check_push_result testrepo $the_commit heads/branch
+    +-
+    + '
+    + 
+    + test_expect_success 'push tag with non-existent, incomplete dest' '
+    +-
+    + 	mk_test testrepo &&
+    + 	git tag -f v1.0 &&
+    + 	git push testrepo v1.0:tag &&
+    + 	check_push_result testrepo $the_commit tags/tag
+    +-
+    + '
+    + 
+    + test_expect_success 'push oid with non-existent, incomplete dest' '
+    +-
+    + 	mk_test testrepo &&
+    + 	test_must_fail git push testrepo $(git rev-parse main):foo
+    +-
+    + '
+    + 
+    + test_expect_success 'push ref expression with non-existent, incomplete dest' '
+    +-
+    + 	mk_test testrepo &&
+    + 	test_must_fail git push testrepo main^:branch
+    +-
+    + '
+    + 
+    + for head in HEAD @
+    +@@ t/t5516-fetch-push.sh: do
+    + 		git checkout main &&
+    + 		git push testrepo $head:branch &&
+    + 		check_push_result testrepo $the_commit heads/branch
+    +-
+    + 	'
+    + 
+    + 	test_expect_success "push with config remote.*.push = $head" '
+    +@@ t/t5516-fetch-push.sh: test_expect_success 'push with remote.pushdefault' '
+    + '
+    + 
+    + test_expect_success 'push with config remote.*.pushurl' '
+    +-
+    + 	mk_test testrepo heads/main &&
+    + 	git checkout main &&
+    + 	test_config remote.there.url test2repo &&
+    +@@ t/t5516-fetch-push.sh: test_expect_success 'push ignores "branch." config without subsection' '
+    + '
+    + 
+    + test_expect_success 'push with dry-run' '
+    +-
+    + 	mk_test testrepo heads/main &&
+    + 	old_commit=$(git -C testrepo show-ref -s --verify refs/heads/main) &&
+    + 	git push --dry-run testrepo : &&
+    +@@ t/t5516-fetch-push.sh: test_expect_success 'push with dry-run' '
+    + '
+    + 
+    + test_expect_success 'push updates local refs' '
+    +-
+    + 	mk_test testrepo heads/main &&
+    + 	mk_child testrepo child &&
+    + 	(
+    +@@ t/t5516-fetch-push.sh: test_expect_success 'push updates local refs' '
+    + 		test $(git rev-parse main) = \
+    + 			$(git rev-parse remotes/origin/main)
+    + 	)
+    +-
+    + '
+    + 
+    + test_expect_success 'push updates up-to-date local refs' '
+    +-
+    + 	mk_test testrepo heads/main &&
+    + 	mk_child testrepo child1 &&
+    + 	mk_child testrepo child2 &&
+    +@@ t/t5516-fetch-push.sh: test_expect_success 'push updates up-to-date local refs' '
+    + 		test $(git rev-parse main) = \
+    + 			$(git rev-parse remotes/origin/main)
+    + 	)
+    +-
+    + '
+    + 
+    + test_expect_success 'push preserves up-to-date packed refs' '
+    +-
+    + 	mk_test testrepo heads/main &&
+    + 	mk_child testrepo child &&
+    + 	(
+    +@@ t/t5516-fetch-push.sh: test_expect_success 'push preserves up-to-date packed refs' '
+    + 		git push &&
+    + 		! test -f .git/refs/remotes/origin/main
+    + 	)
+    +-
+    + '
+    + 
+    + test_expect_success 'push does not update local refs on failure' '
+    +-
+    + 	mk_test testrepo heads/main &&
+    + 	mk_child testrepo child &&
+    + 	echo "#!/no/frobnication/today" >testrepo/.git/hooks/pre-receive &&
+    +@@ t/t5516-fetch-push.sh: test_expect_success 'push does not update local refs on failure' '
+    + 		test $(git rev-parse main) != \
+    + 			$(git rev-parse remotes/origin/main)
+    + 	)
+    +-
+    + '
+    + 
+    + test_expect_success 'allow deleting an invalid remote ref' '
+    +-
+    + 	mk_test testrepo heads/branch &&
+    + 	rm -f testrepo/.git/objects/??/* &&
+    + 	git push testrepo :refs/heads/branch &&
+    + 	(cd testrepo && test_must_fail git rev-parse --verify refs/heads/branch)
+    +-
+    + '
+    + 
+    + test_expect_success 'pushing valid refs triggers post-receive and post-update hooks' '
+2:  2bd892b26c ! 2:  938dfb8d4e remote.c: remove BUG in show_push_unqualified_ref_name_error()
+    @@ Commit message
+         is wrong.  It is an ordinary end-user mistake to give an object
+         name that does not exist and treated as such.
+     
+    +    An example of the error message produced is as follows:
+    +
+    +            error: The destination you provided is not a full refname (i.e.,
+    +            starting with "refs/"). We tried to guess what you meant by:
+    +
+    +            - Looking for a ref that matches 'branch' on the remote side.
+    +            - Checking if the <src> being pushed ('0000000000000000000000000000000000000001')
+    +              is a ref in "refs/{heads,tags}/". If so we add a corresponding
+    +              refs/{heads,tags}/ prefix on the remote side.
+    +
+    +            Neither worked, so we gave up. You must fully qualify the ref.
+    +            BUG: remote.c:1221: '0000000000000000000000000000000000000001' should be commit/tag/tree/blob, is '-1'
+    +            fatal: the remote end hung up unexpectedly
+    +            Aborted (core dumped)
+    +
+         Helped-by: Junio C Hamano <gitster@pobox.com>
+     
+      ## remote.c ##
+    @@ remote.c: static void show_push_unqualified_ref_name_error(const char *dst_value
+      	} else {
+     -		BUG("'%s' should be commit/tag/tree/blob, is '%d'",
+     -		    matched_src_name, type);
+    -+		advise(_("The <src> part of the refspec is an oid that doesn't exist.\n"));
+    ++		advise(_("The <src> part of the refspec ('%s') is an object ID that doesn't exist.\n"),
+    ++		       matched_src_name);
+      	}
+      }
+      
+     
+      ## t/t5516-fetch-push.sh ##
+     @@ t/t5516-fetch-push.sh: test_expect_success 'push ref expression with non-existent, incomplete dest' '
+    - 
+    + 	test_must_fail git push testrepo main^:branch
+      '
+      
+    --test_expect_failure 'push ref expression with non-existent oid src' '
+     +test_expect_success 'push ref expression with non-existent oid src' '
+    ++	mk_test testrepo &&
+    ++	test_must_fail git push testrepo $(test_oid 001):branch
+    ++'
+    ++
+    + for head in HEAD @
+    + do
+      
+    - 	mk_test testrepo &&
+    - 	test_must_fail git push testrepo $(test_oid 001):branch
+-- 
+2.50.1
+

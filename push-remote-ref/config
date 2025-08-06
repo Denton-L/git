@@ -1,3 +1,4 @@
 [format]
 	outputDirectory = patches/push-remote-ref
 	cc = Junio C Hamano <gitster@pobox.com>
+	cc = Patrick Steinhardt <ps@pks.im>
