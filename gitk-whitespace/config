@@ -1,3 +1,0 @@
-[format]
-	outputDirectory = patches/gitk-whitespace
-	to = Paul Mackerras <paulus@ozlabs.org>

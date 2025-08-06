@@ -41,8 +41,6 @@
 	description = pkt-line: war on magical `4` literal\n\nThere are many instances of the literal `4` in packet line-related code.\nThis series replaces these instances with either functions that can\ngenerate the number or an appropriately-named constant.\n\nChanges since v1:\n\n* Introduce patch 1-2 so that the string length is used to generate the\n  `4` where appropriate\n\nChanges since v2:\n\n* Replace some a couple of inline functions with macros that ensure they\n  are string constants\n\n* Use strlen() in one more instance over the PACKET_HEADER_SIZE
 [includeIf "onbranch:refactor-4/"]
 	path = refactor-4/config
-[includeIf "onbranch:gitk-whitespace/"]
-	path = gitk-whitespace/config
 [includeIf "onbranch:format-output-relative-gitdir/"]
 	path = format-output-relative-gitdir/config
 [includeIf "onbranch:better-apply-error/"]
@@ -59,16 +57,6 @@
 	description = Sort lists and add static-analysis\n\nAs a follow-up to [0], sort some file lists and create a static-analysis\ncheck to ensure that those lists don't ever become un-sorted.\n\n[0]: https://lore.kernel.org/git/nycvar.QRO.7.76.6.2010081156350.50@tvgsbejvaqbjf.bet/
 [branch "sort-check/v2"]
 	description = Sort lists and add static-analysis\n\nAs a follow-up to [0], sort some file lists and create a static-analysis\ncheck to ensure that those lists don't ever become un-sorted.\n\n[0]: https://lore.kernel.org/git/nycvar.QRO.7.76.6.2010081156350.50@tvgsbejvaqbjf.bet/
-[includeIf "onbranch:no-more-stateless-separator/"]
-	path = no-more-stateless-separator/config
-[branch "no-more-stateless-separator/v1"]
-	remote = origin
-	merge = refs/heads/master
-[includeIf "onbranch:diff-merge-base-fixes/"]
-	path = diff-merge-base-fixes/config
-[branch "diff-merge-base-fixes/v1"]
-	remote = origin
-	merge = refs/heads/master
 [includeIf "onbranch:push-remote-ref/"]
 	path = push-remote-ref/config
 [branch "push-remote-ref/v1"]
