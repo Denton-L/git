@@ -84,3 +84,6 @@
 [branch "remote-switch-statement/v1"]
 	remote = .
 	merge = refs/heads/push-remote-ref/v3
+[branch "remote-switch-statement/v2"]
+	remote = .
+	merge = refs/heads/push-remote-ref/v3
