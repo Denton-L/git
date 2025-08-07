@@ -1,0 +1,4 @@
+[format]
+	outputDirectory = patches/remote-switch-statement
+	cc = Patrick Steinhardt <ps@pks.im>
+	cc = Junio C Hamano <gitster@pobox.com>
