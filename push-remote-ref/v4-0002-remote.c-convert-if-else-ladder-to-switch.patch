@@ -1,0 +1,76 @@
+From ee6d69bcafeda9d8a2cdfd1f8bb62c28c13941f9 Mon Sep 17 00:00:00 2001
+Message-ID: <ee6d69bcafeda9d8a2cdfd1f8bb62c28c13941f9.1754627874.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1754627874.git.liu.denton@gmail.com>
+References: <cover.1754455931.git.liu.denton@gmail.com>
+	<cover.1754627874.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Thu, 7 Aug 2025 21:29:41 -0700
+Subject: [PATCH v4 2/3] remote.c: convert if-else ladder to switch
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>,
+    Patrick Steinhardt <ps@pks.im>
+
+For better readability, convert the if-else ladder into a switch
+statement.
+
+Suggested-by: Patrick Steinhardt <ps@pks.im>
+Signed-off-by: Denton Liu <liu.denton@gmail.com>
+---
+ remote.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
+
+diff --git a/remote.c b/remote.c
+index 88f991795b..61e2c9951a 100644
+--- a/remote.c
++++ b/remote.c
+@@ -1171,7 +1171,6 @@ static void show_push_unqualified_ref_name_error(const char *dst_value,
+ 						 const char *matched_src_name)
+ {
+ 	struct object_id oid;
+-	enum object_type type;
+ 
+ 	/*
+ 	 * TRANSLATORS: "matches '%s'%" is the <dst> part of "git push
+@@ -1196,28 +1195,33 @@ static void show_push_unqualified_ref_name_error(const char *dst_value,
+ 		BUG("'%s' is not a valid object, "
+ 		    "match_explicit_lhs() should catch this!",
+ 		    matched_src_name);
+-	type = odb_read_object_info(the_repository->objects, &oid, NULL);
+-	if (type == OBJ_COMMIT) {
++
++	switch (odb_read_object_info(the_repository->objects, &oid, NULL)) {
++	case OBJ_COMMIT:
+ 		advise(_("The <src> part of the refspec is a commit object.\n"
+ 			 "Did you mean to create a new branch by pushing to\n"
+ 			 "'%s:refs/heads/%s'?"),
+ 		       matched_src_name, dst_value);
+-	} else if (type == OBJ_TAG) {
++		break;
++	case OBJ_TAG:
+ 		advise(_("The <src> part of the refspec is a tag object.\n"
+ 			 "Did you mean to create a new tag by pushing to\n"
+ 			 "'%s:refs/tags/%s'?"),
+ 		       matched_src_name, dst_value);
+-	} else if (type == OBJ_TREE) {
++		break;
++	case OBJ_TREE:
+ 		advise(_("The <src> part of the refspec is a tree object.\n"
+ 			 "Did you mean to tag a new tree by pushing to\n"
+ 			 "'%s:refs/tags/%s'?"),
+ 		       matched_src_name, dst_value);
+-	} else if (type == OBJ_BLOB) {
++		break;
++	case OBJ_BLOB:
+ 		advise(_("The <src> part of the refspec is a blob object.\n"
+ 			 "Did you mean to tag a new blob by pushing to\n"
+ 			 "'%s:refs/tags/%s'?"),
+ 		       matched_src_name, dst_value);
+-	} else {
++		break;
++	default:
+ 		BUG("'%s' should be commit/tag/tree/blob, is '%d'",
+ 		    matched_src_name, type);
+ 	}
+-- 
+2.50.1
+

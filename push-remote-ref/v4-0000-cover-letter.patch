@@ -1,0 +1,63 @@
+From 3d84072dc7910026e203ca35e32ef026d0efc131 Mon Sep 17 00:00:00 2001
+Message-ID: <cover.1754627874.git.liu.denton@gmail.com>
+In-Reply-To: <cover.1754455931.git.liu.denton@gmail.com>
+References: <cover.1754455931.git.liu.denton@gmail.com>
+From: Denton Liu <liu.denton@gmail.com>
+Date: Thu, 7 Aug 2025 21:37:54 -0700
+Subject: [PATCH v4 0/3] remote.c: remove erroneous BUG case
+To: Git Mailing List <git@vger.kernel.org>
+Cc: Junio C Hamano <gitster@pobox.com>,
+    Patrick Steinhardt <ps@pks.im>
+
+In the case where one pushes a non-existent oid to an unqualified
+destination, we encounter the following BUG
+
+	error: The destination you provided is not a full refname (i.e.,
+	starting with "refs/"). We tried to guess what you meant by:
+
+	- Looking for a ref that matches 'branch' on the remote side.
+	- Checking if the <src> being pushed ('0000000000000000000000000000000000000001')
+	  is a ref in "refs/{heads,tags}/". If so we add a corresponding
+	  refs/{heads,tags}/ prefix on the remote side.
+
+	Neither worked, so we gave up. You must fully qualify the ref.
+	BUG: remote.c:1221: '0000000000000000000000000000000000000001' should be commit/tag/tree/blob, is '-1'
+	fatal: the remote end hung up unexpectedly
+	Aborted (core dumped)
+
+However, this isn't actually a bug so replace it with an advise()
+message.
+
+Changes since v3:
+
+* Include the switch statement refactoring patch as a prelude to the
+  functional patch
+* Change "if-else tower" to "if-else ladder"
+* Shortened the overly long advise() line
+* Rebased on latest 'master' to avoid merge conflict introduced earlier
+  in the merge cycle (this should be fine since we haven't merged to
+  'next' yet right?)
+
+Changes since v2:
+
+* Add t5516 cleanup patch
+* Squash test creation patch into the patch that fixes it
+* Include the erroneous object ID in the advise message
+
+Denton Liu (3):
+  t5516: remove surrounding empty lines in test bodies
+  remote.c: convert if-else ladder to switch
+  remote.c: remove BUG in show_push_unqualified_ref_name_error()
+
+ remote.c              | 24 +++++++++++--------
+ t/t5516-fetch-push.sh | 54 ++++---------------------------------------
+ 2 files changed, 19 insertions(+), 59 deletions(-)
+
+Range-diff against v3:
+1:  82b09af4ca = 1:  d31f320fdb t5516: remove surrounding empty lines in test bodies
+2:  938dfb8d4e ! 2:  ee6d69bcaf remote.c: remove BUG in show_push_unqualified_ref_name_error()
+[... deleted the diff of diff because it's mostly noise]
+-:  ---------- > 3:  3d84072dc7 remote.c: remove BUG in show_push_unqualified_ref_name_error()
+-- 
+2.50.1
+
